@@ -967,6 +967,131 @@ ${ex('j','"Isn\'t this just a glorified virtual screen? What\'s actually novel?"
 <p>"The virtual screen is the first half. Every drug discovery paper does some form of screening. What's novel is the second half: using FEP to quantify how a specific patient mutation changes drug binding, and discovering that the effect is ligand-dependent. Nobody has shown that the same NOD2 mutation makes one drug 50-fold weaker while leaving another unaffected. That finding — mutation effects depend on binding mechanism — is the scientific contribution. It transforms a standard screening paper into a pharmacogenomics study. The practical implication is that NOD2 drug selection should be genotype-guided."</p>
 `)}
 
+<h2>Curveball Questions by Judge Type</h2>
+<p class="sub">Not every judge has the same background. An MD won't know lambda windows. A CS professor won't care about cytokines. Here's how to read the room and calibrate.</p>
+
+<div class="c ca">
+<p><strong>How to tell who you're talking to:</strong> Look at their badge or ask "What's your background?" at the start. It's not rude — it helps you calibrate. If they say "I'm a gastroenterologist," lead with the Crohn's story, not the MBAR math. If they say "I'm a computer scientist," lead with the pipeline architecture and ML validation.</p>
+</div>
+
+<h3>🩺 The MD / Clinician — Cares About Patients</h3>
+<p><em>They understand Crohn's and Remicade. They DON'T know what FEP or lambda windows are. Explain computational methods in clinical terms.</em></p>
+
+${ex('j','"How would this actually help a Crohn\'s patient?"',`
+<p>"Right now, every Crohn's patient gets the same drugs regardless of genotype. If our computational predictions hold up experimentally, a patient carrying R702W could be steered away from drugs that rely on precise hydrogen bonding with the NOD2 pocket — since the mutation disrupts that geometry — and toward drugs that use hydrophobic contacts, which survive the shape change. It's the same principle as HER2 testing in breast cancer: genotype determines which drug works."</p>
+`)}
+
+${ex('j','"Febuxostat is a gout drug. Has anyone ever tried it for Crohn\'s?"',`
+<p>"Not that I've found in the literature. There's no published connection between febuxostat and NOD2 or Crohn's. That's what makes this a drug repurposing discovery — finding a new use for an existing approved drug. The advantage is that safety and pharmacokinetic data already exist from its gout approval, so if it showed promise for NOD2, clinical development would skip Phase 1 safety trials entirely."</p>
+`)}
+
+${ex('j','"Bufadienolide is a cardiac glycoside — isn\'t that toxic?"',`
+<p>"Great question. Cardiac glycosides like digoxin ARE used clinically at controlled doses — they have a narrow therapeutic window. Bufadienolide specifically is found in traditional Chinese medicine preparations. The toxicity concern is real and would need to be addressed in dose-finding studies. But the key finding isn't that Bufadienolide itself should become a Crohn's drug — it's that its BINDING MECHANISM (hydrophobic, geometry-tolerant) represents a class of interactions that survive the R702W mutation. Medicinal chemists could design safer analogs with the same binding mode."</p>
+`)}
+
+${ex('j','"Your simulations are 20 nanoseconds. Proteins fold on microsecond timescales. Isn\'t that too short?"',`
+<p>"Yes, 20 nanoseconds is short compared to full protein folding or large conformational changes. But I'm not trying to observe folding — I'm measuring whether a drug stays in a specific pocket. My negative control compound drifted out by 5 nanoseconds, confirming that 20 ns is long enough to distinguish binders from non-binders. For the allosteric rigidification effect, the RMSD difference between wild-type and R702W was already clear within the first 5 ns and stable throughout. Longer simulations — 100 ns or microseconds — would strengthen the results, and that's planned future work."</p>
+`)}
+
+${ex('j','"What about the other NOD2 mutations — G908R and 1007fs?"',`
+<p>"They're the next priority. G908R is in the same LRR domain but a different location, so it may affect the pocket differently. 1007fs is a frameshift that truncates the entire LRR domain — it's a fundamentally different mutation that probably eliminates the binding pocket entirely, which would mean a completely different therapeutic strategy. I acknowledge this is a limitation — testing all three would give a complete picture of NOD2 pharmacogenomics."</p>
+`)}
+
+<h3>💻 The CS / Data Science Judge — Cares About Your Pipeline</h3>
+<p><em>They understand ML, AUC, data leakage. They DON'T know what a force field is. Explain biology simply, computational methods in detail.</em></p>
+
+${ex('j','"Why XGBoost and not a deep learning model? You only have 858 samples."',`
+<p>"Exactly — 858 samples is too small for deep learning. Neural networks with millions of parameters would memorize 858 datapoints instantly. XGBoost works well on small tabular datasets because each tree is shallow (max depth 6 = 64 leaves) and regularized (subsample 0.8, colsample 0.8). It's the standard choice for small-n biological datasets — it wins most Kaggle competitions on tabular data. If I had 100,000+ experimental binding measurements, I'd use a graph neural network instead."</p>
+`)}
+
+${ex('j','"Your pseudo-labels come from docking scores. Isn\'t that circular — ML trained on another model\'s predictions?"',`
+<p>"It IS circular if you treat the ML predictions as ground truth. I don't. The pseudo-labels are a first-pass filter — they capture the docking model's pattern in a faster, feature-interpretable form. The real validation comes AFTER ML: molecular dynamics (does it physically stay?) and FEP (what's the actual binding energy?). The ML is a ranking tool, not the final answer. And the scaffold-split cross-validation ensures the ML at least generalizes to new chemical families, not just memorized scaffolds."</p>
+`)}
+
+${ex('j','"How do you know your CNN docking scores aren\'t just predicting molecular size?"',`
+<p>"Legitimate concern — larger molecules tend to score better in docking because they make more contacts. That's why the ML features include molecular weight as an explicit descriptor and why I stratified by molecular weight during pseudo-labeling. The SHAP feature importance analysis shows that specific Morgan fingerprint bits (encoding chemical substructures) are more important than size alone. And critically, the scaffold-split ensures the model can't just learn 'big scaffold X = good score.'"</p>
+`)}
+
+${ex('j','"You used Claude Code to write your scripts. How much of the computational work is actually yours?"',`
+<p>"Claude Code is a tool, like using a calculator for math. I made every scientific decision: which methods to use, what parameters to set, which compounds to advance, how to interpret results, and how to design controls. Claude helped translate those decisions into working Python code and debug CUDA errors. I could hand you my logbook right now and show you timestamped entries of every prompt I sent and every decision I made independently. The analogy is: I'm the architect who designed the building. Claude is the construction crew that poured the concrete."</p>
+`)}
+
+${ex('j','"What would you do with a larger compute budget?"',`
+<p>"Three things. First, run FEP on all 148 ADMET-passing compounds instead of just 2 — that's about 3,500 GPU-hours, or roughly $500 on cloud GPUs. Second, extend MD simulations to 100-200 ns per system for better sampling of slow conformational changes. Third, apply the entire pipeline to G908R and 1007fs mutants for a complete pharmacogenomic map. The pipeline scales linearly — the bottleneck is purely computational cost, not methodology."</p>
+`)}
+
+<h3>🧪 The Chemistry / Biochemistry Judge — Cares About Your Methods</h3>
+<p><em>They understand force fields and thermodynamics. They'll probe whether you REALLY know the physics or just ran scripts.</em></p>
+
+${ex('j','"What\'s the protonation state of ASP1011 at physiological pH?"',`
+<p>"Aspartate has a pKa of about 3.7 for the side chain carboxyl group. At physiological pH of 7.4, that's well above the pKa, so the side chain is deprotonated and carries a negative charge. This is the standard protonation state assigned by OpenMM's force field preparation. I didn't do explicit pKa calculations with tools like PROPKA or H++ — that's a valid limitation. If the local environment shifts the pKa significantly, it could affect the electrostatic interactions I'm measuring."</p>
+<p><em>If you don't know: "The standard deprotonated state at pH 7.4. I used the default protonation assignment from the force field but didn't run explicit pKa predictions — that's something I'd add in future work."</em></p>
+`)}
+
+${ex('j','"Can you explain what a softcore potential is and why you need it?"',`
+<p>"In normal van der Waals calculations, the repulsion between two atoms goes as 1/r¹². When r approaches zero — which happens during FEP when a drug is being 'disappeared' and other atoms move into its space — this becomes essentially infinite, which crashes the simulation. A softcore potential modifies the equation to cap the repulsion at a finite maximum value, even at r = 0. Mathematically, it replaces r with something like (α·σ⁶·λ + r⁶) so the denominator never hits zero. I used the standard OpenMM softcore implementation."</p>
+`)}
+
+${ex('j','"Your error bars are ± 0.18 and ± 0.19 kcal/mol. How did MBAR calculate those?"',`
+<p>"MBAR computes the statistical uncertainty from the variance of the energy samples across all lambda windows. At each window, I collected 1,000 energy snapshots. MBAR uses the overlap between adjacent windows — how well the energy distributions from window 5 overlap with window 6 — to estimate how reliably it can interpolate the free energy. Good overlap = small error bars. My error bars being under 0.2 kcal/mol indicates good convergence. If they were above 1 kcal/mol, I'd know the windows weren't sampled long enough."</p>
+`)}
+
+${ex('j','"Have you done any convergence analysis on your FEP results?"',`
+<p>"Yes, I checked convergence two ways. First, I compared the free energy estimate from the first half of each 1 ns window versus the second half — they agreed within 0.3 kcal/mol, suggesting the simulations had equilibrated. Second, the MBAR error bars themselves are a convergence indicator — small error bars mean the energy sampling was sufficient. A more rigorous approach would be block averaging or time-series analysis, which I haven't done but would add for a journal publication."</p>
+`)}
+
+${ex('j','"Why didn\'t you use enhanced sampling methods like metadynamics or replica exchange?"',`
+<p>"For the FEP calculations, the lambda-based approach with 20 windows is already an enhanced sampling method — it samples along the alchemical coordinate. For the standard MD simulations, 20 ns plain MD was sufficient because I'm asking a simple question: does the drug stay or leave? My negative control left by 5 ns. Enhanced sampling methods like metadynamics or REST2 would help if I were trying to observe rare events like drug unbinding from a tight pocket, but that wasn't my question. If I were studying binding kinetics — how fast the drug enters and leaves — then enhanced sampling would be essential."</p>
+`)}
+
+${ex('j','"How reliable is AlphaFold2 for a target you\'ve never seen crystallized?"',`
+<p>"AlphaFold2's confidence score (pLDDT) in the LRR region is above 90, which correlates with experimental resolution of approximately 2 Ångströms or better based on the AlphaFold validation studies. However, pLDDT measures structural confidence, not necessarily binding pocket accuracy — subtle side chain rotamers in the pocket could differ from reality. My MD simulations allow the structure to relax and find its preferred conformation, which partially addresses this. But ultimately, an experimental crystal or cryo-EM structure would be the definitive test. I acknowledge this as my biggest limitation."</p>
+`)}
+
+<h3>🔬 The "I Don\'t Know This Field" Judge — Needs the Big Picture</h3>
+<p><em>This is the engineer, the physicist, or the behavioral scientist assigned to your category because the pool was small. They need a compelling narrative, not technical details.</em></p>
+
+${ex('j','"I\'m not familiar with this area. Can you explain what you did and why it matters — simply?"',`
+<p>"I have Crohn's disease, caused by a mutation in a gene called NOD2. No drugs target NOD2 directly. I used a computer to test 9,566 existing drugs against NOD2 and found that the same mutation affects different drugs differently — one drug loses 50 times its effectiveness, while another drug is completely unaffected. This means doctors shouldn't prescribe the same drug to every Crohn's patient. Instead, they should check the patient's genetic variant first and choose a drug that works despite that specific mutation. That's called precision medicine."</p>
+<p><em>Then let THEM ask follow-up questions. Don't volunteer technical details unless asked.</em></p>
+`)}
+
+${ex('j','"What makes this different from what\'s already been done?"',`
+<p>"Three things are genuinely new. First, nobody has ever screened drugs against the NOD2 protein — the world's biggest drug database has zero binding data for it. Second, nobody has quantified how the R702W mutation changes drug binding at this level of precision. Third, the finding that mutation effects are ligand-dependent — that the same mutation helps one drug and hurts another — hasn't been reported for NOD2. The concept of pharmacogenomics isn't new, but applying it to this specific target is."</p>
+`)}
+
+${ex('j','"How confident are you in these results without lab validation?"',`
+<p>"I'm confident in the COMPUTATIONAL results — the statistics are robust (8 sigma, well beyond chance). But I'm appropriately uncertain about whether these predictions will hold up in a test tube. History shows that computational predictions are right about 50-70% of the time when validated experimentally. That's why my next steps are specific lab experiments: SPR for binding kinetics, ITC for thermodynamics, and cell-based assays for function. The computational work narrows 9,566 candidates down to 2 — the expensive lab work then confirms or disproves those 2."</p>
+`)}
+
+<h3>🧠 Deep Curveballs — Any Judge Type</h3>
+<p><em>These test whether you understand the science beyond what's on the poster. The honest answer is sometimes "I don't know."</em></p>
+
+${ex('j','"Could your binding results be an artifact of the AlphaFold structure?"',`
+<p>"Yes, potentially. AlphaFold predicts a single static structure — the 'most likely' conformation. If the real pocket looks slightly different, my docking scores and even the FEP energies could shift. However: my MD simulations allowed the structure to relax for 20 nanoseconds before measuring anything. The final pocket conformation is the simulation's equilibrium, not just AlphaFold's prediction. And the RELATIVE comparison (wild-type vs mutant) partially cancels systematic AlphaFold errors since both start from the same base structure. But I absolutely acknowledge this as a limitation."</p>
+`)}
+
+${ex('j','"What if the drug binds somewhere else on NOD2, not in the LRR pocket?"',`
+<p>"That's a real possibility I haven't addressed. I docked into one specific pocket — the concave LRR face where MDP sensing occurs. NOD2 has other potential binding sites, including the NBD ATPase pocket and the CARD-CARD interface. A more comprehensive study would do blind docking across the entire protein surface, or use tools like FPocket to identify all druggable cavities. My results are specific to this one pocket, and I should be transparent about that."</p>
+`)}
+
+${ex('j','"Your 50-fold number comes from the Boltzmann equation. What assumptions does that make?"',`
+<p>"The Boltzmann conversion from ΔΔG to fold-change assumes equilibrium binding — that the drug has had enough time to reach its steady-state distribution between bound and free states. It also assumes the binding is a simple two-state process (bound or not bound), which ignores intermediate states or multiple binding modes. And it assumes my ΔΔG value is accurate — the ±0.26 kcal/mol error bar translates to about 1.5-fold uncertainty on the fold-change (so 50-fold could really be 33-fold to 75-fold). The core conclusion — dramatically weaker binding — holds regardless of these uncertainties."</p>
+`)}
+
+${ex('j','"Have you considered water molecules in the binding site?"',`
+<p>"In the docking step, water was ignored — GNINA docks into a dry pocket, which is a known limitation. In the MD simulations, the pocket IS fully solvated — roughly 65,000 water molecules surround the protein, and water freely enters and exits the pocket during the simulation. In FEP, explicit water is critical — the thermodynamic cycle measures how much it costs to remove the drug from water versus from the protein. So my later, more accurate methods DO account for water, even if the initial docking filter doesn't."</p>
+`)}
+
+${ex('j','"If you had unlimited resources, what single experiment would most strengthen your conclusions?"',`
+<p>"Surface Plasmon Resonance — SPR. It would give me the experimental Kd (binding affinity) for both compounds against both wild-type and R702W NOD2 protein. If SPR shows Febuxostat has a 50-fold weaker Kd for R702W, exactly matching my FEP prediction, that would validate the entire computational pipeline. It's one experiment, about $5,000-10,000, and could be done in a few weeks with purified protein. That's what I'd do first."</p>
+`)}
+
+${ex('j','"What\'s the biggest thing that could be wrong with this entire project?"',`
+<p>"The AlphaFold structure could be wrong in the pocket region. Everything downstream — docking scores, ML training data, MD trajectories, FEP energies — starts from that structure. If the real pocket has a different shape, the specific drug rankings could change. The RELATIVE finding that electrostatic binders are mutation-sensitive while hydrophobic binders are mutation-resistant is more robust — it follows from basic physics (H-bonds need precise geometry, hydrophobic contacts don't) — but the specific ΔΔG values depend on structural accuracy."</p>
+`)}
+
+
 <h2>Delivery Tips</h2>
 <div class="c">
 <p><strong>Point at your poster.</strong> Physically touch near each figure as you discuss it. Guide the judge's eyes.</p>
