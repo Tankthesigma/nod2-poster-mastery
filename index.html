@@ -77,6 +77,39 @@ ol,ul{padding-left:22px;margin-bottom:10px}li{margin-bottom:5px}
 /* Glow card for results */
 .glow{position:relative;overflow:hidden}.glow::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(255,107,43,.06),transparent,rgba(56,189,248,.06),transparent);animation:spin 8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 .glow-inner{position:relative;background:var(--s1);border-radius:11px;padding:20px}
+/* ADHD-friendly: TL;DR boxes */
+.tldr{background:linear-gradient(135deg,rgba(255,107,43,.08),rgba(255,154,68,.04));border:1px solid rgba(255,107,43,.2);border-radius:12px;padding:14px 18px;margin:10px 0 20px;font-size:14px;position:relative}
+.tldr::before{content:'⚡ TL;DR';position:absolute;top:-9px;left:14px;font-size:9px;font-weight:800;letter-spacing:1.5px;color:var(--f1);background:var(--bg);padding:0 8px}
+.tldr p{margin:0;line-height:1.6}
+/* Reading highlight */
+.reading-now{background:rgba(255,154,68,.06)!important;border-left:3px solid var(--f2)!important;padding-left:12px;transition:background .3s}
+/* Audio player bar */
+.audio-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(18,18,28,.96);backdrop-filter:blur(16px);border-top:1px solid var(--brd);padding:10px 20px;display:none;align-items:center;gap:14px;z-index:200;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.audio-bar.on{display:flex}
+.ab-play{width:44px;height:44px;border-radius:50%;border:2px solid var(--f2);background:rgba(255,107,43,.1);color:var(--f2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s;font-family:inherit}
+.ab-play:hover{background:rgba(255,107,43,.25);transform:scale(1.05)}
+.ab-info{flex:1;min-width:0}
+.ab-title{font-size:13px;font-weight:600;color:var(--w);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ab-status{font-size:11px;color:var(--dim)}
+.ab-speed{display:flex;gap:4px;align-items:center}
+.ab-speed button{padding:4px 10px;border:1px solid var(--brd);border-radius:6px;background:var(--s2);color:var(--txd,var(--dim));font-size:11px;cursor:pointer;font-family:inherit;transition:.12s}
+.ab-speed button:hover,.ab-speed button.on{border-color:var(--f2);color:var(--f2);background:rgba(255,107,43,.1)}
+.ab-close{padding:6px 12px;border:none;background:none;color:var(--dim);cursor:pointer;font-size:18px}
+.ab-close:hover{color:var(--red)}
+/* Read to me buttons */
+.read-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:99px;border:1px solid rgba(99,102,241,.3);background:rgba(99,102,241,.08);color:#818cf8;cursor:pointer;font-size:12px;font-family:'Sora',sans-serif;font-weight:500;transition:.15s;margin:8px 0}
+.read-btn:hover{background:rgba(99,102,241,.18);border-color:rgba(99,102,241,.5);transform:scale(1.02)}
+.read-btn.playing{background:rgba(255,107,43,.15);border-color:var(--f2);color:var(--f2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+/* Voice settings panel */
+.voice-panel{position:fixed;bottom:70px;right:20px;background:var(--s1);border:1px solid var(--brd);border-radius:14px;padding:18px;width:300px;z-index:201;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.voice-panel.on{display:block;animation:fadeIn .2s}
+.voice-panel h3{font-size:14px;color:var(--w);margin-bottom:12px}
+.voice-panel label{font-size:12px;color:var(--dim);display:block;margin:8px 0 4px}
+.voice-panel select,.voice-panel input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:8px;background:var(--s2);color:var(--txt);font-size:12px;font-family:inherit}
+.voice-panel select:focus,.voice-panel input:focus{border-color:var(--f2);outline:none}
+@media(max-width:900px){.audio-bar{padding:8px 12px;gap:10px}.voice-panel{right:10px;left:10px;width:auto}}
 </style>
 </head>
 <body>
@@ -2240,6 +2273,311 @@ document.getElementById('s_'+id)?.classList.add('on');
 window.scrollTo({top:0,behavior:'smooth'});
 if(id==='quiz')setTimeout(initQuiz,50);
 }
+</script>
+<!-- Audio Player Bar -->
+<div class="audio-bar" id="audioBar">
+<button class="ab-play" id="abPlay" onclick="audioToggle()">▶</button>
+<div class="ab-info"><div class="ab-title" id="abTitle">Ready</div><div class="ab-status" id="abStatus">Select a section to read</div></div>
+<div class="ab-speed">
+<button onclick="setSpeed(0.8)">0.8×</button>
+<button onclick="setSpeed(1)" class="on">1×</button>
+<button onclick="setSpeed(1.2)">1.2×</button>
+<button onclick="setSpeed(1.5)">1.5×</button>
+</div>
+<button class="ab-close" onclick="audioStop()" title="Close">✕</button>
+</div>
+
+<!-- Voice Settings Panel (toggled by gear icon) -->
+<div class="voice-panel" id="voicePanel">
+<h3>🔊 Voice Settings</h3>
+<label>Voice</label>
+<select id="voiceSelect" onchange="saveVoicePref()"></select>
+<label>ElevenLabs API Key <span style="font-size:10px;opacity:.6">(optional — premium voices)</span></label>
+<input type="text" id="elevenKey" placeholder="sk_..." onchange="saveVoicePref()">
+<label>ElevenLabs Voice ID</label>
+<select id="elevenVoice">
+<option value="EXAVITQu4vr4xnSDxMaL">Sarah (soft, calm)</option>
+<option value="FGY2WhTYpPnrIDTdsKH5">Laura (soothing)</option>
+<option value="TX3LPaxmHKxFdv7VOQHJ">Liam (warm male)</option>
+<option value="pFZP5JQG7iQjIQuC4Bku">Lily (gentle)</option>
+<option value="nPczCjzI2devNBz1zQrb">Brian (calm narrator)</option>
+</select>
+<div style="margin-top:12px;font-size:11px;color:var(--dim)">
+<p>Without API key: uses your browser's best neural voice (free, decent quality).</p>
+<p>With ElevenLabs key: audiobook-quality, very natural. Get a free key at <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a> (10K chars/month free).</p>
+</div>
+</div>
+
+<script>
+// ===== AUDIO ENGINE =====
+let synth=window.speechSynthesis;
+let audioState={playing:false,paused:false,current:null,speed:1,voice:null,queue:[],qIdx:0,elevenAudio:null};
+
+// Populate voice selector
+function loadVoices(){
+const sel=document.getElementById('voiceSelect');
+if(!sel)return;
+const voices=synth.getVoices();
+sel.innerHTML='';
+// Rank voices: prefer neural/natural ones
+const ranked=voices.map(v=>{
+let score=0;
+const n=v.name.toLowerCase();
+if(n.includes('natural'))score+=100;
+if(n.includes('neural'))score+=90;
+if(n.includes('enhanced'))score+=80;
+if(n.includes('premium'))score+=70;
+if(n.includes('google'))score+=50;
+if(n.includes('microsoft'))score+=40;
+if(n.includes('samantha'))score+=60;
+if(v.lang.startsWith('en'))score+=20;
+if(v.lang==='en-US')score+=10;
+return{v,score};
+}).filter(x=>x.v.lang.startsWith('en')).sort((a,b)=>b.score-a.score);
+
+ranked.forEach(({v,score})=>{
+const o=document.createElement('option');
+o.value=v.name;
+o.textContent=v.name+(score>=50?' ⭐':'');
+sel.appendChild(o);
+});
+if(ranked.length)audioState.voice=ranked[0].v;
+
+// Restore saved preference
+const saved=localStorage.getItem('nod2-voice');
+if(saved){
+const match=ranked.find(r=>r.v.name===saved);
+if(match){audioState.voice=match.v;sel.value=saved}
+}
+}
+if(synth.onvoiceschanged!==undefined)synth.onvoiceschanged=loadVoices;
+setTimeout(loadVoices,100);setTimeout(loadVoices,500);
+
+function saveVoicePref(){
+const sel=document.getElementById('voiceSelect');
+if(sel&&sel.value){
+const v=synth.getVoices().find(x=>x.name===sel.value);
+if(v)audioState.voice=v;
+try{localStorage.setItem('nod2-voice',sel.value)}catch(e){}
+}
+}
+
+// Extract readable text from a section element
+function getSectionText(secEl){
+if(!secEl)return[];
+const blocks=[];
+// Get all paragraphs, list items, table cells — but skip expandable bodies that are hidden
+const walker=document.createTreeWalker(secEl,NodeFilter.SHOW_ELEMENT,{
+acceptNode(n){
+if(n.classList.contains('exb')&&!n.classList.contains('op'))return NodeFilter.FILTER_REJECT;
+if(n.classList.contains('voice-panel'))return NodeFilter.FILTER_REJECT;
+if(n.classList.contains('audio-bar'))return NodeFilter.FILTER_REJECT;
+if(['P','LI','TH','TD','H1','H2','H3'].includes(n.tagName))return NodeFilter.FILTER_ACCEPT;
+return NodeFilter.FILTER_SKIP;
+}
+});
+let node;
+while(node=walker.nextNode()){
+const txt=node.innerText?.trim();
+if(txt&&txt.length>3){
+// Clean up audio button text artifacts
+const clean=txt.replace(/🔊\s*\w+/g,'').replace(/\s+/g,' ').trim();
+if(clean.length>3)blocks.push({el:node,text:clean});
+}
+}
+return blocks;
+}
+
+// Start reading a section
+function readSection(sectionId){
+audioStop();
+const secEl=document.getElementById('s_'+sectionId);
+if(!secEl)return;
+const blocks=getSectionText(secEl);
+if(!blocks.length)return;
+
+audioState.queue=blocks;
+audioState.qIdx=0;
+audioState.playing=true;
+audioState.paused=false;
+
+const bar=document.getElementById('audioBar');
+bar.classList.add('on');
+document.getElementById('abPlay').textContent='⏸';
+const sec=S.find(s=>s.id===sectionId);
+document.getElementById('abTitle').textContent=sec?sec.label:'Reading...';
+
+readNext();
+}
+
+function readNext(){
+if(audioState.qIdx>=audioState.queue.length){
+audioStop();
+document.getElementById('abStatus').textContent='✅ Finished';
+return;
+}
+const block=audioState.queue[audioState.qIdx];
+document.getElementById('abStatus').textContent=`Part ${audioState.qIdx+1} of ${audioState.queue.length}`;
+
+// Highlight current block
+document.querySelectorAll('.reading-now').forEach(el=>el.classList.remove('reading-now'));
+block.el.classList.add('reading-now');
+block.el.scrollIntoView({behavior:'smooth',block:'center'});
+
+// Check if ElevenLabs key exists
+const key=document.getElementById('elevenKey')?.value?.trim();
+if(key&&key.startsWith('sk_')){
+readElevenLabs(block.text,key);
+} else {
+readBrowserTTS(block.text);
+}
+}
+
+function readBrowserTTS(text){
+synth.cancel();
+// Split very long text into chunks (browser TTS has a ~200 word limit on some engines)
+const chunks=splitText(text,180);
+let ci=0;
+
+function speakChunk(){
+if(ci>=chunks.length){audioState.qIdx++;readNext();return}
+const u=new SpeechSynthesisUtterance(chunks[ci]);
+if(audioState.voice)u.voice=audioState.voice;
+u.rate=audioState.speed;
+u.pitch=0.95; // slightly lower = calmer
+u.volume=1;
+u.onend=()=>{ci++;speakChunk()};
+u.onerror=(e)=>{if(e.error!=='interrupted'){ci++;speakChunk()}};
+synth.speak(u);
+}
+speakChunk();
+}
+
+function splitText(text,maxWords){
+const words=text.split(/\s+/);
+const chunks=[];
+for(let i=0;i<words.length;i+=maxWords){
+chunks.push(words.slice(i,i+maxWords).join(' '));
+}
+return chunks;
+}
+
+async function readElevenLabs(text,key){
+const voiceId=document.getElementById('elevenVoice')?.value||'EXAVITQu4vr4xnSDxMaL';
+try{
+document.getElementById('abStatus').textContent=`⏳ Generating audio...`;
+const resp=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
+method:'POST',
+headers:{'Content-Type':'application/json','xi-api-key':key},
+body:JSON.stringify({
+text:text.slice(0,5000),
+model_id:'eleven_turbo_v2_5',
+voice_settings:{stability:0.65,similarity_boost:0.75,style:0.1,use_speaker_boost:true}
+})
+});
+if(!resp.ok)throw new Error('API error '+resp.status);
+const blob=await resp.blob();
+const url=URL.createObjectURL(blob);
+if(audioState.elevenAudio){audioState.elevenAudio.pause();URL.revokeObjectURL(audioState.elevenAudio.src)}
+const audio=new Audio(url);
+audioState.elevenAudio=audio;
+audio.playbackRate=audioState.speed;
+audio.onended=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
+audio.onerror=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
+audio.play();
+document.getElementById('abStatus').textContent=`Part ${audioState.qIdx+1} of ${audioState.queue.length}`;
+}catch(e){
+console.warn('ElevenLabs failed, falling back to browser TTS:',e);
+readBrowserTTS(text);
+}
+}
+
+function audioToggle(){
+if(!audioState.playing)return;
+if(audioState.paused){
+// Resume
+audioState.paused=false;
+document.getElementById('abPlay').textContent='⏸';
+if(audioState.elevenAudio&&audioState.elevenAudio.paused){audioState.elevenAudio.play()}
+else{synth.resume()}
+}else{
+// Pause
+audioState.paused=true;
+document.getElementById('abPlay').textContent='▶';
+if(audioState.elevenAudio&&!audioState.elevenAudio.paused){audioState.elevenAudio.pause()}
+else{synth.pause()}
+}
+}
+
+function audioStop(){
+synth.cancel();
+if(audioState.elevenAudio){audioState.elevenAudio.pause();audioState.elevenAudio=null}
+audioState.playing=false;audioState.paused=false;audioState.queue=[];audioState.qIdx=0;
+document.getElementById('audioBar')?.classList.remove('on');
+document.querySelectorAll('.reading-now').forEach(el=>el.classList.remove('reading-now'));
+document.querySelectorAll('.read-btn').forEach(b=>{b.classList.remove('playing');b.innerHTML='🎧 Read to Me'});
+}
+
+function setSpeed(s){
+audioState.speed=s;
+document.querySelectorAll('.ab-speed button').forEach(b=>{b.classList.toggle('on',parseFloat(b.textContent)===s)});
+if(audioState.elevenAudio)audioState.elevenAudio.playbackRate=s;
+// For browser TTS, speed change takes effect on next utterance
+}
+
+// Inject "Read to Me" buttons + TL;DR boxes into each section
+function injectADHD(){
+const sections=['bio','dock','ml','admet','md','fep','res'];
+const tldrMap={
+bio:"NOD2 is a bacterial sensor in your gut. R702W mutation stiffens the protein → weaker bacterial detection → Crohn's inflammation. Your drugs target the sensor's LRR pocket, 79.4 Å from the mutation.",
+dock:"GNINA (CNN-based) scored how well 9,566 compounds fit the NOD2 pocket. Exhaustiveness 32, grid 30×30×30 Å. Top compounds proceed to ML filtering.",
+ml:"NOD2-Scout (XGBoost, 100 trees, depth 4) classified compounds using Morgan fingerprints. AUC 0.85-0.93 on scaffold-split. Pseudo-labels from docking because zero experimental data exists. Selected 2,129 predicted binders.",
+admet:"Can the drug survive the body? Lipinski Rule of 5 + PAINS + Brenk filters. 148 of 150 passed (98.7%). FDA drugs are already drug-like by design.",
+md:"Simulated atoms moving at body temperature (310K) for 20 ns × 3 replicates. Febuxostat: 70% pocket occupancy. Bufadienolide: 80%. Cysteamine negative control: 0% — escaped to 45.9 Å.",
+fep:"The gold standard. Alchemically 'vanish' the drug in 20 lambda windows. Febuxostat: 50× weaker in R702W (ΔΔG +2.34, 8σ). Bufadienolide: unaffected (ΔΔG -0.44, 1.2σ NS). Precision medicine.",
+res:"R702W rigidifies NOD2 (RMSD 4.05→3.27). H-bond drugs (Febuxostat) break. Hydrophobic drugs (Bufadienolide) survive. Mutation effects are ligand-dependent."
+};
+
+sections.forEach(id=>{
+const sec=document.getElementById('s_'+id);
+if(!sec)return;
+const h1=sec.querySelector('h1');
+if(!h1)return;
+
+// Add TL;DR
+if(tldrMap[id]&&!sec.querySelector('.tldr')){
+const tldr=document.createElement('div');
+tldr.className='tldr';
+tldr.innerHTML='<p>'+tldrMap[id]+'</p>';
+h1.parentNode.insertBefore(tldr,h1.nextSibling.nextSibling||h1.nextSibling);
+}
+
+// Add Read to Me button
+if(!sec.querySelector('.read-btn')){
+const btn=document.createElement('button');
+btn.className='read-btn';
+btn.innerHTML='🎧 Read to Me';
+btn.onclick=function(){
+if(audioState.playing){audioStop();return}
+this.classList.add('playing');
+this.innerHTML='⏹ Stop Reading';
+readSection(id);
+};
+h1.parentNode.insertBefore(btn,h1.nextSibling);
+}
+});
+}
+
+// Voice settings toggle
+function toggleVoicePanel(){
+document.getElementById('voicePanel')?.classList.toggle('on');
+}
+
+// Run injection after sections are rendered
+setTimeout(injectADHD,200);
+// Re-inject when navigating sections
+const origGo=go;
+go=function(id){origGo(id);setTimeout(injectADHD,100)};
 </script>
 </body>
 </html>
