@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOD2 Mastery — ISEF 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--s1:#12121c;--s2:#1a1a2a;--s3:#222236;--brd:#2a2a44;--txt:#cccce0;--dim:#6666a0;--w:#f0f0ff;
+--f1:#ff6b2b;--f2:#ff9a44;--f3:#ffd066;--gl:linear-gradient(135deg,#ff6b2b,#ff9a44);--glh:linear-gradient(135deg,#ff9a44,#ffd066);
+--grn:#22c55e;--red:#ef4444;--cyn:#38bdf8;--pnk:#f472b6;--vio:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}::selection{background:rgba(255,107,43,.35)}
+body{background:var(--bg);color:var(--txt);font-family:'Sora',sans-serif;line-height:1.85;font-size:15px;overflow-x:hidden}
+h1,h2,h3{font-family:'Outfit',sans-serif;font-weight:700}h1{font-size:clamp(1.6rem,3.5vw,2.4rem);color:var(--w);margin-bottom:6px}
+h2{font-size:1.3em;color:var(--f2);margin:32px 0 14px;position:relative;padding-left:14px}h2::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:4px;border-radius:2px;background:var(--gl)}
+h3{font-size:1em;color:var(--cyn);margin:20px 0 8px;font-family:'Sora',sans-serif;font-weight:600}
+code,pre{font-family:'JetBrains Mono',monospace}
+.sub{color:var(--dim);font-size:13px;margin-bottom:24px;font-weight:300;letter-spacing:.2px}
+a{color:var(--f2);text-decoration:none}a:hover{color:var(--f3)}
+.shell{display:flex;min-height:100vh}.nav{width:240px;background:var(--s1);border-right:1px solid var(--brd);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:50;padding:20px 0}
+.nav-logo{padding:0 18px 18px;font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;color:var(--w);border-bottom:1px solid var(--brd);margin-bottom:10px}
+.nav-logo span{background:var(--gl);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:16px 18px 6px;font-weight:600}
+.nb{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;color:var(--dim);padding:10px 18px;font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;transition:all .15s;border-left:3px solid transparent;font-weight:400}
+.nb:hover{color:var(--txt);background:rgba(255,107,43,.04)}.nb.on{color:var(--f2);background:rgba(255,107,43,.08);border-left-color:var(--f1);font-weight:500}
+.nb .ni{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.ct{margin-left:240px;flex:1;padding:32px 44px 80px;max-width:860px}
+@media(max-width:900px){.nav{display:none}.ct{margin-left:0;padding:16px 16px 60px}.mn{display:flex!important}}
+.mn{display:none;position:sticky;top:0;z-index:50;background:rgba(10,10,15,.92);backdrop-filter:blur(12px);overflow-x:auto;border-bottom:1px solid var(--brd);padding:0 8px}
+.mb{background:none;border:none;color:var(--dim);padding:11px 14px;font-size:11px;font-family:'Sora',sans-serif;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .12s}
+.mb.on{color:var(--f2);border-bottom-color:var(--f1)}
+.sec{display:none;animation:fu .3s ease-out}.sec.on{display:block}@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+p{margin-bottom:12px}strong{color:var(--w)}em{color:var(--f2)}
+pre{background:#08080e;border:1px solid var(--brd);border-radius:10px;padding:14px 16px;overflow-x:auto;font-size:12.5px;line-height:1.7;margin:10px 0;color:#b0b0d0}.cmt{color:#6a9955}.kw{color:#c586c0}.str{color:#ce9178}.fn{color:#dcdcaa}
+code{background:rgba(255,107,43,.08);padding:1px 5px;border-radius:4px;font-size:.85em;color:var(--f2)}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}th{background:var(--s2);padding:8px 12px;text-align:left;border-bottom:2px solid var(--f1);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--f2)}td{padding:8px 12px;border-bottom:1px solid rgba(42,42,68,.6)}tr:hover td{background:rgba(255,107,43,.02)}
+.n{color:var(--f3);font-weight:700;font-family:'JetBrains Mono',monospace;font-size:.95em}
+ol,ul{padding-left:22px;margin-bottom:10px}li{margin-bottom:5px}
+/* Audio buttons */
+.au{display:inline-flex;align-items:center;gap:3px;background:rgba(255,107,43,.08);border:1px solid rgba(255,107,43,.2);color:var(--f2);padding:2px 9px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;margin:1px;vertical-align:middle;font-weight:500}
+.au:hover{background:rgba(255,107,43,.18);transform:scale(1.03)}.au.pl{background:rgba(255,107,43,.3);box-shadow:0 0 12px rgba(255,107,43,.2)}
+/* Cards */
+.c{background:var(--s1);border:1px solid var(--brd);border-radius:12px;padding:18px 20px;margin:14px 0;position:relative;overflow:hidden}
+.c::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,154,68,.15),transparent)}
+.ca{border-left:3px solid var(--f1)}.cg{border-left:3px solid var(--grn)}.co{border-left:3px solid var(--f3)}.cr{border-left:3px solid var(--red)}.cc{border-left:3px solid var(--cyn)}.cp{border-left:3px solid var(--pnk)}.cv{border-left:3px solid var(--vio)}
+/* Expandable sections */
+.ex{margin:10px 0}.exh{display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px 14px;background:var(--s2);border:1px solid var(--brd);border-radius:10px;font-weight:500;transition:all .15s;font-size:13px}
+.exh:hover{background:var(--s3);border-color:rgba(255,107,43,.2)}.ea{transition:transform .15s;font-size:10px;color:var(--f1)}.exh.op .ea{transform:rotate(90deg)}
+.exb{display:none;padding:16px;background:var(--s1);border:1px solid var(--brd);border-top:none;border-radius:0 0 10px 10px;font-size:13.5px;line-height:1.85}.exb.op{display:block}
+/* Tags */
+.tg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-right:4px}
+.tw{background:rgba(255,107,43,.15);color:var(--f2)}.tc{background:rgba(56,189,248,.12);color:var(--cyn)}.tj{background:rgba(34,197,94,.12);color:var(--grn)}.tx{background:rgba(239,68,68,.12);color:var(--red)}.tl{background:rgba(244,114,182,.12);color:var(--pnk)}.ti{background:rgba(255,208,102,.12);color:var(--f3)}.tv{background:rgba(167,139,250,.12);color:var(--vio)}
+/* VS comparison */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}@media(max-width:700px){.vs{grid-template-columns:1fr}}
+.vw{padding:16px;border-radius:10px;background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.18)}.vl{padding:16px;border-radius:10px;background:rgba(239,68,68,.03);border:1px solid rgba(239,68,68,.12)}
+/* Key insight box */
+.ky{background:linear-gradient(135deg,rgba(255,107,43,.05),rgba(56,189,248,.05));border:1px solid rgba(255,107,43,.15);border-radius:12px;padding:18px 20px;margin:14px 0}
+/* WHY box */
+.why{background:var(--s2);border:1px solid var(--brd);border-radius:10px;padding:16px 18px;margin:12px 0;position:relative;border-left:3px solid var(--f1)}
+.why::before{content:'WHY THIS STEP?';position:absolute;top:-9px;left:12px;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--f1);background:var(--s2);padding:0 6px}
+/* LIMITATION box */
+.lim{background:rgba(239,68,68,.03);border:1px solid rgba(239,68,68,.12);border-radius:10px;padding:16px 18px;margin:12px 0;position:relative}
+.lim::before{content:'⚠️ LIMITATIONS';position:absolute;top:-9px;left:12px;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--red);background:var(--bg);padding:0 6px}
+/* PROS/CONS */
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}@media(max-width:600px){.pc{grid-template-columns:1fr}}
+.pros{background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.15);border-radius:10px;padding:14px}.pros::before{content:'✅ STRENGTHS';display:block;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--grn);margin-bottom:8px}
+.cons{background:rgba(239,68,68,.03);border:1px solid rgba(239,68,68,.12);border-radius:10px;padding:14px}.cons::before{content:'⚠️ WEAKNESSES';display:block;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--red);margin-bottom:8px}
+/* Bridge */
+.bridge{background:linear-gradient(90deg,rgba(255,107,43,.06),rgba(56,189,248,.06));border:1px solid rgba(255,107,43,.1);border-radius:10px;padding:14px 18px;margin:20px 0;color:var(--f2);font-size:14px;font-style:italic;font-weight:300}
+/* ISEF rubric tag */
+.rubric{display:inline-flex;align-items:center;gap:4px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);color:var(--vio);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.3px}
+/* Glossary grid */
+.gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin:12px 0}
+.gi{background:var(--s2);border:1px solid var(--brd);border-radius:8px;padding:8px 10px;font-size:12px;cursor:pointer;transition:all .15s}
+.gi:hover{border-color:var(--f1);background:var(--s3);transform:translateY(-1px)}
+.gi strong{font-size:13px}
+/* Glow card for results */
+.glow{position:relative;overflow:hidden}.glow::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(255,107,43,.06),transparent,rgba(56,189,248,.06),transparent);animation:spin 8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.glow-inner{position:relative;background:var(--s1);border-radius:11px;padding:20px}
+</style>
+</head>
+<body>
+<div class="mn" id="mn"></div>
+<div class="shell">
+<nav class="nav" id="sb">
+<div class="nav-logo">🧬 NOD2 <span>Mastery</span></div>
+</nav>
+<main class="ct" id="ct"></main>
+</div>
+<script>
+let cA=null;
+function pa(f,b){if(cA){cA.pause();document.querySelectorAll('.au.pl').forEach(x=>x.classList.remove('pl'))}
+const a=new Audio('audio/'+f+'.mp3');cA=a;if(b)b.classList.add('pl');
+a.onended=()=>{if(b)b.classList.remove('pl')};
+a.onerror=()=>{if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(b?.dataset?.fb||f);u.rate=0.7;speechSynthesis.speak(u)}if(b)setTimeout(()=>b.classList.remove('pl'),2e3)};a.play()}
+function au(f,l,fb){return`<button class="au" data-fb="${fb||l}" onclick="pa('${f}',this)">🔊 ${l}</button>`}
+function ex(t,ti,bo){const id='e'+Math.random().toString(36).substr(2,6);const tc={w:'tw',c:'tc',j:'tj',x:'tx',l:'tl',i:'ti',v:'tv'}[t]||'tw';const tn={w:'WHY',c:'CODE',j:'JUDGE Q&A',x:'CRASH STORY',l:'HOW I LEARNED',i:'WHAT-IF',v:'ISEF RUBRIC'}[t]||'';
+return`<div class="ex"><div class="exh" onclick="this.classList.toggle('op');document.getElementById('${id}').classList.toggle('op')"><span class="ea">▶</span><span class="tg ${tc}">${tn}</span>${ti}</div><div class="exb" id="${id}">${bo}</div></div>`}
+
+const S=[
+// ============ ISEF JUDGING GUIDE ============
+{id:'isef',icon:'🏆',label:'ISEF Judging Guide',ct:`
+<h1>What ISEF Judges Actually Score</h1>
+<p class="sub">The official rubric, decoded. Know exactly what earns points — and what doesn't.</p>
+
+<div class="c ca">
+<p>ISEF judges have PhDs or 6+ years research experience. They score 5 categories totaling <span class="n">100 points</span>. <strong>Presentation is 35% of your score</strong> — the single biggest category. Your poster could be perfect, but if you can't talk about it well, you lose.</p>
+</div>
+
+<h2>The Official Scoring Rubric</h2>
+<table>
+<tr><th>Category</th><th>Points</th><th>What They're Looking For</th><th>Your Project's Strength</th></tr>
+<tr><td><strong>I. Research Question</strong></td><td class="n">10</td><td>Clear purpose, contribution to field, testable hypothesis</td><td>✅ Novel — no NOD2 drug screening exists in literature. ChEMBL confirmed zero binding data.</td></tr>
+<tr><td><strong>II. Design & Methodology</strong></td><td class="n">15</td><td>Well-designed plan, variables/controls defined</td><td>✅ Multi-stage pipeline with negative controls (shuffled labels, non-binder MD). Scaffold split prevents data leakage.</td></tr>
+<tr><td><strong>III. Execution</strong></td><td class="n">20</td><td>Systematic data collection, reproducibility, statistical methods</td><td>✅ 520 ns MD with 3 replicates. FEP with 120 lambda windows. MBAR statistics. 8σ significance.</td></tr>
+<tr><td><strong>IV. Creativity & Impact</strong></td><td class="n">20</td><td>Imagination, potential real-world impact</td><td>✅ Pharmacogenomic approach — drug choice based on genotype. Personal connection (you carry R702W).</td></tr>
+<tr><td><strong>V. Presentation</strong></td><td class="n">35</td><td>Poster (10) + Interview (25): responses, understanding, independence, limitations, future work</td><td>⚠️ This is what this website trains you for.</td></tr>
+</table>
+
+<h2>The Interview — 25 Points, 8-12 Minutes</h2>
+<div class="c cc">
+<p>Judges score these specific items during your interview:</p>
+<ul>
+<li><strong>Clear, concise, thoughtful responses</strong> — Don't ramble. Answer the question. 30 seconds max per answer unless they want more.</li>
+<li><strong>Understanding of basic science</strong> — Can you explain NOD2 biology, F=ma in MD, ΔG = ΔH − TΔS? They'll test if you know the WHY behind each method.</li>
+<li><strong>Understanding limitations</strong> — Can you honestly say what could be wrong? This is HUGE. Students who acknowledge limitations score higher than those who pretend their work is perfect.</li>
+<li><strong>Degree of independence</strong> — What did YOU do vs. what did mentors/AI do? Be transparent about AI use (documented in your prompt log).</li>
+<li><strong>Recognition of potential impact</strong> — What does this mean for patients? For the field?</li>
+<li><strong>Quality of ideas for further research</strong> — SPR, ITC, HDX-MS, extending to G908R/1007fs</li>
+</ul>
+</div>
+
+<h2>Standard Judge Questions — Expect All of These</h2>
+<div class="c co">
+<ol>
+<li>"<strong>Please spend a minute describing your project.</strong>" — Your 60-second pitch (not 3 minutes).</li>
+<li>"<strong>How did you come up with this idea?</strong>" — Personal story. Genetic test at 14, Remicade infusions, wanted to understand the mutation.</li>
+<li>"<strong>What did you learn from your background research?</strong>" — No NOD2 binding data exists. Current drugs (Remicade) treat symptoms not cause. R702W is understudied computationally.</li>
+<li>"<strong>What are your variables and controls?</strong>" — Independent: compound identity, WT vs R702W. Dependent: ΔG, RMSD, pocket occupancy. Controls: shuffled labels (ML), non-binder MD, apo (no drug) simulations.</li>
+<li>"<strong>What are the limitations?</strong>" — Computational only, AlphaFold structure, only 2 compounds through FEP, only R702W tested.</li>
+<li>"<strong>What would you do differently?</strong>" — Start with scaffold split from day one (avoid the leakage scare). Budget more GPU time for FEP on more compounds.</li>
+<li>"<strong>What's the potential impact?</strong>" — Pharmacogenomic NOD2 therapeutics. Drug selection based on genotype. Could accelerate drug repurposing for 1M+ Crohn's patients.</li>
+<li>"<strong>What would you do next?</strong>" — Experimental validation: SPR, ITC, HDX-MS. Extend to G908R, 1007fs. Cell-based NF-κB reporter assays.</li>
+<li>"<strong>Did you receive help? How much was AI?</strong>" — Claude helped code. Scientific decisions were mine. Every interaction logged with timestamps.</li>
+<li>"<strong>Why should we believe your computational results?</strong>" — 3 replicates, 8σ significance, negative controls, FEP is the gold standard used by pharma companies.</li>
+</ol>
+</div>
+
+<div class="ky">
+<strong>Pro tip from actual ISEF judges:</strong> The display is secondary to your KNOWLEDGE. Judges care more about whether you understand your project deeply than whether your poster is pretty. If a judge interrupts your prepared speech with a question — STOP and answer immediately. They're testing if you can think, not recite.
+</div>
+`},
+
+// ============ BIOLOGY ============
+{id:'bio',icon:'🧬',label:'1. Biology',ct:`
+<h1>1. The Biology — Your Immune System's Broken Fire Alarm</h1>
+<p class="sub">Starting from AP Bio. Ending at PhD immunology. Every concept built brick-by-brick.</p>
+
+<div class="why"><p><strong>Why start here?</strong> If a judge asks "explain NOD2" and you fumble, nothing else matters. Biology is the FOUNDATION. Every docking score, every ΔG, every sigma traces back to this protein and this mutation. You need to explain it cold.</p></div>
+
+<h2>What You Already Know (AP Bio Baseline)</h2>
+<div class="c">
+<p><strong>DNA → mRNA → Protein.</strong> Genes encode proteins. Proteins fold into 3D shapes. Mutations change amino acids, which can change shape and function. Enzymes have active sites. Signals cascade through cells. Membranes are lipid bilayers. That's enough to start.</p>
+</div>
+
+<h2>NOD2 — The Bacterial Smoke Detector ${au('NOD2','NOD2')}</h2>
+<p>Your gut is home to ~38 trillion bacteria. Normally they stay in the gut lumen (the tube inside your intestines). But when bacteria cross the epithelial barrier and get INSIDE cells, the immune system needs to know.</p>
+<p>${au('NOD2','NOD2')} is a protein that lives in the <strong>cytoplasm</strong> (not on the cell surface — inside) of intestinal epithelial cells. Its job: detect a bacterial fragment called ${au('MDP','MDP')} (${au('muramyl_dipeptide','muramyl dipeptide')}) — a universal piece of bacterial cell walls found in ALL bacteria but never in human cells.</p>
+<p>MDP binds NOD2 → NOD2 activates → immune cascade fires → bacteria get cleared. It's a smoke detector for bacterial invasion.</p>
+
+<h2>The Full Signaling Cascade (Poster Figure 1)</h2>
+<div class="c cc">
+<ol>
+<li><strong>MDP enters the cell</strong> via endosomal peptide transporters</li>
+<li><strong>MDP binds NOD2's ${au('LRR','LRR')} domain</strong> (residues 744–1040) — the sensor region</li>
+<li><strong>NOD2 changes shape</strong> — auto-inhibitory lid opens, CARD domain exposed</li>
+<li><strong>CARD recruits ${au('RIPK2','RIPK2')}</strong> through CARD-CARD interactions</li>
+<li><strong>RIPK2 activates ${au('TAK1','TAK1')}</strong> complex</li>
+<li><strong>TAK1 activates IKK complex</strong> → phosphorylates IκBα</li>
+<li><strong>IκBα is destroyed</strong> (ubiquitinated → proteasome)</li>
+<li><strong>${au('NF_kappa_B','NF-κB')} is freed</strong> → enters nucleus</li>
+<li><strong>Inflammatory genes turn ON</strong> → IL-8, TNF-α, defensins → bacteria killed</li>
+</ol>
+</div>
+
+<h2>Domain Map — Where Everything Lives</h2>
+<table>
+<tr><th>Domain</th><th>Residues</th><th>Function</th><th>Your Project</th></tr>
+<tr><td>CARD</td><td>1–120</td><td>Recruits RIPK2</td><td>Not targeted</td></tr>
+<tr><td>NBD</td><td>273–577</td><td>ATPase, oligomerization</td><td>Not targeted</td></tr>
+<tr><td>HD1</td><td>577–640</td><td>Helical linker</td><td>Structural</td></tr>
+<tr><td><strong>HD2</strong></td><td>640–744</td><td>Flexibility hinge</td><td>⚠️ <strong>MUTATION HERE</strong> (R702W)</td></tr>
+<tr><td><strong>LRR</strong></td><td>744–1040</td><td>MDP sensor + drug pocket</td><td>⚠️ <strong>DRUGS BIND HERE</strong></td></tr>
+</table>
+<p><strong>Distance: mutation → pocket = <span class="n">79.4 Å</span></strong> — like a dent on one end of a car affecting the engine on the other. This is ${au('allosteric','allosteric')} — an effect at a distance.</p>
+
+<h2>R702W — YOUR Mutation ${au('R702W','R702W')}</h2>
+<div class="c co">
+<p><strong>${au('arginine','Arginine')} (R) at 702 — normal:</strong> Positively charged, flexible, forms 5 H-bonds + salt bridges. Creates a network of contacts that keeps HD2 flexible like a well-oiled hinge.</p>
+<p><strong>${au('tryptophan','Tryptophan')} (W) at 702 — mutant:</strong> Biggest amino acid. Neutral, bulky, hydrophobic. Only 1 H-bond. Can't form salt bridges. Disrupts the interaction network → HD2 becomes rigid. Hinge gets stuck.</p>
+<p>Rigidification propagates 79.4 Å through HD2 → LRR → changes the binding pocket shape. Your MD proved this: WT RMSD = 4.05 Å, R702W = 3.27 Å. Mutant is measurably stiffer.</p>
+</div>
+
+<h2>Why This Causes Crohn's Disease ${au('crohns',"Crohn's")}</h2>
+<div class="c cr">
+<p><strong>The paradox:</strong> Crohn's is an INFLAMMATORY disease caused by TOO LITTLE immune sensing.</p>
+<p>R702W → weak MDP detection → bacteria aren't cleared → bacteria proliferate → body compensates through backup pathways (TLRs, inflammasomes) → chronic, uncontrolled inflammation → tissue damage → Crohn's.</p>
+<p>Fire alarm with dead batteries → fire smolders → eventually someone calls EVERY fire department → the flood of water does more damage than the fire.</p>
+<p>You get <strong>Remicade</strong> infusions 2-4× per month. Remicade blocks TNF-α (downstream inflammation). Treats the SYMPTOM. Your project targets the CAUSE: NOD2 itself.</p>
+</div>
+
+<div class="pc">
+<div class="pros"><p>Strong personal motivation — judges love this</p><p>Understudied target — ChEMBL confirmed zero NOD2 binding data</p><p>Clear biological rationale for drug approach</p></div>
+<div class="cons"><p>NOD2 is intracellular — drugs must cross membrane</p><p>Allosteric mechanism is complex to explain quickly</p><p>No experimental validation yet</p></div>
+</div>
+
+<div class="lim"><p style="margin-top:8px">AlphaFold2 structure (no crystal structure exists for full NOD2). Only R702W tested (not G908R or 1007fs). Binding ≠ functional rescue — drug might bind but not fix NOD2 signaling. Mechanism of allosteric propagation is inferred from RMSD, not proven by mutation-specific structural experiments.</p></div>
+
+<div class="bridge">🔗 You now understand the biology: NOD2 senses bacteria, R702W breaks that sensing, your drugs target the LRR pocket, and the mutation is 79.4 Å away. Next: how you actually screened 9,566 compounds against this pocket.</div>
+`},
+
+// ============ DOCKING ============
+{id:'dock',icon:'🔑',label:'2. Docking',ct:`
+<h1>2. GNINA Docking — 9,566 Keys, One Lock ${au('GNINA','GNINA')}</h1>
+<p class="sub">How a neural network scored every compound's fit into NOD2's binding pocket.</p>
+
+<div class="why"><p><strong>Why docking?</strong> You can't test 9,566 compounds in a lab — that would take years and millions of dollars. Docking computationally predicts which ones fit the pocket. It's the first filter: fast, cheap, and good enough to rank candidates. Without it, you'd be testing randomly.</p></div>
+
+<h2>What Docking Does — AP Bio Version</h2>
+<p>Lock and key model. The protein has a cavity (${au('binding_pocket','binding pocket')}). Each drug molecule is a key. The computer tries thousands of orientations — rotating, flipping, bending — and scores each pose by calculating interaction energies: ${au('hydrogen_bond','H-bonds')}, ${au('van_der_waals','van der Waals')}, ${au('electrostatic','electrostatics')}, ${au('hydrophobic','hydrophobic contacts')}. Lower energy = better fit.</p>
+
+<h2>Why GNINA Over Classical Docking</h2>
+<div class="vs">
+<div class="vl"><h3 style="color:var(--red)">❌ AutoDock Vina (2010)</h3>
+<p>Fixed formula: Score = weighted sum of 5 hand-coded terms. Weights fitted to 1,300 structures. Can't learn new patterns.</p>
+<p>You tried Vina first — installation failed on Windows WSL.</p></div>
+<div class="vw"><h3 style="color:var(--grn)">✅ GNINA (2020)</h3>
+<p>${au('CNN','CNN')} trained on 20,000+ real crystal structures (PDBBind). Processes 3D molecular grid (36 channels) through convolutional layers. LEARNED what good binding looks like from data.</p>
+<p>Like a chef who's cooked 20,000 meals vs following one recipe.</p></div>
+</div>
+
+<h2>Your Parameters + Why</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th><th>Why</th></tr>
+<tr><td>Grid box</td><td class="n">30×30×30 Å</td><td>Pocket ~20 Å across + 5 Å padding for large ligands to rotate</td></tr>
+<tr><td>Exhaustiveness</td><td class="n">32</td><td>4× default. More random starts = better coverage. GPU makes it feasible.</td></tr>
+<tr><td>Poses kept</td><td class="n">9</td><td>In case best pose is artifact</td></tr>
+<tr><td>Total time</td><td class="n">~13 hours</td><td>~2 min/compound on RTX 4060 Ti</td></tr>
+</table>
+
+${ex('x','ARG_MAX Crash — 9,566 filenames exceeded Linux kernel limit',`
+<p>First command: <code>gnina -l ligands/*.pdbqt</code> — all filenames as wildcard. Linux ARG_MAX limit (~2MB) exceeded. GNINA printed help menu and exited with code 0 (success!) — no error message. Had to debug why valid command produced no output.</p>
+<p><strong>Fix:</strong> Shell for-loop processing one file at a time.</p>
+`)}
+
+${ex('x','GPU at 1% — CUDA library path missing in WSL2',`
+<p><code>nvidia-smi</code> showed 1% GPU. GNINA ran on CPU (10-50× slower). Missing CUDA libs in LD_LIBRARY_PATH.</p>
+<p><strong>Fix:</strong> <code>export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH</code> → GPU jumped to ~50%.</p>
+`)}
+
+<div class="pc">
+<div class="pros"><p>CNN > classical scoring (benchmarked)</p><p>GPU-accelerated — 13 hrs for 9,566 compounds</p><p>Exhaustiveness 32 = thorough search</p></div>
+<div class="cons"><p>Docking is a static snapshot — no dynamics</p><p>CNN trained on general proteins, not NOD2 specifically</p><p>Scores are relative rankings, not absolute affinities</p></div>
+</div>
+
+<div class="lim"><p style="margin-top:8px">AlphaFold2 structure has uncertainty. Grid box center chosen manually — different center might change scores slightly. Exhaustiveness 32 may still miss some poses in very flexible molecules. CNN affinity predictions have error of ~1.5 pKd units.</p></div>
+
+<div class="bridge">🔗 All 9,566 now have CNN scores. But scores are noisy — need ML to find the real signal.</div>
+`},
+
+// ============ ML ============
+{id:'ml',icon:'🤖',label:'3. ML Model',ct:`
+<h1>3. NOD2-Scout — Machine Learning That Finds Binders ${au('XGBoost','XGBoost')}</h1>
+<p class="sub">From "what's a decision tree" to catching your own data leakage at AUC 0.998.</p>
+
+<div class="why"><p><strong>Why ML after docking?</strong> GNINA scores individual compounds one-at-a-time. ML looks at ALL the data and learns patterns: "what PROPERTIES make a molecule bind NOD2?" — chemical fingerprints, shape, polarity. It generalizes beyond individual poses to chemical families.</p></div>
+
+<h2>Decision Trees → XGBoost</h2>
+<p>A <strong>decision tree</strong> asks yes/no questions about chemical properties (like a dichotomous key in AP Bio). "Is LogP > 3? → Yes → Is TPSA < 100? → Yes → BINDER." Problem: one tree overfits.</p>
+<p><strong>${au('XGBoost','XGBoost')}</strong> = 100 trees built sequentially. Each tree corrects the mistakes of all previous trees. Tree 2 focuses on what Tree 1 got wrong. Tree 3 focuses on what Trees 1+2 still get wrong. Final prediction = weighted sum of 100 expert trees.</p>
+
+<h2>The Labeling Problem — Zero Experimental Data</h2>
+<div class="c co">
+<p>ML needs labels ("binder" / "non-binder"). But NOBODY has measured NOD2 binding for ANY compound. ChEMBL = zero results.</p>
+<p><strong>${au('pseudo_label','Pseudo-labels')}:</strong> Top 25% by GNINA score → "likely binder" (1). Bottom 25% → "likely non-binder" (0). Middle 50% excluded (ambiguous). Result: ~858 labeled compounds.</p>
+</div>
+
+<h2>Features: 2,050 Numbers Per Molecule</h2>
+<p><strong>${au('morgan_fingerprint','Morgan fingerprints')} (2,048 bits):</strong> For each atom, look at neighbors within 2 bonds, hash into a bit position. Different chemical environments → different bits. A molecular barcode.</p>
+<p><strong>10 descriptors:</strong> MW, LogP, ${au('TPSA','TPSA')}, H-bond donors/acceptors, rotatable bonds, aromatic rings, Fsp3, heavy atoms, ring count.</p>
+
+<h2>Scaffold Split — Why This Is Your Best Methodological Decision</h2>
+<div class="vs">
+<div class="vl"><h3 style="color:var(--red)">❌ Random Split → AUC 0.998</h3>
+<p>Same ${au('Murcko','Murcko scaffold')} in train AND test. Model memorizes scaffold identity. ${au('data_leakage','Data leakage')} — fake performance.</p></div>
+<div class="vw"><h3 style="color:var(--grn)">✅ ${au('scaffold_split','Scaffold Split')} → AUC 0.85–0.93</h3>
+<p>All molecules with same core backbone → SAME set. Model must generalize to new chemical families. Honest, real performance.</p></div>
+</div>
+
+<h2>Negative Control: Shuffled Labels</h2>
+<p>Scramble labels randomly → retrain → AUC = <span class="n">~0.50</span> = coin flip. Proves your real AUC (0.85–0.93) is genuine signal.</p>
+
+<h2>Your Actual Training Code</h2>
+<pre>model = xgb.XGBClassifier(
+    n_estimators=100,      <span class="cmt"># 100 sequential trees</span>
+    max_depth=6,           <span class="cmt"># 64 leaf nodes per tree</span>
+    learning_rate=0.05,    <span class="cmt"># 5% correction per tree</span>
+    subsample=0.8,         <span class="cmt"># Each tree: 80% of rows</span>
+    colsample_bytree=0.8,  <span class="cmt"># Each tree: 80% of features</span>
+    objective=<span class="str">'binary:logistic'</span>,
+    eval_metric=<span class="str">'auc'</span>
+)</pre>
+
+${ex('w','Every parameter justified',`
+<p><strong>100 trees:</strong> With lr=0.05, each contributes 5%. Converged by 100. More = overfitting on 858 samples.</p>
+<p><strong>max_depth=6:</strong> 64 leaves. 858÷64 ≈ 13 samples/leaf. Depth 3 = too shallow. Depth 12 = memorization.</p>
+<p><strong>subsample=0.8 + colsample=0.8:</strong> Double randomization. No tree sees all data or all features. Prevents any single tree from memorizing.</p>
+`)}
+
+${ex('x','Data Leakage Discovery — AUC 0.998 → 0.90',`
+<p>First run with random split: AUC = 0.998. Suspiciously perfect. Feature importance dominated by scaffold-encoding bits. Model learned "scaffold X = binder," not binding chemistry.</p>
+<p>Fix: scaffold split. AUC dropped to 0.85–0.93. Honest. YOU CAUGHT YOUR OWN ERROR. Judges love this — it demonstrates scientific integrity better than any result.</p>
+`)}
+
+<div class="pc">
+<div class="pros"><p>Scaffold split = honest evaluation (rare in HS projects)</p><p>Negative control proves signal is real</p><p>Caught and corrected own data leakage</p><p>AUC 0.85–0.93 is strong for pseudo-labels</p></div>
+<div class="cons"><p>Pseudo-labels from docking, not experimental</p><p>858 samples is small for ML</p><p>XGBoost can't capture 3D geometry directly</p></div>
+</div>
+
+<div class="lim"><p style="margin-top:8px">Training labels are PROXIES from docking, not ground truth. Morgan FPs lose 3D information. 5-fold CV may still have scaffold similarity between folds. Model may not generalize to very different chemical classes beyond training distribution.</p></div>
+
+<p>Top <span class="n">2,129</span> predicted binders → clustered to 150 → ADMET filtering next.</p>
+`},
+
+// ============ ADMET ============
+{id:'admet',icon:'💊',label:'4. ADMET',ct:`
+<h1>4. ADMET — Will This Drug Survive a Human Body? ${au('ADMET','ADMET')}</h1>
+<p class="sub">Absorption, Distribution, Metabolism, Excretion, Toxicity. 90% of drugs fail here.</p>
+
+<div class="why"><p><strong>Why ADMET?</strong> A drug can bind perfectly in a computer and still be useless: can't be swallowed, liver destroys it, it's toxic, or — critical for NOD2 — it can't cross the cell membrane to reach the INTRACELLULAR target. ADMET filters catch these problems before you waste GPU-months on MD/FEP.</p></div>
+
+<h2>Your 4 Filter Layers</h2>
+<div class="c cc">
+<p><strong>${au('lipinski','Lipinski Rule of 5')}:</strong> MW ≤ 500, LogP ≤ 5, HBD ≤ 5, HBA ≤ 10. Ensures oral absorption through intestinal membrane.</p>
+<p><strong>Veber's Rules:</strong> ${au('TPSA','TPSA')} ≤ 140 Å² (CRITICAL for NOD2 — must cross cell membrane). Rotatable bonds ≤ 10 (${au('entropy','entropy')} penalty for binding).</p>
+<p><strong>${au('PAINS','PAINS')}:</strong> 480 substructures that react with everything (false positives). Quinones, Michael acceptors, rhodanines.</p>
+<p><strong>Brenk:</strong> 105 known toxic substructures. Epoxides, nitroso compounds, acyl halides.</p>
+</div>
+
+${ex('w','Why TPSA matters specifically for YOUR target',`
+<p>NOD2 is INSIDE the cell (cytoplasmic). Drug must cross the lipid bilayer (~30 Å thick). High TPSA = many polar groups = strong H-bonds with water = can't enter the hydrophobic membrane interior = never reaches NOD2. For surface receptors (like GPCRs), membrane permeability is less critical. For NOD2, it's a HARD requirement. 140 Å² cutoff: compounds above this have <10% oral bioavailability (Veber et al., 2002).</p>
+`)}
+
+<p>Result: <span class="n">148/150 passed (98.7%)</span>. High rate because FDA drugs and filtered natural products are already drug-like. 2 failed on PAINS alerts.</p>
+
+<div class="pc">
+<div class="pros"><p>TPSA filter is target-specific (intracellular)</p><p>PAINS catches false positives invisible to docking</p><p>Fast — seconds per compound</p></div>
+<div class="cons"><p>Rules are guidelines, not laws (some drugs violate Lipinski)</p><p>No metabolism prediction beyond substructure alerts</p><p>High pass rate means limited filtering power here</p></div>
+</div>
+
+<div class="bridge">🔗 148 ADMET-safe compounds → expert curation → 8 → 5 to MD. Now we test: does the drug STAY in the pocket over time?</div>
+`},
+
+// ============ MD ============
+{id:'md',icon:'🧪',label:'5. MD Simulation',ct:`
+<h1>5. Molecular Dynamics — F=ma for 217,986 Atoms ${au('molecular_dynamics','MD')}</h1>
+<p class="sub">Docking gave you a snapshot. MD gives you a 20-nanosecond movie. 520 ns total across 26 trajectories.</p>
+
+<div class="why"><p><strong>Why MD?</strong> Proteins aren't frozen — they jiggle at body temperature. A drug that looks great in a docking snapshot might wobble out after 2 nanoseconds. MD tests the REAL question: does the drug stay put? Plus, comparing WT vs R702W dynamics proves the allosteric mechanism (the 79.4 Å effect).</p></div>
+
+<h2>What MD Actually Does</h2>
+<p>Newton's second law: <strong>F = ma</strong>. For every atom. Every ${au('femtosecond','femtosecond')} (10⁻¹⁵ s). For 5 million steps.</p>
+<div class="c cc">
+<ol>
+<li><strong>Calculate forces:</strong> Bond springs, angle bending, torsions, ${au('van_der_waals','van der Waals')} repulsion/attraction, ${au('electrostatic','Coulomb charges')}. Sum = total force on each atom.</li>
+<li><strong>F = ma:</strong> Acceleration = Force / mass (known for C, N, O, H, S...)</li>
+<li><strong>Update velocity + position:</strong> v(t+dt) = v(t) + a·dt; x(t+dt) = x(t) + v·dt</li>
+<li><strong>Repeat</strong> 5,000,000 times = 20 ns of real time.</li>
+</ol>
+<p>Result: a movie of every atom's position every 20 ps. Watch drugs wobble, H-bonds form/break, water enter/leave the pocket.</p>
+</div>
+
+<h2>Force Fields — The Physics Rules</h2>
+<p>${au('AMBER14','AMBER14')} for protein, ${au('OpenFF','OpenFF')} 2.1 for drugs, ${au('TIP3P_FB','TIP3P-FB')} for water. Each has thousands of parameters (spring constants, charges, equilibrium distances) fitted to quantum mechanics calculations and experiments.</p>
+
+<h2>4-Stage Protocol</h2>
+<table>
+<tr><th>Stage</th><th>What</th><th>Duration</th><th>Why</th></tr>
+<tr><td>1</td><td>Energy minimize</td><td>5,000 steps</td><td>Remove atomic clashes from docking</td></tr>
+<tr><td>2</td><td>${au('NVT','NVT')} heating</td><td>100 ps</td><td>Heat to 310.15 K (37°C body temp)</td></tr>
+<tr><td>3</td><td>${au('NPT','NPT')} pressure</td><td>500 ps</td><td>Adjust box for 1 atm, correct density</td></tr>
+<tr><td>4</td><td>Production</td><td>20 ns × 3 reps</td><td>Record data. 3 replicates for statistics.</td></tr>
+</table>
+
+<h2>Key Parameters + Physics</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th><th>Physics</th></tr>
+<tr><td>Timestep</td><td class="n">4 fs</td><td>${au('HMR','HMR')}: Increase H mass (1.008→1.5 amu). Heavier H vibrates slower → can use 4 fs instead of 2 fs → 2× faster. Like slowing a pendulum by adding weight.</td></tr>
+<tr><td>Temperature</td><td class="n">310.15 K</td><td>Body temperature. Drug must work HERE, not at room temp.</td></tr>
+<tr><td>Total atoms</td><td class="n">~217,986</td><td>Protein + drug + ~65K water molecules + ions. Water = 90%.</td></tr>
+<tr><td>Electrostatics</td><td>${au('PME','PME')}</td><td>Fourier transforms compute long-range Coulomb interactions. O(N log N) vs O(N²) brute force.</td></tr>
+<tr><td>Total compute</td><td class="n">520 ns</td><td>26 trajectories × 20 ns. ~8 hrs each on RTX 4060 Ti.</td></tr>
+</table>
+
+${ex('x','NaN Explosion — Jan 1 (Worst Crash)',`
+<p>217,986 atoms, restraints k=1000 kJ/mol/nm², timestep 4 fs with HMR.</p>
+<p><strong>Physics of crash:</strong> High restraint force + HMR (lighter heavy atoms) + 4 fs timestep = atom acceleration so large it flies across the box in one step → overlaps another atom → Lennard-Jones r⁻¹² → infinite repulsion → NaN. The lethal COMBINATION of all three — any two would have been fine.</p>
+<p><strong>Fix:</strong> Reduce restraints to k=100, ramp up gradually, use 2 fs for restraint phase.</p>
+`)}
+
+${ex('x','RTX 5090 CUDA Incompatibility — Jan 3',`
+<p>Rented RTX 5090 on Vast.ai. CUDA Driver 13.0 (Blackwell architecture). OpenMM compiled for CUDA 12.x — no binaries existed for SM_100 architecture. GPU was TOO NEW.</p>
+<p><strong>Fix:</strong> Destroyed instance, rented H200 (Hopper, CUDA 12.4) instead. Lesson: check nvidia-smi BEFORE starting work.</p>
+`)}
+
+<h2>Key Results</h2>
+<div class="c cg">
+<table>
+<tr><th>System</th><th>Metric</th><th>WT</th><th>R702W</th><th>Meaning</th></tr>
+<tr><td rowspan="2">Apo (no drug)</td><td>${au('RMSD','RMSD')}</td><td class="n">4.05 Å</td><td class="n">3.27 Å</td><td>R702W is MORE RIGID</td></tr>
+<tr><td>Frames >5Å</td><td class="n">12.6%</td><td class="n">0%</td><td>WT explores widely; R702W NEVER does</td></tr>
+<tr><td>${au('febuxostat','Febuxostat')}</td><td>Occupancy</td><td colspan="2" class="n">~73%</td><td>Stays in pocket ✓</td></tr>
+<tr><td>${au('bufadienolide','Bufadienolide')}</td><td>Occupancy</td><td colspan="2" class="n">~80%</td><td>Most stable ✓</td></tr>
+<tr><td>Negative ctrl</td><td>Occupancy</td><td colspan="2" class="n">~0%</td><td>Left by 5 ns ✓ (validates method)</td></tr>
+</table>
+</div>
+
+<div class="pc">
+<div class="pros"><p>520 ns total — substantial for a HS project</p><p>3 replicates per system</p><p>Negative control validates methodology</p><p>APO dynamics prove allosteric mechanism</p></div>
+<div class="cons"><p>20 ns may miss slow events (μs-scale conformational changes)</p><p>Force field parameters for novel compounds less validated</p><p>AlphaFold structure as starting point</p></div>
+</div>
+
+<div class="lim"><p style="margin-top:8px">20 ns is short compared to biological timescales (protein folding: μs-ms). Pocket occupancy is a proxy — doesn't directly measure binding affinity. Force field accuracy ~1 kcal/mol. OpenFF parameters for novel natural products less validated than for typical drugs.</p></div>
+
+<div class="bridge">🔗 MD confirms drugs stay. But HOW TIGHTLY? And does R702W change binding strength? Only FEP answers this with a real number.</div>
+`},
+
+// ============ FEP ============
+{id:'fep',icon:'⚡',label:'6. FEP',ct:`
+<h1>6. Free Energy Perturbation — The Gold Standard ${au('FEP','FEP')}</h1>
+<p class="sub">The most rigorous, expensive, and accurate calculation in your project. Pharma companies pay $100K+/year for software that does this. You built it for free.</p>
+
+<div class="why"><p><strong>Why FEP?</strong> MD says "drug stays." FEP says "drug binds with exactly −10.36 ± 0.18 kcal/mol." Then you run it on the mutant: −8.02 ± 0.19. The difference (ΔΔG = +2.34) tells you PRECISELY how much R702W weakens binding. No other method gives you this number at this accuracy.</p></div>
+
+<h2>Free Energy — AP Chem Review</h2>
+<div class="c ca">
+<p><strong>ΔG = ΔH − TΔS</strong> (you know this from AP Chem)</p>
+<p><strong>${au('enthalpy','ΔH')}</strong> = energy from molecular contacts (H-bonds, vdW, electrostatics). More contacts = more negative ΔH = stronger binding.</p>
+<p><strong>${au('entropy','TΔS')}</strong> = freedom penalty. Free drug rotates/translates freely. Bound drug is locked. Lost freedom = unfavorable.</p>
+<p><strong>ΔG < 0 = binding happens.</strong> Enthalpy gain must overcome entropy cost.</p>
+</div>
+
+<h2>How FEP Works — The Disappearing Drug</h2>
+<p>Gradually "delete" the drug using a dimmer switch called <strong>λ</strong>. λ=1 → drug fully present. λ=0 → drug is a ghost.</p>
+<p><strong>20 ${au('lambda_window','lambda windows')}</strong>: tiny steps from fully present to ghost. At each, run separate MD + measure energy.</p>
+<p>Do this in the <strong>protein pocket</strong> (expensive to remove — many contacts) and in <strong>pure water</strong> (cheaper).</p>
+<p><strong>ΔG<sub>bind</sub> = ΔG<sub>solvent</sub> − ΔG<sub>complex</sub></strong> — the ${au('thermodynamic_cycle','thermodynamic cycle')}. Mathematically exact.</p>
+
+<h2>Lambda Window Details</h2>
+<table>
+<tr><th>Windows</th><th>What Changes</th><th>Why This Order</th></tr>
+<tr><td>0–4</td><td>${au('Boresch','Boresch restraints')} on</td><td>Lock drug position before removing forces</td></tr>
+<tr><td>5–12</td><td>Electrostatics fade</td><td>Smooth — no singularities</td></tr>
+<tr><td>13–19</td><td>Sterics fade (${au('softcore','softcore')})</td><td>Shape removal causes atom overlaps — softcore prevents r⁻¹² explosion</td></tr>
+</table>
+<p><strong>Total: 3 legs × 20 windows × 2 compounds = 120 simulations</strong>. Each: 100 ps equilibration + 1 ns production at 2 fs timestep.</p>
+
+<h2>${au('MBAR','MBAR')} Analysis</h2>
+<p>Multistate Bennett Acceptance Ratio. Uses data from ALL 20 windows simultaneously to compute the statistically optimal free energy. Provably minimum-variance estimator. The standard in pharma industry FEP.</p>
+
+${ex('x','13 FEP Windows Failed — Endpoint Catastrophe',`
+<p>13 of 60 windows crashed. All at high λ (steric decoupling). ${au('endpoint_catastrophe','Endpoint catastrophe')}: weak vdW at ghost λ → water rushes in → atoms overlap → NaN.</p>
+<p><strong>Fix: Sequential seeding.</strong> Each window starts from previous window's final coordinates. System already relaxed at nearby λ. No cold-start crashes. All 120 completed after fix.</p>
+`)}
+
+${ex('w','Why FEP beats MM-GBSA (your first attempt)',`
+<p>MM-GBSA: snapshots + implicit water (smooth dielectric field). Fast but error ~2-5 kcal/mol.</p>
+<p>FEP: full thermodynamic path + explicit water + 20 intermediate states + MBAR. Error ~0.5-1.5 kcal/mol.</p>
+<p><strong>Critical:</strong> MM-GBSA gave a DIFFERENT compound ranking than FEP. If you'd stopped at MM-GBSA, you'd have drawn WRONG conclusions about mutation sensitivity.</p>
+`)}
+
+<div class="pc">
+<div class="pros"><p>Gold standard accuracy (~0.5 kcal/mol)</p><p>Thermodynamically exact (no approximations)</p><p>8σ significance — extraordinarily robust</p><p>Built for free (pharma pays $100K+/yr)</p></div>
+<div class="cons"><p>Extremely expensive computationally (48 GPU-hrs per compound)</p><p>Only feasible for 2 compounds</p><p>Requires careful setup (Boresch restraints, softcore, sequential seeding)</p><p>Results depend on force field accuracy</p></div>
+</div>
+
+<div class="lim"><p style="margin-top:8px">1 ns per window may be insufficient for slow conformational changes. Only 2 compounds characterized — broader coverage would strengthen conclusions. Force field parameters for Bufadienolide (unusual steroid) less validated. Boresch restraint atom selection affects results. No experimental ΔG to calibrate against (zero NOD2 binding data exists).</p></div>
+
+<div class="bridge">🔗 FEP gives you the numbers. Now let's decode every single one.</div>
+`},
+
+// ============ RESULTS ============
+{id:'res',icon:'📊',label:'7. Results',ct:`
+<h1>7. Results — Every Number on Your Poster Decoded</h1>
+<p class="sub">Walking through Figure 16 number by number. By the end, you'll be able to explain each one to a PhD committee.</p>
+
+<h2>Figure 16 — THE Key Result</h2>
+<div class="glow" style="border-radius:12px;border:1px solid var(--brd);margin:14px 0"><div class="glow-inner">
+<table>
+<tr><th>Compound</th><th>${au('delta_G','ΔG')}<sub>bind</sub> (WT)</th><th>ΔG<sub>bind</sub> (R702W)</th><th>${au('delta_delta_G','ΔΔG')}</th><th>σ Level</th></tr>
+<tr><td><strong>${au('febuxostat','Febuxostat')}</strong></td><td class="n">−10.36 ± 0.18</td><td class="n">−8.02 ± 0.19</td><td class="n" style="color:var(--red)">+2.34 ± 0.26</td><td class="n">8σ (p < 0.001)</td></tr>
+<tr><td><strong>${au('bufadienolide','Bufadienolide')}</strong></td><td class="n">−15.22 ± 0.26</td><td class="n">−15.66 ± 0.26</td><td class="n" style="color:var(--grn)">−0.44 ± 0.37</td><td>1.8σ (not significant)</td></tr>
+</table>
+</div></div>
+
+<h2>Decoding Each Number</h2>
+
+<h3>ΔG = −10.36 ± 0.18 ${au('kcal_mol','kcal/mol')} (Febuxostat, WT)</h3>
+<div class="c ca">
+<p><strong>−10.36:</strong> Strong binding. Drug-like range = −6 to −10. Anything below −8 is strong. −10.36 is excellent.</p>
+<p><strong>± 0.18:</strong> Statistical error from MBAR. You ran 1 ns/window, not infinity. ±0.18 is remarkably small (typical: ±0.5–1.5). Your calculation converged very well.</p>
+</div>
+
+<h3>ΔΔG = +2.34 ± 0.26 kcal/mol (Febuxostat)</h3>
+<div class="c co">
+<p><strong>Positive = weaker in mutant.</strong> R702W makes Febuxostat bind 2.34 kcal/mol less tightly.</p>
+<p><strong>Converting to fold-change</strong> (the ${au('Boltzmann','Boltzmann')} equation):</p>
+<p>At 310 K: RT = 0.616 kcal/mol</p>
+<p style="font-size:1.1em"><strong>Fold-change = e<sup>(ΔΔG/RT)</sup> = e<sup>(2.34/0.616)</sup> = e<sup>3.80</sup> ≈ <span class="n" style="font-size:1.2em">45–50× weaker</span></strong></p>
+<p>If Kd(WT) = 10 nM → Kd(R702W) ≈ 500 nM. That's typically the difference between a viable drug and a failed candidate.</p>
+</div>
+
+<h3>8σ Significance</h3>
+<div class="c co">
+<p><strong>σ level = |ΔΔG| / error = 2.34 / 0.26 ≈ 9σ</strong> (poster says 8σ)</p>
+<p>Context: Higgs boson discovery = 5σ. Your result at 8σ is extraordinary. Probability of random fluctuation: p < 10⁻¹⁵. <strong>This is not noise.</strong></p>
+</div>
+
+<h3>Bufadienolide: ΔΔG = −0.44 ± 0.37 (Not Significant)</h3>
+<div class="c cg">
+<p>1.8σ — below 2σ threshold. Indistinguishable from zero. Mutation has <strong>no significant effect</strong> on Bufadienolide binding. It survives.</p>
+</div>
+
+<h2>WHY They Behave Differently — The Mechanism</h2>
+<div class="vs">
+<div class="vl">
+<h3 style="color:var(--red)">Febuxostat — Mutation-SENSITIVE</h3>
+<p>Binding depends on ${au('electrostatic','electrostatic')} H-bonds with ${au('ASP1011','ASP1011')}. H-bonds need precise geometry (<3.5 Å + angle). R702W rigidifies pocket → ASP1011 shifts ~0.5–1.0 Å → H-bond breaks → 50× weaker.</p>
+</div>
+<div class="vw">
+<h3 style="color:var(--grn)">Bufadienolide — Mutation-RESISTANT</h3>
+<p>Binding depends on ${au('hydrophobic','hydrophobic')} van der Waals with nonpolar residues (LEU, ILE, VAL). Hydrophobic contacts are shape-tolerant (4–6 Å). Pocket rigidifies but nonpolar surface stays similar → contacts survive → ΔΔG ≈ 0.</p>
+</div>
+</div>
+
+<div class="ky">
+<p style="font-size:1.05em"><strong>🎯 THE DISCOVERY:</strong> Mutation effects on drug binding are <strong>LIGAND-DEPENDENT</strong>. Same mutation, opposite effects on different drugs. You can't develop "a NOD2 drug" for all patients. Drug choice must match patient genotype. That's ${au('pharmacogenomics','pharmacogenomics')} — ${au('precision_medicine','precision medicine')}.</p>
+<p>Bufadienolide interacting with NOD2 is previously unreported. Genuinely new discovery.</p>
+</div>
+
+${ex('j','Judge: "Why should I believe computational results without experimental validation?"',`
+<p>"Three layers of evidence. First, internal controls — our shuffled-label ML drops to AUC 0.50, our non-binder leaves the pocket in MD by 5 nanoseconds, and our FEP error bars are well-converged at 0.18–0.26 kcal/mol. Second, statistical significance — 8 sigma is far beyond chance. Third, the mechanistic explanation is consistent: electrostatic contacts are geometry-sensitive while hydrophobic contacts are geometry-tolerant, and our MD independently shows the pocket geometry changes. We acknowledge computational results need experimental confirmation — SPR, ITC, and HDX-MS are our planned next steps."</p>
+`)}
+
+${ex('v','ISEF Rubric: How This Section Scores',`
+<p><strong>Execution (20 pts):</strong> Systematic data collection ✅ (120 lambda windows). Reproducibility ✅ (3 replicates in MD). Statistical methods ✅ (MBAR, 8σ, proper error propagation). Sufficient data ✅.</p>
+<p><strong>Creativity & Impact (20 pts):</strong> Novel finding (ligand-dependent mutation effects). Potential impact (pharmacogenomic drug selection for 1M+ Crohn's patients). Personal connection (you carry the mutation).</p>
+<p><strong>Interview (25 pts):</strong> You need to explain every number. Practice: "ΔΔG of plus 2.34 kcal/mol at 8 sigma converts to approximately 50-fold weaker binding through the Boltzmann relationship." Say it until it's automatic.</p>
+`)}
+`},
+
+// ============ PRESENTATION ============
+{id:'talk',icon:'🎤',label:'8. Presentation',ct:`
+<h1>8. Your 3-Minute Pitch + Judge Q&A Bank</h1>
+<p class="sub">35 points — the biggest single category. Your poster is secondary to your knowledge.</p>
+
+<div class="rubric">📋 ISEF PRESENTATION: 35/100 points (Poster 10 + Interview 25)</div>
+
+<h2>The 60-Second Pitch (When They Say "Describe Your Project")</h2>
+<div class="c ca">
+<p><em>"I carry the R702W variant of NOD2 — a mutation linked to Crohn's disease. Current treatments like Remicade target downstream inflammation but not the defective sensor itself. I built a computational drug discovery pipeline, starting with 9,566 compounds, using CNN-based docking, machine learning with scaffold-split validation, and 520 nanoseconds of molecular dynamics.</em></p>
+<p><em>The key finding: Free Energy Perturbation across 120 lambda windows shows Febuxostat binds 50-fold weaker to the mutant at 8-sigma significance, while Bufadienolide — a natural product — is unaffected. Mutation effects are ligand-dependent, suggesting drug selection should match patient genotype."</em></p>
+</div>
+
+<h2>Complete Judge Q&A Bank</h2>
+
+${ex('j','"How did you come up with this idea?"',`
+<p>"At 14, a genetic test revealed I carry the R702W variant. My geneticist explained what it meant for Crohn's disease, but when I asked about treatments targeting NOD2 directly, the answer was 'none exist.' I wanted to understand what R702W actually does at the molecular level and whether existing drugs could bind NOD2 despite the mutation."</p>
+`)}
+
+${ex('j','"Why AlphaFold instead of a crystal structure?"',`
+<p>"No complete crystal structure of human NOD2 exists. PDB 5IRM covers only CARD and NBD — residues 1 through 577. The LRR domain where our drugs bind, residues 744 to 1040, is entirely absent. AlphaFold2 predicted full-length NOD2 with pLDDT scores above 90 in the LRR, indicating high confidence. We acknowledge this as a limitation."</p>
+`)}
+
+${ex('j','"How do you know the ML isn\'t memorizing?"',`
+<p>"Three controls. Scaffold-split CV — no shared backbones between train and test. Shuffled-label control — AUC drops to 0.50. And we caught our own data leakage: random splits gave 0.998, we diagnosed scaffold overlap, corrected it, and got an honest 0.85 to 0.93."</p>
+`)}
+
+${ex('j','"Explain ΔΔG = +2.34 in practical terms"',`
+<p>"Through the Boltzmann relationship at 310 Kelvin, 2.34 kcal/mol converts to approximately 50-fold weaker binding. If Febuxostat had a Kd of 10 nanomolar for wild-type, it would be about 500 nanomolar for R702W. That magnitude typically separates viable drugs from failed candidates. The 8-sigma significance means this is far beyond noise."</p>
+`)}
+
+${ex('j','"How does a mutation 79 Angstroms away affect binding?"',`
+<p>"Allosteric mechanism proven by our MD. Apo simulations: R702W reduces RMSD from 4.05 to 3.27 Angstroms. Wild-type visits conformations above 5 Angstroms in 12.6% of frames; R702W never does. Rigidification propagates through the HD2-to-LRR helical interface. Febuxostat loses its H-bond network with ASP1011 because the pocket geometry shifts. Bufadienolide's hydrophobic contacts are shape-tolerant and survive."</p>
+`)}
+
+${ex('j','"Did AI write your code?"',`
+<p>"Claude Code CLI helped implement and debug — OpenMM setup, CUDA errors, batch scripts. Scientific decisions were mine: method selection, parameters, interpreting results, pipeline design. Every AI interaction is timestamped in my logbook with a dedicated AI Prompt Log appendix."</p>
+`)}
+
+${ex('j','"What are the limitations?"',`
+<p>"Five main ones. Computational only — no experimental validation yet. AlphaFold structure rather than crystal. Only R702W tested, not G908R or 1007fs. Only 2 compounds through FEP due to compute constraints. And binding doesn't prove functional rescue — the drug might bind but not fix NOD2 signaling."</p>
+`)}
+
+${ex('j','"What would you do next?"',`
+<p>"SPR for binding kinetics, ITC to decompose thermodynamics into enthalpy and entropy, HDX-MS to map dynamics changes and test the allosteric mechanism directly. Computationally, extend FEP to G908R and 1007fs variants for a complete mutation sensitivity profile. And cell-based NF-κB reporter assays to test functional rescue."</p>
+`)}
+
+${ex('j','"What is Febuxostat normally used for?"',`
+<p>"FDA-approved xanthine oxidase inhibitor for gout — reduces uric acid. No known connection to NOD2. This is drug repurposing — finding new uses for existing approved drugs. Advantage: safety and pharmacokinetic data already exist, so clinical development would be years faster than a novel molecule."</p>
+`)}
+
+${ex('j','"Why only 2 compounds through FEP?"',`
+<p>"FEP requires 120 lambda windows — each with 1 nanosecond of simulation. On my RTX 4060 Ti, each compound pair took about 48 GPU-hours. Running all 148 ADMET-passing compounds would take 3,500+ GPU-hours. The two selected represent distinct binding mechanisms — electrostatic versus hydrophobic — sufficient to demonstrate the principle."</p>
+`)}
+
+${ex('j','"Why is Crohn\'s inflammatory if the mutation REDUCES sensing?"',`
+<p>"The paradox: initial immune deficiency leads to chronic inflammation. Weak MDP detection means bacteria aren't cleared early. They proliferate, and backup pathways — TLRs, inflammasomes — trigger massive, sustained inflammation. It's a fire alarm with dead batteries: the fire smolders until someone calls every fire department."</p>
+`)}
+
+${ex('j','"What are your variables and controls?"',`
+<p>"Independent variables: compound identity and genotype — wild-type versus R702W. Dependent variables: ΔG binding free energy, RMSD, pocket occupancy, hydrogen bond count. Controls: shuffled-label negative control in ML — AUC drops to 0.50. Non-binder in MD — leaves pocket by 5 nanoseconds. Apo simulations — no drug — prove the allosteric effect exists independently of drug binding."</p>
+`)}
+
+<h2>Delivery Tips</h2>
+<div class="c">
+<p><strong>Point at your poster.</strong> Physically touch near each figure. Guide the judge's eyes.</p>
+<p><strong>Slow down for numbers:</strong> "Eight sigma… fifty-fold weaker… zero prior reports." Pause. Let them land.</p>
+<p><strong>Answer, don't recite.</strong> If a judge interrupts — STOP and answer their question immediately. They're testing if you can THINK, not recite a speech.</p>
+<p><strong>"I don't know, but...":</strong> "That's a great question. I haven't investigated that, but my hypothesis based on these results would be…" — then reason through it. Judges LOVE scientific reasoning under uncertainty.</p>
+<p><strong>Acknowledge limitations BEFORE they ask.</strong> "One limitation is…" shows maturity. Pretending your work is perfect shows the opposite.</p>
+<p><strong>12 minutes max.</strong> Judge interviews are 12-15 minutes. ~2 min pitch, ~10 min Q&A. Practice being CONCISE — 30-second answers unless they want more.</p>
+</div>
+`},
+
+// ============ GLOSSARY ============
+{id:'glo',icon:'📖',label:'Audio Glossary',ct:`
+<h1>Audio Pronunciation Glossary</h1>
+<p class="sub">75 terms with Google TTS pronunciation. Tap 🔊 anytime you're unsure. Come back here whenever a term trips you up.</p>
+
+<h2>Biology</h2>
+<div class="gg">
+<div class="gi"><strong>NOD2</strong><br><small>Immune sensor</small>${au('NOD2','NOD2')}</div>
+<div class="gi"><strong>MDP</strong><br><small>Bacterial fragment</small>${au('MDP','MDP')}</div>
+<div class="gi"><strong>R702W</strong><br><small>Your mutation</small>${au('R702W','R702W')}</div>
+<div class="gi"><strong>NF-κB</strong><br><small>Transcription factor</small>${au('NF_kappa_B','NF-κB')}</div>
+<div class="gi"><strong>RIPK2</strong><br><small>Kinase</small>${au('RIPK2','RIPK2')}</div>
+<div class="gi"><strong>TAK1</strong><br><small>Kinase complex</small>${au('TAK1','TAK1')}</div>
+<div class="gi"><strong>Crohn's</strong><br><small>IBD</small>${au('crohns',"Crohn's")}</div>
+<div class="gi"><strong>Allosteric</strong><br><small>Distant effect</small>${au('allosteric','Allosteric')}</div>
+<div class="gi"><strong>LRR</strong><br><small>Drug binding domain</small>${au('LRR','LRR')}</div>
+<div class="gi"><strong>Arginine</strong><br><small>Normal at 702</small>${au('arginine','Arginine')}</div>
+<div class="gi"><strong>Tryptophan</strong><br><small>Mutant at 702</small>${au('tryptophan','Tryptophan')}</div>
+<div class="gi"><strong>ASP1011</strong><br><small>Key pocket residue</small>${au('ASP1011','ASP1011')}</div>
+</div>
+
+<h2>Computation</h2>
+<div class="gg">
+<div class="gi"><strong>GNINA</strong><br><small>CNN docking</small>${au('GNINA','GNINA')}</div>
+<div class="gi"><strong>XGBoost</strong><br><small>ML trees</small>${au('XGBoost','XGBoost')}</div>
+<div class="gi"><strong>Morgan FP</strong><br><small>Mol barcode</small>${au('morgan_fingerprint','Morgan FP')}</div>
+<div class="gi"><strong>Scaffold Split</strong><br><small>Honest split</small>${au('scaffold_split','Scaffold Split')}</div>
+<div class="gi"><strong>Pseudo-Label</strong><br><small>Proxy labels</small>${au('pseudo_label','Pseudo-Label')}</div>
+<div class="gi"><strong>AUC</strong><br><small>Accuracy</small>${au('AUC','AUC')}</div>
+<div class="gi"><strong>ADMET</strong><br><small>Drug safety</small>${au('ADMET','ADMET')}</div>
+<div class="gi"><strong>Lipinski</strong><br><small>Rule of 5</small>${au('lipinski','Lipinski')}</div>
+<div class="gi"><strong>PAINS</strong><br><small>False positives</small>${au('PAINS','PAINS')}</div>
+<div class="gi"><strong>TPSA</strong><br><small>Polar area</small>${au('TPSA','TPSA')}</div>
+<div class="gi"><strong>Murcko</strong><br><small>Core scaffold</small>${au('Murcko','Murcko')}</div>
+<div class="gi"><strong>Data Leakage</strong><br><small>Test contamination</small>${au('data_leakage','Data Leakage')}</div>
+</div>
+
+<h2>MD & Physics</h2>
+<div class="gg">
+<div class="gi"><strong>MD</strong><br><small>F=ma for atoms</small>${au('molecular_dynamics','MD')}</div>
+<div class="gi"><strong>AMBER14</strong><br><small>Protein FF</small>${au('AMBER14','AMBER14')}</div>
+<div class="gi"><strong>OpenFF</strong><br><small>Drug FF</small>${au('OpenFF','OpenFF')}</div>
+<div class="gi"><strong>TIP3P-FB</strong><br><small>Water model</small>${au('TIP3P_FB','TIP3P-FB')}</div>
+<div class="gi"><strong>RMSD</strong><br><small>Deviation</small>${au('RMSD','RMSD')}</div>
+<div class="gi"><strong>HMR</strong><br><small>H-mass trick</small>${au('HMR','HMR')}</div>
+<div class="gi"><strong>PME</strong><br><small>Electrostatics</small>${au('PME','PME')}</div>
+<div class="gi"><strong>NVT / NPT</strong><br><small>Ensembles</small>${au('NVT','NVT')}</div>
+<div class="gi"><strong>Langevin</strong><br><small>Thermostat</small>${au('Langevin','Langevin')}</div>
+<div class="gi"><strong>Femtosecond</strong><br><small>10⁻¹⁵ s</small>${au('femtosecond','Femtosecond')}</div>
+<div class="gi"><strong>Ångström</strong><br><small>10⁻¹⁰ m</small>${au('angstrom','Angstrom')}</div>
+</div>
+
+<h2>FEP & Thermodynamics</h2>
+<div class="gg">
+<div class="gi"><strong>FEP</strong><br><small>Free Energy Perturbation</small>${au('FEP','FEP')}</div>
+<div class="gi"><strong>ΔG</strong><br><small>Binding energy</small>${au('delta_G','Delta G')}</div>
+<div class="gi"><strong>ΔΔG</strong><br><small>Mutation effect</small>${au('delta_delta_G','Delta Delta G')}</div>
+<div class="gi"><strong>MBAR</strong><br><small>Estimator</small>${au('MBAR','MBAR')}</div>
+<div class="gi"><strong>Boresch</strong><br><small>Restraints</small>${au('Boresch','Boresch')}</div>
+<div class="gi"><strong>Softcore</strong><br><small>No crashes</small>${au('softcore','Softcore')}</div>
+<div class="gi"><strong>Enthalpy</strong><br><small>Interaction E</small>${au('enthalpy','Enthalpy')}</div>
+<div class="gi"><strong>Entropy</strong><br><small>Freedom</small>${au('entropy','Entropy')}</div>
+<div class="gi"><strong>Boltzmann</strong><br><small>ΔG↔Kd math</small>${au('Boltzmann','Boltzmann')}</div>
+<div class="gi"><strong>kcal/mol</strong><br><small>Energy unit</small>${au('kcal_mol','kcal/mol')}</div>
+</div>
+
+<h2>Compounds & Future</h2>
+<div class="gg">
+<div class="gi"><strong>Febuxostat</strong><br><small>FDA, mut-sensitive</small>${au('febuxostat','Febuxostat')}</div>
+<div class="gi"><strong>Bufadienolide</strong><br><small>Natural, resistant</small>${au('bufadienolide','Bufadienolide')}</div>
+<div class="gi"><strong>AlphaFold2</strong><br><small>AI structure</small>${au('AlphaFold','AlphaFold')}</div>
+<div class="gi"><strong>SPR</strong><br><small>Binding kinetics</small>${au('SPR','SPR')}</div>
+<div class="gi"><strong>ITC</strong><br><small>Calorimetry</small>${au('ITC','ITC')}</div>
+<div class="gi"><strong>Pharmacogenomics</strong><br><small>Gene-guided Rx</small>${au('pharmacogenomics','Pharmacogenomics')}</div>
+</div>
+`},
+
+];
+
+// ============ RENDER ============
+const sb=document.getElementById('sb'),mn=document.getElementById('mn'),ct=document.getElementById('ct');
+S.forEach((s,i)=>{
+const b=document.createElement('button');b.className='nb'+(i===0?' on':'');b.innerHTML=`<span class="ni">${s.icon}</span>${s.label}`;b.onclick=()=>go(s.id);sb.appendChild(b);
+const m=document.createElement('button');m.className='mb'+(i===0?' on':'');m.textContent=s.icon+' '+s.label;m.onclick=()=>go(s.id);mn.appendChild(m);
+const d=document.createElement('div');d.id='s_'+s.id;d.className='sec'+(i===0?' on':'');d.innerHTML=s.ct;ct.appendChild(d);
+});
+function go(id){
+document.querySelectorAll('.nb,.mb').forEach(b=>b.classList.remove('on'));
+document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+const ix=S.findIndex(s=>s.id===id);
+document.querySelectorAll('.nb')[ix]?.classList.add('on');
+document.querySelectorAll('.mb')[ix]?.classList.add('on');
+document.getElementById('s_'+id)?.classList.add('on');
+window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
