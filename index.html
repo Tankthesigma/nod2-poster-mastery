@@ -203,6 +203,13 @@ const S=[
 
 <p>This means the mutation doesn't directly touch where drugs bind. Instead, it changes the protein's behavior <em>at a distance</em>. Scientists call this an <strong>${au('allosteric','allosteric')} effect</strong> — "allo" (other) + "steric" (shape). A shape change in one place causing effects somewhere else. Like pressing the brake pedal in a car changes what happens at the wheels, even though your foot is far from the wheels.</p>
 
+${ex('l','HOW I chose NOD2 and the LRR pocket as my target',`
+<p><strong>Personal starting point:</strong> At 14, a clinical genetic test revealed you carry R702W. During Remicade infusions (2-4× per month), you asked your doctor "are there drugs that target NOD2 itself?" Answer: "No." That was the starting question.</p>
+<p><strong>Why LRR domain for drugs?</strong> Literature review during infusions. The LRR domain is where MDP (the bacterial fragment) binds. If MDP binds there, small drug molecules might too. The concave face of the LRR has a pocket-like cavity visible in the AlphaFold structure. Published Crohn's research focuses on downstream targets (TNF-α, IL-12/23) — nobody had tried targeting NOD2 directly because no crystal structure of the binding pocket existed.</p>
+<p><strong>Why AlphaFold2?</strong> PDB search for "NOD2 human" returned 5IRM — rabbit NOD2, only CARD+NBD domains (residues 1-577). The LRR domain (744-1040) where drugs would bind was completely missing. AlphaFold2 predicted full-length human NOD2 with pLDDT confidence >90 in the LRR region. No alternative existed — without AlphaFold, this project couldn't happen.</p>
+<p><strong>Why R702W and not G908R or 1007fs?</strong> R702W is the most common NOD2 Crohn's variant (~10% of patients) and the one you personally carry. Starting with the mutation you understand best made scientific and personal sense. G908R and 1007fs are planned future work — you acknowledge this limitation.</p>
+`)}
+
 <h2>The R702W Mutation — What Actually Changed ${au('R702W','R702W')}</h2>
 <p>To understand R702W, you need to know that the 20 amino acids have different physical properties. Two matter here:</p>
 
@@ -300,6 +307,15 @@ const S=[
 <tr><td>Total time</td><td class="n">~13 hours</td><td>~2 minutes per compound × 9,566 compounds, on your RTX 4060 Ti GPU.</td></tr>
 </table>
 
+${ex('l','HOW I actually arrived at these parameters',`
+<p><strong>Exhaustiveness 32:</strong> GNINA default is 8. Gemini (Google's AI) reviewed my Phase 1 plan and flagged this: "When you get to the docking step, set exhaustiveness = 32. The default of 8 is too lazy for a complex protein like NOD2." I verified this by reading GNINA benchmarks — higher exhaustiveness means more random starting orientations are explored, reducing the chance of missing the best pose. The tradeoff is speed: 32 takes 4× longer than 8. On GPU this was acceptable (2 min/compound vs 30 sec).</p>
+<p><strong>Grid box 30 × 30 × 30 Å:</strong> Also from Gemini review: "Ensure the grid box (20-30 Å) isn't too big — if the box is too large, signal-to-noise drops and the computer finds fake binding spots." I measured the pocket visually in PyMOL (~20 Å across) and added 5 Å padding on each side = 30 Å. Large enough for bulky compounds to rotate freely inside, small enough to focus the search.</p>
+<p><strong>Grid center (12.5, −3.2, 8.7):</strong> Calculated as the geometric centroid of known pocket-lining residues in the LRR domain. Identified residues from the AlphaFold structure by looking at the concave face where MDP-sensing residues cluster. This wasn't automated — I selected the residues manually based on literature about the LRR binding surface.</p>
+<p><strong>9 poses per compound:</strong> GNINA default is 9. Kept it because more poses = higher chance of capturing the true binding mode if the top-ranked pose is wrong. Minimal cost since only the scoring adds time, not additional searching.</p>
+<p><strong>CNN rescoring (not CNN scoring):</strong> GNINA offers two modes — CNN scoring during the search (slow, accurate) or Vina search + CNN rescore at the end (fast, nearly as accurate). Used rescore mode because the benchmarks show only ~2% difference in enrichment, but 3× faster.</p>
+<p><strong>What I tried first that failed:</strong> AutoDock Vina. Installation failed on Windows WSL2 due to missing dependencies. Switched to GNINA because it was available as a pre-built binary with GPU support.</p>
+`)}
+
 ${ex('x','ARG_MAX Crash — 9,566 filenames broke Linux',`
 <p><strong>What you tried:</strong> <code>gnina -l ligands/*.pdbqt</code> — feeding all 9,566 filenames at once using a wildcard.</p>
 <p><strong>What happened:</strong> Linux has a maximum command-line length (called ARG_MAX, about 2 MB). 9,566 filenames × ~30 characters each = ~287 KB. Exceeded the limit. But GNINA didn't show an error — it just printed its help menu and exited successfully (exit code 0). No results, no error message. You had to figure out WHY a valid-looking command produced nothing.</p>
@@ -370,6 +386,16 @@ ${ex('x','GPU Running at 1% — Missing Library Path',`
 </ul>
 <p>This gives you <span class="n">~858</span> labeled compounds. Are these labels perfect? No — docking scores are noisy. But the EXTREMES (very high and very low scores) are more reliable than the middle. Good enough to train on.</p>
 </div>
+
+${ex('l','HOW I chose XGBoost and these specific hyperparameters',`
+<p><strong>Why XGBoost over neural networks or random forests?</strong> My dataset has only ~858 labeled compounds with 2,050 features. Neural networks need thousands to millions of examples to train well — they'd memorize 858 samples instantly. Random forests are good but don't do sequential error correction. XGBoost is the standard choice for small tabular datasets in drug discovery (it wins most Kaggle competitions on tabular data). Claude Code (CLI AI tool) helped implement it, but the choice was based on reading papers about ML in virtual screening.</p>
+<p><strong>Hyperparameters — how I got these exact numbers:</strong></p>
+<p><em>n_estimators = 100:</em> Started with Claude Code's suggestion of 100-500. With only 858 samples and learning_rate=0.05, each tree contributes 5%. After 100 trees = effectively all signal captured. Tried 200 and 500 — AUC didn't improve, training loss kept dropping (overfitting). 100 was the sweet spot.</p>
+<p><em>max_depth = 6:</em> Each tree has at most 2⁶ = 64 leaf nodes. With 858 samples, that's 858 ÷ 64 ≈ 13 samples per leaf — enough to be statistically meaningful. Depth 3 (8 leaves, 107/leaf) was too coarse — couldn't capture patterns. Depth 12 (4096 leaves, <1 sample/leaf) memorized everything.</p>
+<p><em>learning_rate = 0.05:</em> Each tree corrects only 5% of the remaining error. Low rate = more trees needed but less overfitting. Standard practice: pair low learning rate with moderate n_estimators.</p>
+<p><em>subsample = 0.8, colsample_bytree = 0.8:</em> Each tree sees only 80% of rows and 80% of features. Double randomization prevents any single tree from memorizing the full dataset. Common default in drug discovery ML papers.</p>
+<p><strong>Was this tuned with Optuna or grid search?</strong> No formal hyperparameter optimization — these are well-established defaults from XGBoost documentation and drug discovery ML literature. With 858 pseudo-labeled samples, heavy tuning would just overfit to noise. I tested a few alternatives (depth 3-12, lr 0.01-0.1) and confirmed these were reasonable.</p>
+`)}
 
 <h2>Features — Translating Molecules Into Numbers</h2>
 <p>A computer can't look at a molecular structure. It needs numbers. You need to convert each molecule into a list of numbers called a <strong>feature vector</strong>. You used <span class="n">2,050</span> numbers per molecule:</p>
@@ -470,6 +496,13 @@ ${ex('x','Data Leakage Discovery — Your AUC was 0.998',`
 
 <p><strong>Result: <span class="n">148 of 150 passed (98.7%)</span>.</strong> The high pass rate makes sense — your FDA-approved drugs and filtered natural products are already designed to be drug-like. The 2 failures had PAINS alerts (Michael acceptors).</p>
 
+${ex('l','HOW I chose these specific filters',`
+<p><strong>Why Lipinski + Veber + PAINS + Brenk?</strong> This is the standard ADMET filtering stack used in published drug discovery papers. I learned about it from a YouTube series on computational drug discovery and then read the original papers. Claude Code implemented it using RDKit's built-in filter functions.</p>
+<p><strong>Why these specific cutoffs?</strong> Lipinski's Rule of 5 cutoffs (MW ≤ 500, LogP ≤ 5, HBD ≤ 5, HBA ≤ 10) are directly from Lipinski's 1997 paper — based on analysis of FDA-approved oral drugs. Veber's rules (TPSA ≤ 140, RotBonds ≤ 10) from Veber et al. 2002. These aren't my choices — they're field standards.</p>
+<p><strong>Why TPSA ≤ 140 and not a stricter cutoff?</strong> For surface receptors, TPSA ≤ 140 is fine. For intracellular targets like NOD2, some researchers use TPSA ≤ 90 Å² (more stringent membrane crossing). I kept 140 because my library includes FDA drugs already proven to reach intracellular targets, and being too strict might filter out real candidates. A judge might ask why I didn't use a stricter cutoff — honest answer: 140 is the published standard and I didn't want to introduce an arbitrary tighter cutoff without justification.</p>
+<p><strong>Order of filters:</strong> Lipinski first (fast, eliminates obvious non-drug-like), Veber next (catches remaining membrane-impermeable), PAINS (catches false-positive liabilities), Brenk last (catches toxicity). Order doesn't matter for the final set, but this progression makes logical sense.</p>
+`)}
+
 <p>148 compounds → expert manual curation → 8 → 5 to molecular dynamics → 2 to FEP.</p>
 
 <div class="pc">
@@ -538,6 +571,17 @@ ${ex('x','Data Leakage Discovery — Your AUC was 0.998',`
 <tr><td>Electrostatics</td><td>${au('PME','PME')}</td><td>Particle Mesh Ewald — a mathematical trick using Fourier transforms to compute long-range charge interactions efficiently. Without it, you'd need to calculate force between every atom pair (N² calculations — trillions). PME reduces this to N×log(N).</td></tr>
 <tr><td>Total simulated time</td><td class="n">520 ns</td><td>26 trajectories (apo WT, apo R702W, 5 drugs × WT/R702W × 3 replicates) × 20 ns each. About 8 hours per trajectory on your RTX 4060 Ti.</td></tr>
 </table>
+
+${ex('l','HOW I arrived at every MD parameter — the full decision trail',`
+<p><strong>Why OpenMM?</strong> Tried GROMACS first — installation on Windows WSL2 was a nightmare (GPU driver conflicts). OpenMM installed with conda in one command and had native Python API. Claude Code could write and debug OpenMM scripts directly. Amber and NAMD were alternatives but required separate licenses or complex compilation.</p>
+<p><strong>Why AMBER14 force field for protein?</strong> Industry standard for protein simulations since ~2015. Extensively validated against experimental NMR and X-ray data. ff14SB variant specifically optimized for protein backbone and side chain torsions. The alternative (CHARMM36) is equally valid — AMBER14 was chosen because OpenMM's built-in force field files include it directly (<code>amber14-all.xml</code>), making setup simpler.</p>
+<p><strong>Why OpenFF 2.1 Sage for drugs?</strong> GAFF (General Amber Force Field) is the traditional choice for small molecules, but it's older and less accurate for unusual scaffolds. OpenFF 2.1 uses automated parameter assignment based on chemical patterns — better for novel compounds like Bufadienolide (unusual steroid scaffold). Tried GAFF initially; some compounds had missing parameters. OpenFF handled them all.</p>
+<p><strong>Why 4 fs timestep + HMR?</strong> Standard MD uses 2 fs timestep. I learned about HMR from a YouTube tutorial on OpenMM optimization. HMR increases hydrogen mass from 1.008 to ~1.5 amu, slowing their vibration → you can safely use 4 fs → simulation runs 2× faster. I suggested this to Claude Code, which implemented it. <strong>But:</strong> HMR + heavy restraints + 4 fs caused the NaN crash (see crash story). After that, I use 2 fs during restrained equilibration and 4 fs only during production.</p>
+<p><strong>Why 310.15 K?</strong> = 37°C = human body temperature. The drug needs to work inside a patient, not at room temperature (298 K). This is standard for biomedical MD simulations.</p>
+<p><strong>Why 20 ns × 3 replicates?</strong> 20 ns is a practical minimum for observing ligand stability — enough time for a non-binder to drift away (your negative control left by 5 ns) but short enough to run on a single consumer GPU in ~8 hours. 3 replicates (each starting with different random velocities from the Maxwell-Boltzmann distribution) ensure results aren't a fluke of one lucky trajectory. Papers in this field typically use 10-100 ns; 20 ns × 3 is defensible for ISEF given compute constraints.</p>
+<p><strong>Why 1.0 nm cutoff + PME?</strong> Standard protocol. Atoms beyond 1.0 nm have their van der Waals interactions truncated (negligible at that distance). Electrostatics beyond 1.0 nm are handled by PME (Fourier transform trick) instead of direct calculation. 1.0 nm is the most common cutoff in published MD papers.</p>
+<p><strong>Restraint force constant k = 100 kJ/mol/nm²:</strong> Originally tried k = 1000 (from an OpenMM tutorial). Combined with HMR + 4 fs → NaN crash. Reduced to k = 100 after debugging. This is gentler but sufficient to hold the protein backbone during equilibration while allowing side chains to relax.</p>
+`)}
 
 ${ex('x','NaN Explosion — January 1 (Worst Crash)',`
 <p><strong>What happened:</strong> The simulation ran for about 200 steps and then OpenMM printed "Particle coordinate is NaN" (Not a Number) and crashed.</p>
@@ -631,6 +675,16 @@ ${ex('x','NaN Explosion — January 1 (Worst Crash)',`
 </table>
 
 <p>Each compound needs <strong>3 legs</strong>: WT protein complex, R702W protein complex, and pure water (solvent). × 2 compounds = <strong>6 legs × 20 windows = 120 total simulations</strong>. Each window: 100 ps equilibration + 1 ns production. Total FEP compute: ~120 ns.</p>
+
+${ex('l','HOW I got to FEP — and why these specific settings',`
+<p><strong>Why FEP at all?</strong> My first attempt at quantifying binding used MM-GBSA — a faster, cheaper method. But MM-GBSA gave a DIFFERENT ranking of mutation sensitivity than FEP did later. Reading Schrödinger's FEP+ papers showed MM-GBSA errors of 2-5 kcal/mol — too imprecise when the ΔΔG I'm measuring is 2.34 kcal/mol. A pharma researcher on Twitter recommended "if you want to compare WT vs mutant, FEP is the only rigorous path."</p>
+<p><strong>Why 20 lambda windows?</strong> Standard in published FEP studies. Fewer (5-10) = poor overlap between adjacent states = MBAR fails. More (30-40) = diminishing returns. 20 is what Schrödinger FEP+ and most academic papers use.</p>
+<p><strong>Why this phase order (restraints → charges → shape)?</strong> From decades of FEP methodology papers. Pin the drug first (Boresch restraints), then remove charges (smooth, no singularities), then remove shape last (causes overlaps — needs softcore potentials). Reversing the order crashes immediately.</p>
+<p><strong>Why Boresch restraints?</strong> They define 6 degrees of freedom (distance + angles + dihedrals) with an analytical correction term — no approximation needed. Claude Code selected the restraint atoms by finding stable geometric triplets.</p>
+<p><strong>Why 1 ns per window?</strong> Published FEP papers use 1-5 ns. I checked convergence: first-half vs second-half energy estimates agreed within 0.3 kcal/mol. 120 windows × 1 ns = 120 ns total was at my compute budget limit.</p>
+<p><strong>Why 2 fs (not 4 fs like MD)?</strong> Ghost-like drug states at low λ are fragile. HMR + 4 fs contributed to endpoint catastrophe crashes. Conservative 2 fs was stable across all 120 windows.</p>
+<p><strong>Why only 2 compounds?</strong> Each compound needs 60 windows (3 legs × 20). Total = 120 windows at ~48 GPU-hours per compound. All 148 would cost 3,500+ GPU-hours. Febuxostat and Bufadienolide represent distinct binding mechanisms (electrostatic vs hydrophobic) — sufficient to demonstrate the principle.</p>
+`)}
 
 <h2>MBAR — The Statistical Analysis ${au('MBAR','MBAR')}</h2>
 <p>At each lambda window, you collected energy samples. But you didn't just measure energy at that one λ value — at each sample, you ALSO computed what the energy WOULD HAVE BEEN at all 19 other λ values. This cross-evaluation creates a giant matrix (1,000 samples × 20 states = 20,000 numbers per leg).</p>
