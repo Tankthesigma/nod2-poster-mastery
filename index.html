@@ -110,6 +110,19 @@ ol,ul{padding-left:22px;margin-bottom:10px}li{margin-bottom:5px}
 .voice-panel select,.voice-panel input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:8px;background:var(--s2);color:var(--txt);font-size:12px;font-family:inherit}
 .voice-panel select:focus,.voice-panel input:focus{border-color:var(--f2);outline:none}
 @media(max-width:900px){.audio-bar{padding:8px 12px;gap:10px}.voice-panel{right:10px;left:10px;width:auto}}
+/* Poster panels */
+.poster-map{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0}
+@media(max-width:700px){.poster-map{grid-template-columns:1fr}}
+.poster-map>div{padding:12px;border-radius:10px;font-size:12px;line-height:1.6;cursor:pointer;transition:.15s}
+.poster-map>div:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(0,0,0,.3)}
+.pm-l{background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.25);color:var(--cyn)}
+.pm-m{background:rgba(255,107,43,.06);border:1px solid rgba(255,107,43,.25);color:var(--f2)}
+.pm-r{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.25);color:var(--grn)}
+.pm-l:hover{border-color:var(--cyn)}.pm-m:hover{border-color:var(--f2)}.pm-r:hover{border-color:var(--grn)}
+.panel-tag{display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.panel-tag-l{background:rgba(56,189,248,.15);color:var(--cyn)}
+.panel-tag-m{background:rgba(255,107,43,.15);color:var(--f2)}
+.panel-tag-r{background:rgba(34,197,94,.15);color:var(--grn)}
 /* Per-paragraph play */
 .p-play{position:absolute;left:-32px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:1px solid rgba(99,102,241,.25);background:rgba(99,102,241,.06);color:#818cf8;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:.15s;z-index:5;font-family:inherit;padding:0}
 .p-wrap:hover .p-play{opacity:1}
@@ -1549,8 +1562,28 @@ ${ex('j','"Could your data be explained any other way?"',`
 
 // ============ GLOSSARY ============
 {id:'poster',icon:'🔍',label:'9. Poster Walkthrough',ct:`
-<h1>Poster Walkthrough — Every Word Decoded</h1>
-<p class="sub">A judge will point at ANY word on your poster and ask "what does that mean?" This section walks through every sentence, every number, every term — left to right, top to bottom.</p>
+<h1>Poster Walkthrough — Section by Section</h1>
+<p class="sub">Your poster has 3 columns. Left = WHY. Middle = HOW. Right = WHAT YOU FOUND. This follows that exact layout.</p>
+
+<div class="poster-map">
+<div class="pm-l" onclick="document.getElementById('pw-left').scrollIntoView({behavior:'smooth'})">
+<strong style="font-size:14px">⬅️ LEFT PANEL</strong><br>
+Introduction<br>Research Question<br>Motivation<br>NOD2 Pathway<br>Domain Architecture<br>
+<em style="opacity:.7">THE WHY — your story</em>
+</div>
+<div class="pm-m" onclick="document.getElementById('pw-mid').scrollIntoView({behavior:'smooth'})">
+<strong style="font-size:14px">🔬 MIDDLE PANEL</strong><br>
+1. Preparation<br>2. GNINA Docking<br>3. NOD2-Scout ML<br>4. ADMET<br>5. Tier-1<br>6. MD Simulation<br>7. FEP<br>
+<em style="opacity:.7">THE HOW — your pipeline</em>
+</div>
+<div class="pm-r" onclick="document.getElementById('pw-right').scrollIntoView({behavior:'smooth'})">
+<strong style="font-size:14px">➡️ RIGHT PANEL</strong><br>
+APO Dynamics<br>MD Validation<br>FEP Results<br>Lead Compounds<br>Discussion<br>Conclusions<br>
+<em style="opacity:.7">THE WHAT — your results</em>
+</div>
+</div>
+
+<div class="ky">Click any panel above to jump there. When a judge walks up, you physically point left→middle→right and say "Let me walk you through the flow."</div>
 
 <h2>TITLE</h2>
 <div class="c ca">
@@ -1568,7 +1601,7 @@ ${ex('j','Word-by-word breakdown of the title',`
 <p><strong>Crohn's Variant:</strong> R702W is a Crohn's disease risk variant. ~10% of Crohn's patients carry it. Doubles disease risk.</p>
 `)}
 
-<h2>INTRODUCTION — Left Column</h2>
+<h2 id="pw-left"><span class="panel-tag panel-tag-l">⬅️ LEFT PANEL</span> INTRODUCTION</h2>
 
 <h3>Background</h3>
 ${ex('j','"Over 1 million Americans suffer from Crohn\'s disease, a painful, incurable inflammatory bowel disease"',`
@@ -1610,7 +1643,26 @@ ${ex('j','"(1) CNN-based docking + ML can prioritize binders (2) MD simulations 
 <p>(3) <strong>FEP quantifies mutation effects:</strong> Does R702W change binding strength? By how much? TESTABLE: ΔΔG ≠ 0 with statistical significance means the mutation affects binding.</p>
 `)}
 
-<h2>METHODS — Middle Column</h2>
+
+<h3>NOD2 Structure & Pathway (Bottom-Left of Poster)</h3>
+<div class="c cc">
+<p>This is the section judges look at most on the left panel. It shows:</p>
+<p><strong>MDP structure</strong> — the bacterial fragment your sensor detects (Figure 1)</p>
+<p><strong>Wild-type vs R702W pathway</strong> — two arrow diagrams showing the signaling chain working normally (left) vs impaired (right)</p>
+<p><strong>Domain architecture</strong> — the 5 domains of NOD2: CARD → NBD → HD1 → <strong>HD2 (your mutation)</strong> → <strong>LRR (your drug target)</strong></p>
+<p><strong>Protein structure figures</strong> — Figures 2-9 showing WT vs R702W NOD2, RIPK2, TAK1, NF-κB in active vs impaired states</p>
+</div>
+
+${ex('j','"Domain architecture: CARD, NBD, HD1, HD2, LRR — and why the 79.4 Å distance matters"',`
+<p><strong>CARD (1-120):</strong> Effector domain. Recruits RIPK2 to start signaling.</p>
+<p><strong>NBD (273-577):</strong> Binds ATP, drives oligomerization (nodosome formation).</p>
+<p><strong>HD1 (577-640):</strong> Structural linker.</p>
+<p><strong>HD2 (640-744):</strong> THE HINGE. R702W is HERE. Controls how the protein opens/closes.</p>
+<p><strong>LRR (744-1040):</strong> THE SENSOR. MDP binds here. Your drugs bind here.</p>
+<p><strong>79.4 Å:</strong> Distance from R702W (in HD2) to the drug binding pocket (in LRR). This is HUGE at molecular scale. The mutation doesn't touch the pocket — it changes the protein's flexibility at a distance. That's allostery.</p>
+`)}
+
+<h2 id="pw-mid"><span class="panel-tag panel-tag-m">🔬 MIDDLE PANEL</span> METHODS</h2>
 
 <h3>1. PREPARATION</h3>
 ${ex('j','"AlphaFold2 → e-Drug3D → COCONUT — Total: 9,566 unique compounds for screening"',`
@@ -1657,7 +1709,7 @@ ${ex('j','"OpenMM GPU-accelerated. 240 ns total MD (20 ns × 3 replicates). Forc
 <p><strong>310.15 K:</strong> = 37°C = human body temperature. Standard for biomedical simulations.</p>
 `)}
 
-<h2>RESULTS — Right Column</h2>
+<h2 id="pw-right"><span class="panel-tag panel-tag-r">➡️ RIGHT PANEL</span> RESULTS &amp; DISCUSSION</h2>
 
 <h3>APO DYNAMICS: WT vs R702W</h3>
 ${ex('j','"RMSD Distribution: WT mean 4.05 Å, R702W mean 3.27 Å. Frames exceeding 5 Å: WT 12.6%, R702W 0%. R702W = MORE RIGID than wild-type"',`
