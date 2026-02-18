@@ -849,6 +849,124 @@ ${ex('j','"What are your variables and controls?"',`
 <p>"Independent variables: compound identity and genotype — wild-type versus R702W. Dependent variables: ΔG binding free energy, backbone RMSD, pocket occupancy, hydrogen bond count. Controls: shuffled-label negative control in ML (AUC drops to 0.50). Non-binding compound in MD (leaves pocket by 5 nanoseconds). Apo simulations — no drug — to prove the allosteric effect exists independently of drug binding."</p>
 `)}
 
+<h2>Curveball Questions by Judge Type</h2>
+<p>At Fort Worth regional, your judges could be biologists, MDs, chemists, engineers, or computer scientists. They'll ask from THEIR expertise. A biologist won't ask about lambda windows. An MD won't care about XGBoost hyperparameters. Be ready for ALL of them.</p>
+
+<h3>🧬 If the Judge is a BIOLOGIST / BIOCHEMIST</h3>
+<p><em>They know proteins, signaling, and disease. They'll push your biology hard.</em></p>
+
+${ex('j','"What\'s the protonation state of ASP1011 at physiological pH? Does it matter?"',`
+<p>"Aspartate has a pKa around 3.9, so at physiological pH of 7.4 it's fully deprotonated — carrying a negative charge. Yes, this matters a lot. Febuxostat forms hydrogen bonds with that negative carboxylate group. If the protonation state were wrong in our simulation, the entire electrostatic interaction profile would be different. OpenMM's force field assigns standard protonation states at pH 7, which correctly deprotonates ASP1011."</p>
+<p><em>If you don't know pKa: "Aspartate is negatively charged at body pH. Our force field assigns the standard charged state. I haven't done constant-pH simulations to test pH sensitivity — that would be good future work."</em></p>
+`)}
+
+${ex('j','"NOD2 forms oligomers when activated. Did you account for that?"',`
+<p>"No — I simulated a single NOD2 monomer. In the cell, MDP binding triggers NOD2 self-oligomerization through the NBD domain, which brings CARD domains together to recruit RIPK2. My drugs bind the LRR domain, which is the sensing domain, not the oligomerization interface. So monomer simulation is appropriate for studying drug-LRR interactions specifically. But you're right that oligomerization could indirectly affect LRR pocket shape — that's a limitation I haven't explored."</p>
+`)}
+
+${ex('j','"You said R702W reduces NF-κB signaling. How much? Is it a complete loss of function?"',`
+<p>"It's partial, not complete. Published studies show R702W reduces MDP-induced NF-κB activation by roughly 50-70% compared to wild-type — it's a hypomorphic mutation, not a null. Homozygous R702W carriers have more severe reduction than heterozygous. This partial loss is actually what makes drug modulation plausible — if NOD2 were completely non-functional, binding a drug to LRR wouldn't help. The remaining 30-50% function suggests the protein is still structurally intact enough to be a viable drug target."</p>
+<p><em>If pressed further: "I'm heterozygous for R702W, so I have one functional copy and one impaired copy. The impaired copy still produces protein — it just doesn't sense MDP as efficiently."</em></p>
+`)}
+
+${ex('j','"Have you considered post-translational modifications of NOD2?"',`
+<p>"NOD2 is known to be ubiquitinated and phosphorylated, which regulate its stability and signaling. My AlphaFold structure doesn't include these modifications — it predicts the unmodified sequence. If phosphorylation near the LRR domain changes the local charge distribution, it could affect drug binding. This is a limitation I should acknowledge — the simulated protein represents the unmodified baseline state."</p>
+<p><em>If you don't know details: "I'm aware NOD2 undergoes modifications that regulate its activity, but I haven't modeled them. My simulations represent the unmodified protein. That's a fair limitation."</em></p>
+`)}
+
+${ex('j','"What about the gut microbiome? Wouldn\'t modulating NOD2 disrupt microbial balance?"',`
+<p>"Great question. NOD2 helps maintain homeostasis between the host immune system and gut bacteria. A drug that hyperactivates NOD2 could trigger excessive inflammation. A drug that further suppresses it could worsen bacterial overgrowth. The ideal drug would RESTORE normal MDP sensing without overshooting. My project identifies compounds that bind the LRR pocket — whether they activate, inhibit, or stabilize NOD2 would need to be tested in cell-based NF-κB reporter assays. That's a key next step."</p>
+`)}
+
+<h3>🩺 If the Judge is a PHYSICIAN / MD</h3>
+<p><em>They care about patients, clinical relevance, and whether this could ever help someone. Less interested in computational details.</em></p>
+
+${ex('j','"How would this actually help a Crohn\'s patient sitting in my clinic?"',`
+<p>"Right now, a gastroenterologist prescribes biologics like Remicade without knowing the patient's NOD2 genotype — it's one-size-fits-all. My work suggests that binding efficacy depends on the specific mutation. If validated experimentally, a clinician could genotype the patient, see R702W, and know that electrostatic-dependent drugs like Febuxostat won't bind as well — choose a hydrophobic-contact drug like Bufadienolide instead. That's pharmacogenomic-guided prescribing, similar to how HER2 status guides breast cancer treatment."</p>
+`)}
+
+${ex('j','"Febuxostat is a gout drug. Isn\'t repurposing it for Crohn\'s a huge clinical leap?"',`
+<p>"It's a big leap computationally to clinically, yes. But drug repurposing has major advantages: Febuxostat already has FDA safety data, known pharmacokinetics, established manufacturing, and years of post-market surveillance. If it showed NOD2 activity in cell assays, a clinical trial could start much faster than developing a novel molecule from scratch — potentially years faster and millions of dollars cheaper. The clinical leap is real, but the safety shortcut is enormous."</p>
+`)}
+
+${ex('j','"You take Remicade. If your project succeeds, would you switch?"',`
+<p>"Not based on computational data alone — I'd need experimental validation first. SPR binding assays to confirm the predicted affinity difference, then cell-based NF-κB reporter assays to show functional rescue, then animal models, then clinical trials. That's a 10-15 year pipeline minimum. Remicade works for me right now. But my work could contribute to the early stages of that pipeline by identifying which compounds are worth testing experimentally."</p>
+`)}
+
+${ex('j','"What about the other Crohn\'s mutations — G908R and the frameshift?"',`
+<p>"G908R is in the same LRR domain but at a different position — it could affect the pocket differently. 1007fs (Leu1007 frameshift) is more drastic — it produces a truncated protein missing the last 33 amino acids of LRR, which likely destroys the pocket entirely. Extending FEP to G908R is computationally straightforward — same pipeline, different mutation. 1007fs would require a completely different approach since the binding site may not exist. These are priority future experiments."</p>
+`)}
+
+${ex('j','"Is there any clinical evidence that NOD2 is actually druggable?"',`
+<p>"Honestly, no — there are no approved or clinical-stage NOD2-targeting drugs. That's both the limitation and the novelty of this project. NOD2 has been considered 'undruggable' partly because it's intracellular and partly because no one had characterized a binding pocket computationally. My AlphaFold-based approach identified a pocket in the LRR domain and showed compounds can occupy it stably. Whether this translates to druggability in the clinical sense requires experimental confirmation. But the computational evidence suggests the pocket is real and accessible."</p>
+`)}
+
+<h3>💻 If the Judge is a COMPUTER SCIENTIST / ENGINEER</h3>
+<p><em>They understand ML, code, and computation. They'll test your technical depth and AI usage.</em></p>
+
+${ex('j','"Your AUC is 0.85-0.93. What\'s the precision-recall curve look like? AUC-ROC can be misleading with imbalanced data."',`
+<p>"You're right that AUC-ROC can be optimistic with class imbalance. My dataset is balanced by design — I took top 25% and bottom 25%, so roughly 50/50 split after removing the middle. With balanced classes, AUC-ROC and AUC-PR should tell similar stories. I did check precision and recall per fold — precision ranged from 0.80-0.88 and recall from 0.82-0.90. But you raise a good point — if I'd used a different labeling threshold (say top 10%), the imbalance would make AUC-PR more informative."</p>
+<p><em>If you don't remember exact PR numbers: "My dataset is balanced by design — equal top and bottom quartiles. So AUC-ROC isn't misleading here. But for future work with imbalanced data, AUC-PR would be the right metric."</em></p>
+`)}
+
+${ex('j','"Did you do any hyperparameter optimization, or are these just defaults?"',`
+<p>"These are literature-informed defaults, not formally tuned. With only 858 pseudo-labeled samples, running Optuna or grid search would likely overfit the hyperparameters to noise in this specific dataset. I tested a few alternatives manually — depth 3 to 12, learning rate 0.01 to 0.1 — and confirmed the published defaults performed well. For a dataset this small, the bigger gains come from better data (experimental labels instead of pseudo-labels) rather than hyperparameter tweaking."</p>
+`)}
+
+${ex('j','"Morgan fingerprints are 2D. Why not 3D descriptors or graph neural networks?"',`
+<p>"Great question. 3D conformer-based descriptors or graph neural networks like SchNet or DimeNet would capture spatial relationships that Morgan fingerprints miss — binding is fundamentally a 3D phenomenon. I didn't use them for two reasons: first, with 858 samples, GNNs would severely overfit (they typically need tens of thousands of examples). Second, the 3D information is already captured by docking — GNINA places molecules in 3D and scores them with a 3D CNN. My ML model's job is to find PATTERNS across the scored compounds, where 2D fingerprints work well. But for larger datasets, 3D-aware models would be better."</p>
+`)}
+
+${ex('j','"How much of this code did Claude actually write vs. you?"',`
+<p>"Claude Code CLI wrote most of the implementation code — the Python scripts for docking automation, XGBoost training, OpenMM simulation setup, and FEP lambda window configuration. What I did: chose which methods to use and why (GNINA over Vina, XGBoost over neural nets, scaffold split over random), set scientific parameters (exhaustiveness 32, grid box dimensions, which compounds to advance), interpreted results, caught the data leakage error, and designed the experimental logic. I think of it like a lab: Claude was my very fast lab technician. I was the PI deciding what experiments to run and what the results mean. Every interaction is timestamped in my logbook."</p>
+`)}
+
+${ex('j','"What if your pseudo-labels are wrong? Garbage in, garbage out."',`
+<p>"That's the fundamental limitation of this approach, and I want to be upfront about it. The pseudo-labels come from GNINA docking scores, which have approximately 1.5 pKd units of error. If GNINA ranked a compound wrong — called a real binder a non-binder — my ML model learns that error. Two things mitigate this: first, I used the EXTREMES (top and bottom 25%), where docking is most reliable. The middle 50% is where most errors live, and I threw that away. Second, the scaffold-split AUC of 0.85-0.93 shows the model learned generalizable patterns, not just noise. But ultimately, yes — experimental labels would be better. They just don't exist for NOD2."</p>
+`)}
+
+<h3>⚗️ If the Judge is a CHEMIST / PHARMACOLOGIST</h3>
+<p><em>They know drugs, synthesis, and binding. They'll question your compound choices and drug-likeness.</em></p>
+
+${ex('j','"Bufadienolide is a cardiac glycoside — it\'s toxic. How is this a drug candidate?"',`
+<p>"You're right — bufadienolides at cardiac glycoside doses are toxic (they inhibit Na+/K+ ATPase). But dose makes the poison. Several cardiac glycosides are used therapeutically at low doses — digoxin for heart failure, for example. The bufadienolide scaffold has also been investigated for anti-inflammatory properties at sub-toxic concentrations. My finding isn't that bufadienolide IS the drug — it's that compounds with hydrophobic, shape-tolerant binding mechanisms survive the R702W mutation. The scaffold could be optimized to retain NOD2 binding while reducing cardiac toxicity."</p>
+`)}
+
+${ex('j','"Your ADMET passed 98.7%. Doesn\'t that mean the filter is too loose?"',`
+<p>"It means my starting library was already drug-like. The FDA-approved drugs passed Lipinski by definition — they're already approved oral medications. The natural products from COCONUT were pre-filtered for drug-likeness. If I'd started with a random chemical library (like ZINC with 750 million compounds), the pass rate would be much lower. The 2 failures were genuine PAINS alerts — Michael acceptors that would give false positives in any assay. The high pass rate is a feature of the library, not a bug in the filter."</p>
+`)}
+
+${ex('j','"What\'s the synthetic accessibility of your top compounds?"',`
+<p>"Febuxostat is already manufactured at scale — it's a commercial FDA drug, so synthetic accessibility is not a concern. Bufadienolide is a natural product with a complex steroid skeleton — harder to synthesize de novo, but it can be extracted from natural sources (toad venom, plants). If we wanted to optimize the bufadienolide scaffold, synthetic accessibility would become important. RDKit has an SA score (1-10 scale) — I could calculate it but haven't included it in the current analysis. Good suggestion for future work."</p>
+`)}
+
+<h3>🎯 GOTCHA Questions — Testing If You Really Understand</h3>
+<p><em>These test reasoning, not memorization. The judge wants to see you THINK.</em></p>
+
+${ex('j','"If your mutation is 79 Ångströms away, maybe the effect is just noise?"',`
+<p>"Three independent lines of evidence argue against noise. First, the APO simulations — no drug present — show wild-type RMSD of 4.05 Å versus R702W at 3.27 Å. The rigidification exists independently of any drug. Second, Febuxostat shows 8-sigma significance — the probability of this being random noise is less than 1 in 10 to the 15th. Third, the effect is mechanistically consistent: hydrogen bond contacts with ASP1011 break because the pocket geometry shifts, while hydrophobic contacts with LEU/ILE/VAL survive because they're shape-tolerant. Noise wouldn't produce a coherent mechanism."</p>
+`)}
+
+${ex('j','"You tested 2 compounds through FEP. How do you know this pattern generalizes?"',`
+<p>"Honestly, I can't prove it generalizes from just 2 examples. What I can say is that these 2 represent the two major binding mechanisms present in the top hits: electrostatic-dependent (Febuxostat-like) and hydrophobic-dependent (Bufadienolide-like). The mechanism-based explanation — H-bonds are geometry-sensitive, hydrophobic contacts are geometry-tolerant — should apply to other compounds in each class. But confirming this requires running FEP on more compounds, which I plan to do. This is a proof-of-concept, not a comprehensive survey."</p>
+`)}
+
+${ex('j','"What if AlphaFold got the pocket wrong?"',`
+<p>"Then my entire docking and MD analysis would be based on the wrong structure — that's the single biggest risk in this project. I mitigate it three ways. First, pLDDT confidence in the LRR region exceeds 90, which correlates with experimental resolution around 2 Angstroms. Second, the pocket I identified is on the concave face of the LRR domain, which is the conserved ligand-binding surface across LRR proteins in general — structurally expected. Third, my MD simulations show the pocket is stable over 20 nanoseconds — it doesn't collapse or reshape, suggesting it's a real energy minimum. But ultimately, an experimental structure (cryo-EM or X-ray) would be definitive validation."</p>
+`)}
+
+${ex('j','"50-fold weaker sounds dramatic. But what if the absolute affinity is already so strong that 50-fold weaker is still enough?"',`
+<p>"Excellent point. If Febuxostat binds wild-type at 1 nanomolar, then 50-fold weaker = 50 nanomolar — still a viable drug. If it binds at 1 micromolar, then 50-fold weaker = 50 micromolar — completely useless. Without experimental Kd measurements, I can't distinguish these scenarios. My ΔG of negative 10.36 kcal/mol suggests low-nanomolar affinity, which would make 50-fold weaker still potentially useful. But the absolute values from FEP typically have systematic errors of 1-2 kcal/mol, so the true affinity could be different. This is exactly why SPR experimental validation is the critical next step."</p>
+`)}
+
+${ex('j','"You ran 520 nanoseconds total. Some papers run microseconds. Is 20 ns enough?"',`
+<p>"For the specific question I'm asking — does the drug stay in the pocket — 20 nanoseconds is sufficient. My negative control compound left the pocket by 5 nanoseconds, proving the simulation can detect unbinding on this timescale. For questions about slow conformational changes like protein folding or domain rearrangements, 20 nanoseconds would be inadequate — those happen on microsecond to millisecond timescales, which is 1,000 to 1,000,000 times longer. I chose 20 ns because it answers MY question, it's feasible on a single consumer GPU, and 3 replicates provide statistical confidence. Longer would be better but wasn't necessary for the conclusions I'm drawing."</p>
+`)}
+
+${ex('j','"Isn\'t this just a glorified virtual screen? What\'s actually novel?"',`
+<p>"The virtual screen is the first half. Every drug discovery paper does some form of screening. What's novel is the second half: using FEP to quantify how a specific patient mutation changes drug binding, and discovering that the effect is ligand-dependent. Nobody has shown that the same NOD2 mutation makes one drug 50-fold weaker while leaving another unaffected. That finding — mutation effects depend on binding mechanism — is the scientific contribution. It transforms a standard screening paper into a pharmacogenomics study. The practical implication is that NOD2 drug selection should be genotype-guided."</p>
+`)}
+
 <h2>Delivery Tips</h2>
 <div class="c">
 <p><strong>Point at your poster.</strong> Physically touch near each figure as you discuss it. Guide the judge's eyes.</p>
