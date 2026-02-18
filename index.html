@@ -24,7 +24,7 @@ a{color:var(--f2);text-decoration:none}a:hover{color:var(--f3)}
 .nb{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;color:var(--dim);padding:10px 18px;font-size:13px;font-family:'Sora',sans-serif;cursor:pointer;transition:all .15s;border-left:3px solid transparent;font-weight:400}
 .nb:hover{color:var(--txt);background:rgba(255,107,43,.04)}.nb.on{color:var(--f2);background:rgba(255,107,43,.08);border-left-color:var(--f1);font-weight:500}
 .nb .ni{font-size:16px;width:22px;text-align:center;flex-shrink:0}
-.ct{margin-left:240px;flex:1;padding:32px 44px 80px;max-width:1100px}
+.ct{margin-left:240px;flex:1;padding:32px 48px 80px;max-width:1400px}
 @media(max-width:900px){.nav{display:none}.ct{margin-left:0;padding:16px 16px 60px}.mn{display:flex!important}}
 .mn{display:none;position:sticky;top:0;z-index:50;background:rgba(10,10,15,.92);backdrop-filter:blur(12px);overflow-x:auto;border-bottom:1px solid var(--brd);padding:0 8px}
 .mb{background:none;border:none;color:var(--dim);padding:11px 14px;font-size:11px;font-family:'Sora',sans-serif;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .12s}
@@ -1421,6 +1421,145 @@ ${ex('j','"Mutation effects are ligand-dependent → precision medicine. Hypothe
 </table>
 
 <div class="ky"><strong>Poster reading tip for judges:</strong> When a judge approaches, guide their eyes by PHYSICALLY POINTING at the poster. Say "Let me walk you through the flow" and trace left→middle→right with your hand. Point at Figure 10 (funnel) as your roadmap. Point at Figure 16 (FEP bars) as your punchline.</div>
+`},
+
+
+{id:'audit',icon:'⚠️',label:'10. Poster Audit',ct:`
+<h1>⚠️ Poster Critical Audit — Every Weak Spot</h1>
+<p class="sub">If a judge wants to destroy you, HERE is where they'll aim. Know these before Saturday.</p>
+
+<h2>🚨 NUMBERS THAT DON'T MATCH</h2>
+<p>Your poster and your study materials have several conflicting numbers. A judge who reads carefully will notice. You MUST know which is correct and why.</p>
+
+<table>
+<tr><th>Item</th><th style="color:var(--yel)">Poster Says</th><th style="color:var(--accent)">Website/Earlier Docs Say</th><th>Which Is Correct?</th></tr>
+<tr><td><strong>XGBoost depth</strong></td><td>depth=4</td><td>max_depth=6</td><td>⚠️ YOU NEED TO CHECK YOUR CODE. If poster says 4, and your code says 6, one is wrong. Run <code>print(model.get_params()['max_depth'])</code>.</td></tr>
+<tr><td><strong>Label threshold</strong></td><td>Top 20% / Bottom 20%</td><td>Top 25% / Bottom 25%</td><td>⚠️ CHECK YOUR CODE. Did you use 0.20 or 0.25 quantile? This changes labeled sample count.</td></tr>
+<tr><td><strong>Labeled compounds</strong></td><td>856</td><td>858</td><td>Minor — could be filtering difference. Know the exact number.</td></tr>
+<tr><td><strong>Febuxostat MW</strong></td><td>315.37</td><td>316.37</td><td>⚠️ PubChem says 316.37 (C₁₆H₁₆N₂O₃S). Your poster may have a typo. Be ready to say "316.37 is the correct MW."</td></tr>
+<tr><td><strong>Febuxostat LogP</strong></td><td>2.39</td><td>1.87</td><td>Both could be "correct" — different calculation methods (RDKit vs ChemAxon vs XLogP3) give different values. Know WHICH method you used.</td></tr>
+<tr><td><strong>Febuxostat TPSA</strong></td><td>86 Å²</td><td>94.03 Å²</td><td>⚠️ PubChem shows 94.03. If poster says 86, check if you used a different TPSA method (e.g., with/without phosphorus and sulfur atoms).</td></tr>
+</table>
+
+<div class="ky"><strong>WHAT TO DO IF A JUDGE CATCHES A DISCREPANCY:</strong> Don't panic. Say: "You're right — the [poster/earlier version] has [X] and my calculation shows [Y]. The correct value from [PubChem/my code] is [correct]. I should have caught that before printing." Honesty scores HIGHER than defensiveness.</div>
+
+<h2>🔬 CLAIMS JUDGES WILL CHALLENGE</h2>
+
+${ex('j','CLAIM: "The NOD2 gene is the strongest genetic risk factor"',`
+<p><strong>Challenge:</strong> "Strongest" is a strong word. The HLA region actually has more overall genetic association with Crohn's in GWAS. NOD2 has the largest SINGLE-GENE effect size, but "strongest genetic risk factor" could be argued either way.</p>
+<p><strong>Defense:</strong> "NOD2 variants have the highest per-allele odds ratio of any single gene in Crohn's GWAS meta-analyses — OR ~2-4 for heterozygous carriers, OR 20-40 for compound heterozygotes. The HLA region contributes more overall risk but through many variants across multiple genes. NOD2 is the strongest individual gene."</p>
+<p><strong>Safer phrasing if pressed:</strong> "One of the strongest" or "the strongest single-gene risk factor."</p>
+`)}
+
+${ex('j','CLAIM: "No approved drugs directly target the NOD2 protein itself"',`
+<p><strong>Challenge:</strong> A judge may ask "have you checked recently? Are you sure nobody has published NOD2-targeting compounds since you wrote this?" or "what about MDP analogs like mifamurtide?"</p>
+<p><strong>Defense:</strong> "I searched PubMed and ClinicalTrials.gov — no approved drugs target NOD2 directly. Mifamurtide (Mepact) is a synthetic MDP analog that ACTIVATES NOD2, but it's approved only for osteosarcoma in Europe, not Crohn's. It's an agonist, not a modulator designed for mutation carriers. My project asks a different question — can we find compounds whose binding CHANGES with the R702W mutation?"</p>
+`)}
+
+${ex('j','CLAIM: "allosteric mechanisms" — 79.4 Å from binding site',`
+<p><strong>Challenge:</strong> "How do you know it's allosteric? Maybe R702W just destabilizes the protein globally and the pocket effect is a secondary consequence of unfolding."</p>
+<p><strong>Defense:</strong> "My APO dynamics show R702W makes the protein MORE rigid, not less stable — mean RMSD drops from 4.05 to 3.27 Å and frames exceeding 5Å drop from 12.6% to 0%. A destabilized protein would be MORE flexible, not less. The RMSF data shows reduced flexibility specifically propagating from HD2 (1.46→1.23 Å) through to LRR (1.36→1.12 Å). This is consistent with allosteric rigidification, not global destabilization."</p>
+<p><strong>This is actually one of your STRONGEST points</strong> — you're challenging prior literature that calls R702W 'destabilizing.' Your data says it's actually rigidifying.</p>
+`)}
+
+${ex('j','CLAIM: Pseudo-labels from GNINA → circular reasoning?',`
+<p><strong>Challenge:</strong> "You used GNINA docking scores to label compounds, then trained an ML model to predict those same scores. Isn't that circular? What is the ML actually adding that GNINA didn't already tell you?"</p>
+<p><strong>This is the HARDEST question about your ML pipeline.</strong></p>
+<p><strong>Defense:</strong> "Good question — and it's a real limitation. The ML model learns PATTERNS across the scored library that GNINA doesn't capture: which chemical features (fingerprint bits) are enriched in high-scoring compounds. Think of it as a second opinion that looks at the data from a completely different angle — GNINA looks at 3D poses, XGBoost looks at 2D molecular patterns. The scaffold-split AUC of 0.85-0.93 shows the model generalizes to novel scaffolds GNINA hasn't seen in that exact pose context. But you're right — the ceiling is limited by GNINA's accuracy. Experimental labels would be strictly better."</p>
+`)}
+
+${ex('j','CLAIM: "First computational drug screen targeting the NOD2 LRR domain" and "First FEP study"',`
+<p><strong>Challenge:</strong> "How can you be sure you're the first? Have you done an exhaustive literature search?"</p>
+<p><strong>Defense:</strong> "I searched PubMed for 'NOD2 virtual screening,' 'NOD2 docking,' 'NOD2 drug discovery,' and 'NOD2 free energy perturbation.' I found zero papers docking compounds against the NOD2 LRR domain and zero FEP studies on NOD2 variants. The closest work is on RIPK2 inhibitors, which target the KINASE downstream of NOD2, not NOD2 itself. If someone has done this and I missed it, I'd genuinely want to know — but as of my literature search, this appears to be the first."</p>
+`)}
+
+${ex('j','CLAIM: "50× weaker predicted binding" from ΔΔG = +2.34 kcal/mol',`
+<p><strong>Challenge:</strong> "Your error bar is ±0.26 kcal/mol. Through the exponential Boltzmann conversion, that means the fold-change could range from ~25× to ~100×. Why do you report just 50×?"</p>
+<p><strong>Defense:</strong> "You're absolutely right that the uncertainty propagates non-linearly through the exponential. At the mean ΔΔG of 2.34 kcal/mol at 310K, the central estimate is e^(2.34/0.616) ≈ 45×, which I round to ~50×. The 95% confidence range spans from e^(1.82/0.616) ≈ 19× to e^(2.86/0.616) ≈ 105×. The direction of the effect — substantially weaker binding — is robust across the entire confidence interval. I should present this as '~50× (19-105× 95% CI)' for full rigor."</p>
+<p><strong>Prep:</strong> Memorize: 2.34 ± 0.26 kcal/mol → ~50× (range ~20-100×). The 8σ means the DIRECTION is near-certain, even if the exact fold-change has a wide range.</p>
+`)}
+
+${ex('j','CLAIM: Generalization from N=2 compounds',`
+<p><strong>Challenge:</strong> "You tested FEP on exactly 2 compounds and concluded that mutation effects are ligand-dependent. That's an N of 2. How can you generalize from two data points?"</p>
+<p><strong>Defense:</strong> "You're right — I can't generalize broadly from two compounds. What I CAN say is that ligand-dependent effects EXIST for R702W, because I found one compound where ΔΔG = +2.34 (8σ, clearly affected) and another where ΔΔG = -0.44 (1.2σ, clearly unaffected). If mutation effects were universal, both would shift in the same direction by similar amounts. They didn't. This proves the PHENOMENON exists. Quantifying how common it is requires testing more compounds — that's a limitation I state explicitly."</p>
+`)}
+
+${ex('j','CLAIM: "Challenges prior literature that described R702W as destabilizing"',`
+<p><strong>Challenge:</strong> "Which papers specifically? Can you cite them?"</p>
+<p><strong>Defense:</strong> Know the papers: Economou et al. (2004) and earlier NOD2 structural papers describe the mutation in terms of impaired MDP recognition and reduced signaling, sometimes using language suggesting the protein is "destabilized." Your RMSD/RMSF data suggests "rigidification" not "destabilization." But be careful — "impaired function" and "rigidification" aren't contradictory. The protein could be rigidified AND functionally impaired (rigidity prevents the conformational changes needed for signaling).</p>
+`)}
+
+<h2>🧪 SCIENTIFIC WEAK SPOTS</h2>
+
+${ex('j','AlphaFold structure — no experimental validation',`
+<p><strong>The attack:</strong> "Your entire project is built on an AlphaFold prediction. What if the LRR pocket geometry is wrong?"</p>
+<p><strong>Defense:</strong> "pLDDT >90 in the LRR region indicates very high confidence. AlphaFold2 has been extensively validated — Jumper et al. 2021 showed median GDT-TS >90 across CASP14 targets. But you're right that pocket geometry could differ from experimental reality. This is why experimental validation (X-ray crystallography, cryo-EM) is in my future directions. The RELATIVE comparison (WT vs R702W) is more reliable than the absolute values because both use the same starting structure."</p>
+`)}
+
+${ex('j','Binding ≠ Function — you showed binding but not activity',`
+<p><strong>The attack:</strong> "Your compounds bind NOD2. So what? Binding doesn't mean they DO anything. They could bind without affecting signaling."</p>
+<p><strong>Defense:</strong> "Absolutely correct. My project identifies compounds that BIND the LRR domain with mutation-dependent affinity. Whether binding activates, inhibits, or has no functional effect requires NF-κB reporter assays in NOD2-expressing cell lines — that's the first experimental future direction. However, any compound that binds the same pocket as MDP has a high probability of affecting MDP recognition, which is the first step in NOD2 signaling."</p>
+`)}
+
+${ex('j','Error bars: SEM (n=3) is very small for error estimation',`
+<p><strong>The attack:</strong> "Your error bars are SEM with n=3. That's barely enough to estimate variability. And SEM shrinks with sample size — shouldn't you report SD instead?"</p>
+<p><strong>Defense:</strong> "SEM is standard in FEP literature for reporting precision of the mean binding energy across replicates. With n=3, SD and SEM differ by a factor of √3 ≈ 1.7. My SEM of ±0.18 corresponds to SD ≈ ±0.31. The 8σ significance uses the SEM-based propagated error; with SD-based error, it would be ~5σ — still highly significant. More replicates would give tighter estimates, and that's a fair limitation."</p>
+<p><strong>Know the conversion:</strong> SEM × √n = SD. So ±0.18 × √3 = ±0.31 kcal/mol SD. ΔΔG/SD = 2.34/0.31 ≈ 7.5σ. Still very significant.</p>
+`)}
+
+${ex('j','Pocket occupancy threshold: why 5 Å? Why not 3 Å or 7 Å?',`
+<p><strong>The attack:</strong> "You define pocket occupancy as frames where the ligand stays within 5 Å. Why 5 Å and not some other cutoff?"</p>
+<p><strong>Defense:</strong> "5 Å is a standard threshold in MD binding studies — it approximates the maximum distance for meaningful non-covalent interactions (van der Waals cutoff is ~4-6 Å, H-bonds reach ~3.5 Å). At 3 Å, only very tight contacts count and occupancy drops artificially. At 7 Å, even partially dissociated states count as 'bound.' 5 Å is the community standard. But I should note the negative control Cysteamine escaped to 45.9 Å, so any reasonable threshold between 3-10 Å still gives 0% occupancy for the control."</p>
+`)}
+
+${ex('j','9 references is thin for a project of this scope',`
+<p><strong>The attack:</strong> "You cite only 9 papers. A project spanning structural biology, drug discovery, machine learning, and free energy calculations should reference more literature."</p>
+<p><strong>Defense:</strong> "Space constraints on the poster limited my reference count. I cite the foundational papers for each tool: Jumper (AlphaFold), McNutt (GNINA), Eastman (OpenMM), Chen (XGBoost), Shirts (MBAR), Hugot (NOD2), Sorokina (COCONUT), Pilón (e-Drug3D), Economou (NOD2 variants). My full research log cites 30+ additional papers. If you'd like, I can discuss any aspect of the broader literature — for instance, Cournia 2017 on FEP best practices, Friesner on Glide benchmarking, or Wildman and Crippen on LogP calculation."</p>
+<p><strong>Prep:</strong> Have 5-10 additional paper names ready to name-drop if asked.</p>
+`)}
+
+<h2>📋 POSTER PHRASING ISSUES</h2>
+
+<table>
+<tr><th>On Poster</th><th>Issue</th><th>What to Say If Caught</th></tr>
+<tr><td>"Present in <strong>all bacteria</strong> (Gram+ and Gram−)"</td><td>Technically some bacteria have modified PGN. Mycoplasma lack cell walls entirely.</td><td>"MDP is present in essentially all bacteria with peptidoglycan cell walls — which is the vast majority. Mycoplasma and a few other wall-less bacteria are exceptions."</td></tr>
+<tr><td>"RIPK2... Impaired" (Figures 5, 7, 9)</td><td>The proteins aren't structurally impaired — they're just less activated due to reduced NOD2 signaling.</td><td>"The proteins themselves are structurally normal — what's impaired is their activation level due to weakened upstream NOD2 signaling."</td></tr>
+<tr><td>"Docking alone has ~0.5 correlation with experiment"</td><td>Judge may ask: source? Which benchmark?</td><td>"This is from CASF-2016 benchmark data and multiple review papers comparing docking scoring functions. The ~0.5 Pearson correlation between predicted and experimental pKd is well-documented across Vina, Glide, and GNINA."</td></tr>
+<tr><td>"Mutation restricts conformational sampling"</td><td>Could be phrased as "rigidification hypothesis needs more evidence" — 100 ns is short.</td><td>"100 ns is standard for this type of analysis, and the signal is very clear (12.6% vs 0%). Longer simulations (microsecond) would strengthen the claim, and are in future directions."</td></tr>
+<tr><td>"precision medicine" (underlined in Motivation)</td><td>Judge may say: "You're very far from precision medicine. You have no clinical data."</td><td>"I agree this is computational proof-of-concept, not clinical precision medicine. What I've shown is the molecular RATIONALE — that the mutation differentially affects drug binding. The path from here to clinical precision medicine requires experimental validation and ultimately clinical trials."</td></tr>
+<tr><td>FEP Protocol: "120 ns total (1 ns/window)"</td><td>A chemist will count: 20 windows × 1 ns × 3 legs × 2 compounds × 2 proteins = 240 ns for FEP alone. Does "120 ns total" mean per compound? Per protein?</td><td>"120 lambda windows total: 20 windows per leg × 3 legs (restraints, electrostatics, sterics) × 2 compounds. Each window runs 1 ns. So total FEP simulation time is 120 ns per protein variant, or 240 ns across WT and R702W."</td></tr>
+<tr><td>"p<0.001" for Febuxostat</td><td>8σ actually corresponds to p < 10⁻¹⁵. Saying "p<0.001" is extremely conservative.</td><td>"I reported p<0.001 conservatively. The actual statistical significance at 8σ is approximately p < 10⁻¹⁵. I used the conservative bound because the normal distribution assumption may not be exact with n=3 replicates."</td></tr>
+</table>
+
+<h2>🎯 THE FIVE HARDEST QUESTIONS FROM THIS POSTER</h2>
+<p><em>Ranked by "likelihood a sharp judge asks this" × "difficulty of answering."</em></p>
+
+<div class="c ca">
+<p><strong>#1: "Your ML model is trained on GNINA labels. Isn't that circular? What does XGBoost add that GNINA didn't already know?"</strong></p>
+<p>Why it's hard: It IS somewhat circular. The honest answer is that XGBoost provides a different perspective (2D fingerprints vs 3D poses) and the scaffold-split shows generalization, but the ceiling is capped by GNINA's accuracy. Don't oversell the ML contribution.</p>
+</div>
+
+<div class="c ca">
+<p><strong>#2: "You generalize from 2 compounds. How do you know ligand-dependent effects aren't just noise?"</strong></p>
+<p>Why it's hard: N=2 is genuinely small. The 8σ significance makes the Febuxostat result robust, but the "ligand-dependent" PATTERN claim is based on 2 data points. The correct answer acknowledges the limitation: "I've proven the phenomenon exists. Quantifying its prevalence requires more FEP calculations."</p>
+</div>
+
+<div class="c ca">
+<p><strong>#3: "What if the AlphaFold pocket is wrong? Your entire pipeline collapses."</strong></p>
+<p>Why it's hard: It's true. Everything downstream depends on the predicted structure. pLDDT >90 is reassuring but not proof. The relative WT vs R702W comparison is more robust than absolute values, but the pocket geometry could still be off. Crystal structure or cryo-EM is the only real answer.</p>
+</div>
+
+<div class="c ca">
+<p><strong>#4: "You claim allosteric effects at 79.4 Å, but 100 ns of APO simulation isn't enough to prove long-range communication."</strong></p>
+<p>Why it's hard: They're right that 100 ns is short for allosteric studies (microsecond is more standard). Your RMSD/RMSF signal is clear, but proving MECHANISTIC communication between position 702 and the LRR pocket would require dynamic network analysis or mutual information calculations you haven't done.</p>
+</div>
+
+<div class="c ca">
+<p><strong>#5: "Why didn't you test more compounds through FEP? Two seems very selective."</strong></p>
+<p>Why it's hard: FEP is expensive (~40 GPU-hours per compound pair). But "expensive" is an explanation, not a justification. The real answer: "I chose Febuxostat for clinical relevance (FDA-approved) and Bufadienolide for mechanistic diversity (opposite binding mode). Two was the maximum my computational resources allowed. More compounds are in future directions."</p>
+</div>
+
+<div class="ky"><strong>GOLDEN RULE FOR HARD QUESTIONS:</strong> "That's a great point" → Acknowledge the limitation honestly → Explain what you DID do and WHY → Explain what you'd do differently with more time/resources. A judge who tries to destroy you and FAILS learns you truly understand your work. A judge who tries to destroy you and you DODGE the question learns you're hiding something.</div>
 `},
 
 
