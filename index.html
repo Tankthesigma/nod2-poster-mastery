@@ -2293,6 +2293,7 @@ if(id==='quiz')setTimeout(initQuiz,50);
 <button onclick="setSpeed(1.2)">1.2×</button>
 <button onclick="setSpeed(1.5)">1.5×</button>
 </div>
+<button class="ab-close" onclick="toggleVoicePanel()" title="Voice settings" style="font-size:16px">⚙️</button>
 <button class="ab-close" onclick="audioStop()" title="Close">✕</button>
 </div>
 
@@ -2302,18 +2303,26 @@ if(id==='quiz')setTimeout(initQuiz,50);
 <label>Voice</label>
 <select id="voiceSelect" onchange="saveVoicePref()"></select>
 <label>ElevenLabs API Key <span style="font-size:10px;opacity:.6">(optional — premium voices)</span></label>
-<input type="text" id="elevenKey" placeholder="sk_..." onchange="saveVoicePref()">
-<label>ElevenLabs Voice ID</label>
+<input type="text" id="elevenKey" value="sk_2d91489da50b7c8d413922949b4f19b67b2ac658e0d387ab" onchange="saveVoicePref()">
+<label>ElevenLabs Voice</label>
 <select id="elevenVoice">
-<option value="EXAVITQu4vr4xnSDxMaL">Sarah (soft, calm)</option>
-<option value="FGY2WhTYpPnrIDTdsKH5">Laura (soothing)</option>
-<option value="TX3LPaxmHKxFdv7VOQHJ">Liam (warm male)</option>
-<option value="pFZP5JQG7iQjIQuC4Bku">Lily (gentle)</option>
-<option value="nPczCjzI2devNBz1zQrb">Brian (calm narrator)</option>
+<option value="onwK4e9ZLuTAKqWW03F9">📖 Daniel — Steady Broadcaster (British, formal) ⭐</option>
+<option value="nPczCjzI2devNBz1zQrb">🎙 Brian — Deep, Resonant, Comforting</option>
+<option value="cjVigY5qzO86Huf0OWal">🎓 Eric — Smooth, Trustworthy</option>
+<option value="pqHfZKP75CvOlQylNhV4">📚 Bill — Wise, Mature, Balanced</option>
+<option value="Xb7hH8MSUJpSbSDYk0k2">👩‍🏫 Alice — Clear, Engaging Educator (British)</option>
+<option value="XrExE9yKIg1WjnnlVkGX">💡 Matilda — Knowledgable, Professional</option>
+<option value="SAz9YHcvj6GT2YYXdXww">🌊 River — Relaxed, Neutral, Calm</option>
+<option value="EXAVITQu4vr4xnSDxMaL">💼 Sarah — Mature, Reassuring</option>
+<option value="JBFqnCBsd6RMkjVDRZzb">📖 George — Warm Captivating Storyteller (British)</option>
+<option value="iP95p4xoKVk53GoZ742B">🗣 Chris — Charming, Down-to-Earth</option>
+<option value="CwhRBWXzGAHq8TQ4Fs17">😎 Roger — Laid-Back, Casual</option>
+<option value="hpp4J3VqNfWAUOO0d1Us">🎤 Bella — Professional, Bright</option>
 </select>
 <div style="margin-top:12px;font-size:11px;color:var(--dim)">
-<p>Without API key: uses your browser's best neural voice (free, decent quality).</p>
-<p>With ElevenLabs key: audiobook-quality, very natural. Get a free key at <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a> (10K chars/month free).</p>
+<p>✅ Your ElevenLabs key is connected! 20,000 free chars/month on Flash/Turbo.</p>
+<p>🎧 Recommended for studying: <strong>Daniel</strong> (steady narrator) or <strong>Brian</strong> (deep, comforting).</p>
+<p>⚠️ Remember to rotate your key after studying sessions.</p>
 </div>
 </div>
 
@@ -2488,12 +2497,17 @@ return chunks;
 }
 
 async function readElevenLabs(text,key){
-const voiceId=document.getElementById('elevenVoice')?.value||'EXAVITQu4vr4xnSDxMaL';
+const voiceId=document.getElementById('elevenVoice')?.value||'onwK4e9ZLuTAKqWW03F9';
+const charCount=text.slice(0,5000).length;
+// Track usage
+let used=parseInt(localStorage.getItem('nod2-eleven-chars')||'0');
+used+=charCount;
+localStorage.setItem('nod2-eleven-chars',used);
 try{
-document.getElementById('abStatus').textContent='⏳ Generating audio...';
+document.getElementById('abStatus').textContent='⏳ Generating... ('+used.toLocaleString()+'/20,000 chars used)';
 const resp=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voiceId,{
 method:'POST',headers:{'Content-Type':'application/json','xi-api-key':key},
-body:JSON.stringify({text:text.slice(0,5000),model_id:'eleven_turbo_v2_5',
+body:JSON.stringify({text:text.slice(0,5000),model_id:'eleven_flash_v2_5',
 voice_settings:{stability:0.65,similarity_boost:0.75,style:0.1,use_speaker_boost:true}})
 });
 if(!resp.ok)throw new Error('API '+resp.status);
@@ -2504,7 +2518,8 @@ audio.playbackRate=audioState.speed;
 audio.onended=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
 audio.onerror=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
 audio.play();
-document.getElementById('abStatus').textContent='Part '+(audioState.qIdx+1)+' of '+audioState.queue.length+' · Click any ▶ to jump';
+const u2=parseInt(localStorage.getItem('nod2-eleven-chars')||'0');
+document.getElementById('abStatus').textContent='Part '+(audioState.qIdx+1)+' of '+audioState.queue.length+' · '+u2.toLocaleString()+'/20K chars · Click any ▶ to jump';
 }catch(e){console.warn('ElevenLabs fallback:',e);readBrowserTTS(text)}
 }
 
