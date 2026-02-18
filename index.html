@@ -1205,6 +1205,121 @@ ${ex('d','MBAR — How You Combine 120 Windows Into One Number (Statistical Mech
 
 <div class="ky"><strong>THEN STOP TALKING.</strong> The judge will ask questions. That's what they want. If you keep talking past 3-5 minutes, they're waiting to interrupt you and it looks like a memorized speech. Give them the overview, then let THEM drive.</div>
 
+<h2>Panel-by-Panel: What to Say When They Point</h2>
+<p>Judges will point at specific sections and ask "tell me about this." Here's exactly what to say for each area of the poster, what to physically point at, and what ISEF criterion it scores.</p>
+
+<div class="c" style="border-left:3px solid var(--cyn)">
+<h3><span class="panel-tag panel-tag-l">⬅️ LEFT</span> Background & Introduction</h3>
+<p><strong>📋 Scores: Research Question (10 pts)</strong> — Is the purpose clear? Is there a gap?</p>
+<p><strong>🗣 Say:</strong> "Over a million Americans have Crohn's. The strongest genetic risk factor is NOD2 — specifically three mutations. I carry one of them, R702W. It affects about 10% of patients. The key problem: no drugs target NOD2 directly. Every current treatment goes after downstream inflammation — TNF-alpha blockers, IL-23 blockers. I asked: can we find compounds that bind NOD2 itself?"</p>
+<p><strong>👆 Point at:</strong> The background text, then the research question box</p>
+<p><strong>⚠️ Judge wants:</strong> That you identified a REAL gap, not a manufactured one. They want to hear "no approved drugs target NOD2" because that's verifiable.</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--cyn)">
+<h3><span class="panel-tag panel-tag-l">⬅️ LEFT</span> Motivation & Personal Connection</h3>
+<p><strong>📋 Scores: Creativity (20 pts)</strong> — originality, personal investment</p>
+<p><strong>🗣 Say:</strong> "I carry R702W myself. During my Remicade infusions, I asked my doctor — are there drugs that target NOD2? He said no. That question became this project. The mutation sits in HD2 [point at domain diagram] but drugs would bind in LRR [point] — 79.4 Angstroms apart. That distance is the mystery — how can one amino acid change affect drug binding almost 8 nanometers away?"</p>
+<p><strong>👆 Point at:</strong> Motivation box → domain architecture → 79.4 Å label</p>
+<p><strong>⚠️ Judge wants:</strong> Authentic motivation. ISEF 2-time finalist tip: judges can tell when you genuinely care. This is your strongest moment — don't rush it.</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--cyn)">
+<h3><span class="panel-tag panel-tag-l">⬅️ LEFT</span> NOD2 Pathway Diagram</h3>
+<p><strong>📋 Scores: Research Question (10 pts) + Interview (25 pts)</strong></p>
+<p><strong>🗣 Say:</strong> "NOD2 detects bacterial fragments called MDP. MDP binds the LRR domain, opens a hinge called HD2, which exposes the CARD domain. CARD recruits RIPK2, which signals through TAK1 and IKK to free NF-kappa-B. NF-kappa-B enters the nucleus, turns on inflammatory genes. In the mutant [point to right side], the hinge is rigid — signaling drops about 50%. Bacteria accumulate, the adaptive immune system overcompensates — that's chronic inflammation."</p>
+<p><strong>👆 Point at:</strong> WT pathway arrows left side → R702W pathway right side → red "impaired" labels</p>
+<p><strong>⚠️ Judge wants:</strong> That you understand the BIOLOGY, not just the computation. 30 seconds max here — they don't need every step.</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--f2)">
+<h3><span class="panel-tag panel-tag-m">🔬 MIDDLE</span> Preparation (AlphaFold + Libraries)</h3>
+<p><strong>📋 Scores: Design & Methodology (15 pts)</strong> — justified choices</p>
+<p><strong>🗣 Say:</strong> "No crystal structure of full-length human NOD2 exists. So I used AlphaFold2 — confidence score above 90 in the LRR region. For compounds, I combined FDA-approved drugs from e-Drug3D with natural products from COCONUT. 9,566 total, all prepared with proper partial charges and 3D conformers."</p>
+<p><strong>👆 Point at:</strong> AlphaFold/e-Drug3D/COCONUT boxes at top → "9,566" number</p>
+<p><strong>⚠️ Judge wants:</strong> WHY these choices. If they ask "why not use a crystal structure?" → "None exists for full-length human NOD2. PDB only has rabbit, partial domains."</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--f2)">
+<h3><span class="panel-tag panel-tag-m">🔬 MIDDLE</span> GNINA Docking</h3>
+<p><strong>📋 Scores: Design & Methodology (15 pts)</strong></p>
+<p><strong>🗣 Say:</strong> "GNINA is a CNN-based docking program — unlike AutoDock Vina which uses classical scoring, GNINA learns binding patterns from real protein-drug complexes. I docked all 9,566 compounds against the LRR pocket with exhaustiveness 32 and 9 poses each."</p>
+<p><strong>👆 Point at:</strong> GNINA box → grid size → exhaustiveness number</p>
+<p><strong>⚠️ Judge might ask:</strong> "Why GNINA over AutoDock Vina?" → "GNINA's CNN was trained on real crystal structures from PDBbind. It scores both shape complementarity AND learned chemical features. Published benchmarks show it outperforms classical scoring on CASF-2016."</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--f2)">
+<h3><span class="panel-tag panel-tag-m">🔬 MIDDLE</span> NOD2-Scout (ML Classifier)</h3>
+<p><strong>📋 Scores: Execution (20 pts) + Creativity (20 pts)</strong> — this is where you show innovation</p>
+<p><strong>🗣 Say:</strong> "No experimental binding data exists for NOD2, so I couldn't train on real labels. Instead, I used GNINA's docking scores as pseudo-labels — top 25% as binders, bottom 25% as non-binders. XGBoost classifier with Morgan fingerprints. The key validation: scaffold-split cross-validation dropped AUC from 0.998 to 0.85-0.93 [point at ROC curve]. That tells me the model generalizes to new chemical scaffolds, not just memorizing training molecules."</p>
+<p><strong>👆 Point at:</strong> NOD2-Scout box → ROC curve (Figure 11) → scaffold-split AUC numbers</p>
+<p><strong>⚠️ Judge WILL ask:</strong> "Isn't pseudo-labeling circular?" → "Yes, it's a limitation. But it's the only option with zero experimental data. The scaffold-split validates generalization. And the downstream MD and FEP independently validate the ML predictions — compounds that scored high in ML actually stayed in the pocket during simulation."</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--f2)">
+<h3><span class="panel-tag panel-tag-m">🔬 MIDDLE</span> ADMET & Tier-1 Selection</h3>
+<p><strong>📋 Scores: Design & Methodology (15 pts)</strong> — controls and filters</p>
+<p><strong>🗣 Say:</strong> "Can these compounds actually survive the human body? Lipinski Rule of 5, Veber rules, PAINS filters for false positives, Brenk filters for toxic substructures. 148 of 150 passed — 98.7%. That's expected since most were already FDA drugs. Then I manually selected 8 based on structural diversity, binding pose quality, and synthetic accessibility."</p>
+<p><strong>👆 Point at:</strong> ADMET filter box → "148 passed" → Tier-1 "8 candidates"</p>
+<p><strong>⚠️ Keep it short here.</strong> Judges rarely deep-dive ADMET. If they do: "PAINS removes compounds that light up in every assay — false positives. Brenk flags known toxic substructures like epoxides."</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--f2)">
+<h3><span class="panel-tag panel-tag-m">🔬 MIDDLE</span> Molecular Dynamics</h3>
+<p><strong>📋 Scores: Execution (20 pts)</strong> — rigor, controls, replication</p>
+<p><strong>🗣 Say:</strong> "Docking gives a snapshot. MD gives a movie. I simulated each compound bound to NOD2 for 20 nanoseconds at body temperature, three independent replicates with different starting velocities. The question: does the compound actually STAY in the pocket? Febuxostat: 70% pocket occupancy. Bufadienolide: 80%. And my negative control — Cysteamine — drifted to 45.9 Angstroms from the pocket. Zero percent occupancy. That validates the method."</p>
+<p><strong>👆 Point at:</strong> MD box → Figure 13 (pocket binding stability) → Cysteamine escape distance → "0 contacts"</p>
+<p><strong>⚠️ Judge wants:</strong> CONTROLS. The negative control escaping is your strongest validation. Say "Cysteamine" and point at "45.9 Å away" — that number wins you points.</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--f2)">
+<h3><span class="panel-tag panel-tag-m">🔬 MIDDLE</span> FEP (Free Energy Perturbation)</h3>
+<p><strong>📋 Scores: Execution (20 pts) + Creativity (20 pts)</strong> — gold-standard method, very advanced</p>
+<p><strong>🗣 Say:</strong> "FEP is the gold standard for calculating binding strength. You alchemically 'vanish' the drug in 20 lambda windows and measure the energy cost. I ran it for both compounds on BOTH wild-type and R702W. This is where the key finding comes from."</p>
+<p><strong>👆 Point at:</strong> FEP box → "20 lambda windows" → arrow pointing to Figure 16</p>
+<p><strong>⚠️ If they ask "explain lambda windows":</strong> "Lambda goes from 0 to 1. At lambda 0, the drug is fully there. At lambda 1, it's gone. Each window is a slightly different state. You stitch them together with MBAR statistics to get the total free energy of removing the drug."</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--grn)">
+<h3><span class="panel-tag panel-tag-r">➡️ RIGHT</span> APO Dynamics (Top-Right)</h3>
+<p><strong>📋 Scores: Execution (20 pts)</strong> — data interpretation</p>
+<p><strong>🗣 Say:</strong> "Before adding any drugs, I simulated the empty protein. R702W is MORE RIGID than wild-type — RMSD drops from 4.05 to 3.27. And 12.6% of wild-type frames exceed 5 Angstroms versus 0% for the mutant. The mutation locks the protein down. This is the allosteric mechanism — rigidification propagating 79.4 Angstroms to the binding pocket."</p>
+<p><strong>👆 Point at:</strong> RMSD distribution graph → "12.6% vs 0%" → "Mechanistic Insight" box</p>
+<p><strong>⚠️ Key phrase:</strong> "R702W is MORE RIGID, not destabilized." Judges might assume mutation = unstable. Correct them.</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--grn)">
+<h3><span class="panel-tag panel-tag-r">➡️ RIGHT</span> FEP Results — Figure 16 (THE PUNCHLINE)</h3>
+<p><strong>📋 Scores: Execution (20 pts) + Creativity (20 pts)</strong> — THIS is your award-winning figure</p>
+<p><strong>🗣 Say:</strong> "This is the main finding. [point at Figure 16] Febuxostat binds wild-type at -10.36 kcal/mol but only -8.02 in R702W. That's a delta-delta-G of +2.34 — 50-fold weaker — at 8-sigma significance. But Bufadienolide [point at right bars] — almost identical in both. Delta-delta-G of -0.44, only 1.2-sigma, not significant. Same protein, same mutation, opposite drug effects. Mutation effects are ligand-dependent."</p>
+<p><strong>👆 Point at:</strong> Left pair of bars (Febuxostat) → ΔΔG number → right pair (Bufadienolide) → "NS" label</p>
+<p><strong>⚠️ This is your 60-second money moment.</strong> Practice pointing at specific bars. Say the numbers. Judges remember numbers + physical pointing.</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--grn)">
+<h3><span class="panel-tag panel-tag-r">➡️ RIGHT</span> Biological Interpretation & Lead Compounds</h3>
+<p><strong>📋 Scores: Execution (20 pts)</strong> — do you understand WHY?</p>
+<p><strong>🗣 Say:</strong> "The WHY matters. Febuxostat relies on hydrogen bonds to specific residues. When R702W rigidifies the pocket, those H-bond distances shift — bonds break. Bufadienolide uses hydrophobic contacts — oily surfaces touching oily surfaces. Those are geometry-tolerant. Even when the pocket shifts slightly, hydrophobic contacts survive. That's why one drug fails and the other doesn't."</p>
+<p><strong>👆 Point at:</strong> Biological Interpretation box → "H-bonds" vs "hydrophobic" labels → compound structures</p>
+<p><strong>⚠️ Judge wants:</strong> Mechanism, not just correlation. H-bonds = precise geometry needed = fragile. Hydrophobic = proximity is enough = robust.</p>
+</div>
+
+<div class="c" style="border-left:3px solid var(--grn)">
+<h3><span class="panel-tag panel-tag-r">➡️ RIGHT</span> Discussion & Conclusions</h3>
+<p><strong>📋 Scores: Creativity (20 pts) + Interview (25 pts)</strong> — big picture, honesty about limitations</p>
+<p><strong>🗣 Say:</strong> "Three key findings. One: a computational pipeline CAN identify NOD2 binders from zero experimental data. Two: R702W rigidifies the protein — it doesn't destabilize it. Three: mutation effects are drug-dependent, which means drug selection should match patient genotype. That's precision medicine."</p>
+<p><strong>Then immediately say limitations:</strong> "This is all computational. No wet lab validation yet. N=2 compounds validated by FEP. Future work is SPR binding assays, HDX-mass spec, and expanding to G908R. I'm very clear about what this does and doesn't prove."</p>
+<p><strong>👆 Point at:</strong> Conclusions box → Limitations → Future Directions</p>
+<p><strong>⚠️ ISEF judges LOVE honest limitations.</strong> Don't wait for them to find weaknesses. Say them yourself. It shows maturity and real understanding.</p>
+</div>
+
+<div class="ky"><strong>📱 Pro tips from ISEF finalists + judges:</strong><br>
+• Have your logbook open and ready — judges WILL ask to see it<br>
+• Have 30 printed copies of your abstract to hand out<br>
+• If you don't know an answer: "That's a great question — I don't know, but I would investigate it by..." NEVER fake it<br>
+• Address the AI question early: "I wrote all the Python scripts, configured all simulations, and made every analytical decision. The AI tools — GNINA, AlphaFold — are published methods I applied, same as using a microscope"<br>
+• Thank every judge when they leave</div>
+
 <h2>Full Judge Q&A Bank</h2>
 
 ${ex('j','"How did you come up with this idea?"',`
