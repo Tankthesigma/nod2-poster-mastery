@@ -29,7 +29,7 @@ a{color:var(--f2);text-decoration:none}a:hover{color:var(--f3)}
 .mn{display:none;position:sticky;top:0;z-index:50;background:rgba(10,10,15,.92);backdrop-filter:blur(12px);overflow-x:auto;border-bottom:1px solid var(--brd);padding:0 8px}
 .mb{background:none;border:none;color:var(--dim);padding:11px 14px;font-size:11px;font-family:'Sora',sans-serif;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .12s}
 .mb.on{color:var(--f2);border-bottom-color:var(--f1)}
-.sec{display:none;animation:fu .3s ease-out}.sec.on{display:block}@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.sec{display:none;animation:fu .3s ease-out}.sec.on{display:block}@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 p{margin-bottom:12px}strong{color:var(--w)}em{color:var(--f2)}
 pre{background:#08080e;border:1px solid var(--brd);border-radius:10px;padding:14px 16px;overflow-x:auto;font-size:12.5px;line-height:1.7;margin:10px 0;color:#b0b0d0}.cmt{color:#6a9955}.kw{color:#c586c0}.str{color:#ce9178}.fn{color:#dcdcaa}
 code{background:rgba(255,107,43,.08);padding:1px 5px;border-radius:4px;font-size:.85em;color:var(--f2)}
@@ -49,7 +49,7 @@ ol,ul{padding-left:22px;margin-bottom:10px}li{margin-bottom:5px}
 .exb{display:none;padding:16px;background:var(--s1);border:1px solid var(--brd);border-top:none;border-radius:0 0 10px 10px;font-size:13.5px;line-height:1.85}.exb.op{display:block}
 /* Tags */
 .tg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-right:4px}
-.tw{background:rgba(255,107,43,.15);color:var(--f2)}.tc{background:rgba(56,189,248,.12);color:var(--cyn)}.tj{background:rgba(34,197,94,.12);color:var(--grn)}.tx{background:rgba(239,68,68,.12);color:var(--red)}.tl{background:rgba(244,114,182,.12);color:var(--pnk)}.ti{background:rgba(255,208,102,.12);color:var(--f3)}.tv{background:rgba(167,139,250,.12);color:var(--vio)}
+.tw{background:rgba(255,107,43,.15);color:var(--f2)}.tc{background:rgba(56,189,248,.12);color:var(--cyn)}.tj{background:rgba(34,197,94,.12);color:var(--grn)}.tx{background:rgba(239,68,68,.12);color:var(--red)}.tl{background:rgba(244,114,182,.12);color:var(--pnk)}.ti{background:rgba(255,208,102,.12);color:var(--f3)}.tv{background:rgba(167,139,250,.12);color:var(--vio)}.td{background:rgba(99,102,241,.12);color:#818cf8}
 /* VS comparison */
 .vs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}@media(max-width:700px){.vs{grid-template-columns:1fr}}
 .vw{padding:16px;border-radius:10px;background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.18)}.vl{padding:16px;border-radius:10px;background:rgba(239,68,68,.03);border:1px solid rgba(239,68,68,.12)}
@@ -94,7 +94,7 @@ const a=new Audio('audio/'+f+'.mp3');cA=a;if(b)b.classList.add('pl');
 a.onended=()=>{if(b)b.classList.remove('pl')};
 a.onerror=()=>{if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(b?.dataset?.fb||f);u.rate=0.7;speechSynthesis.speak(u)}if(b)setTimeout(()=>b.classList.remove('pl'),2e3)};a.play()}
 function au(f,l,fb){return`<button class="au" data-fb="${fb||l}" onclick="pa('${f}',this)">🔊 ${l}</button>`}
-function ex(t,ti,bo){const id='e'+Math.random().toString(36).substr(2,6);const tc={w:'tw',c:'tc',j:'tj',x:'tx',l:'tl',i:'ti',v:'tv'}[t]||'tw';const tn={w:'WHY',c:'CODE',j:'JUDGE Q&A',x:'CRASH STORY',l:'HOW I LEARNED',i:'WHAT-IF',v:'ISEF RUBRIC'}[t]||'';
+function ex(t,ti,bo){const id='e'+Math.random().toString(36).substr(2,6);const tc={w:'tw',c:'tc',j:'tj',x:'tx',l:'tl',i:'ti',v:'tv',d:'td'}[t]||'tw';const tn={w:'WHY',c:'CODE',j:'JUDGE Q&A',x:'CRASH STORY',l:'HOW I LEARNED',i:'WHAT-IF',v:'ISEF RUBRIC',d:'🎓 DEEP DIVE'}[t]||'';
 return`<div class="ex"><div class="exh" onclick="this.classList.toggle('op');document.getElementById('${id}').classList.toggle('op')"><span class="ea">▶</span><span class="tg ${tc}">${tn}</span>${ti}</div><div class="exb" id="${id}">${bo}</div></div>`}
 
 const S=[
@@ -338,6 +338,41 @@ ${ex('l','HOW I chose NOD2 and the LRR pocket as my target',`
 <div class="cons"><p>NOD2 is inside the cell — drugs must cross the membrane to reach it</p><p>Allosteric mechanism is complex to explain quickly</p><p>No experimental proof yet — all computational</p></div>
 </div>
 
+
+<h2>🎓 Foundations — From AP Bio to PhD</h2>
+
+${ex('d','Innate vs Adaptive Immunity (AP Bio refresher)',`
+<p><strong>AP Bio level:</strong> Your immune system has two branches. <strong>Innate immunity</strong> = fast, non-specific, first line of defense. Born with it. Includes skin barriers, phagocytes (neutrophils, macrophages), complement proteins, and <strong>pattern recognition receptors (PRRs)</strong> like NOD2. <strong>Adaptive immunity</strong> = slow (days to weeks), highly specific, creates memory. T cells (kill infected cells), B cells (make antibodies).</p>
+<p><strong>Where NOD2 fits:</strong> NOD2 is an INNATE immune sensor — a PRR. It doesn't "learn" like T/B cells. It was genetically programmed to recognize one molecular pattern: MDP. Every copy of NOD2 in every cell detects the same thing. There's no clonal selection, no somatic hypermutation — just a hard-wired sensor.</p>
+<p><strong>Key distinction for judges:</strong> Current Crohn's drugs (anti-TNF, anti-IL-23) target the ADAPTIVE immune response. Your project targets the INNATE sensor itself — upstream of everything. That's why it's novel.</p>
+`)}
+
+${ex('d','The NLR Family — NOD2 in context (Undergrad Immunology)',`
+<p>NOD2 belongs to the <strong>NLR family</strong> (NOD-Like Receptors) — ~22 members in humans. All are intracellular PRRs. The most famous one is <strong>NLRP3</strong>, which forms the inflammasome (triggers IL-1β/IL-18 release and pyroptotic cell death).</p>
+<p><strong>NOD1 vs NOD2:</strong> NOD1 detects γ-D-glutamyl-meso-diaminopimelic acid (iE-DAP) from Gram-negative bacteria. NOD2 detects MDP from ALL bacteria. Both signal through RIPK2 → NF-κB, but NOD2 is specifically linked to Crohn's disease.</p>
+<p><strong>NLR domain organization:</strong> All NLRs share: (1) N-terminal effector domain (CARD or PYD), (2) central NACHT/NBD domain (ATPase), (3) C-terminal LRR (ligand sensing). NOD2 is unique in having TWO CARD domains, while NLRP3 has a PYD domain instead.</p>
+<p><strong>If a judge asks:</strong> "How does NOD2 compare to other innate sensors?" → "NOD2 is intracellular like other NLRs, but unlike TLRs which are membrane-bound. Its closest relative is NOD1. Unlike NLRP3, NOD2 doesn't form an inflammasome — it signals primarily through RIPK2 to NF-κB."</p>
+`)}
+
+${ex('d','Crohns Disease Pathophysiology (Gastroenterology)',`
+<p><strong>What actually happens in Crohn's:</strong> Chronic transmural (full-thickness) inflammation anywhere in the GI tract, most commonly terminal ileum and colon. Characterized by skip lesions (patchy inflammation), granulomas, fistulas, strictures.</p>
+<p><strong>The paradox:</strong> Crohn's looks like TOO MUCH inflammation, yet NOD2 loss-of-function variants INCREASE risk. Why? Because impaired NOD2 → impaired bacterial clearance → bacteria accumulate in the gut wall → the ADAPTIVE immune system overreacts to compensate → chronic inflammation. The innate system is too WEAK, so the adaptive system goes into overdrive.</p>
+<p><strong>NOD2 genetics by numbers:</strong></p>
+<p>• 3 major variants: R702W (most common), G908R, 1007fs (frameshift — most severe)</p>
+<p>• Heterozygous (one copy): OR ~2-4× increased Crohn's risk</p>
+<p>• Compound heterozygous (two different variants): OR ~20-40×</p>
+<p>• Homozygous (two copies same variant): OR ~15-25×</p>
+<p>• 200+ GWAS loci identified for Crohn's, but NOD2 has the single largest per-allele effect size</p>
+<p>• NOD2 variants explain ~20% of the genetic risk for ileal Crohn's specifically</p>
+`)}
+
+${ex('d','Allostery — The Theory Behind 79.4 Å (Biophysics/PhD)',`
+<p><strong>Classical allostery (Monod-Wyman-Changeux model, 1965):</strong> A protein exists in two states — T (tense, inactive) and R (relaxed, active). A ligand binding at one site shifts the equilibrium between states, affecting a DISTANT site. Like flipping a light switch — the switch is far from the bulb, but the wiring connects them.</p>
+<p><strong>Modern allostery (ensemble model):</strong> Proteins aren't rigid switches — they're dynamic ensembles of conformations. A mutation doesn't "flip a switch" — it changes the DISTRIBUTION of conformations the protein samples. R702W reduces the conformational ensemble (rigidification), restricting which states the LRR domain can access.</p>
+<p><strong>Your data supports this:</strong> RMSF (Root Mean Square Fluctuation) shows reduced per-residue flexibility propagating from HD2 (1.46→1.23 Å) through the backbone to LRR (1.36→1.12 Å). This isn't a single structural change — it's a SHIFT IN DYNAMICS. The protein still folds correctly, but it can't breathe/flex the way it needs to for certain ligands to bind optimally.</p>
+<p><strong>Why H-bonds break but hydrophobic contacts don't:</strong> H-bonds require precise donor-acceptor geometry (distance <3.5 Å, angle 120-180°). A 0.5 Å shift or 20° rotation breaks them. Van der Waals contacts work over a 3-6 Å range without angle requirements — like Velcro vs a magnetic clasp. Reduced dynamics = pocket geometry shifts 0.5-1.0 Å = H-bonds break, van der Waals survive.</p>
+`)}
+
 <div class="lim"><p style="margin-top:8px">Protein structure predicted by AlphaFold2 (AI), not determined experimentally. Only one mutation (R702W) tested — two other Crohn's mutations (G908R, 1007fs) remain unexplored. Even if a drug binds NOD2, it might not actually fix the sensing problem — binding ≠ function.</p></div>
 
 <div class="bridge">🔗 You now understand: NOD2 detects bacteria. R702W breaks that detection by stiffening the protein. Your drugs target the LRR pocket. The mutation is 79.4 Å away and affects drug binding indirectly. Next: how you screened 9,566 compounds against this pocket.</div>
@@ -429,6 +464,33 @@ ${ex('x','GPU Running at 1% — Missing Library Path',`
 <div class="pros"><p>CNN scoring > classical (benchmarked on 20K+ structures)</p><p>GPU-accelerated: 13 hours for 9,566 compounds</p><p>Exhaustiveness 32 = thorough search</p></div>
 <div class="cons"><p>Docking is a frozen snapshot — proteins actually wiggle (that's what MD fixes later)</p><p>CNN was trained on general proteins, not NOD2 specifically</p><p>Scores are relative rankings, not exact binding energies — they say "A probably binds better than B" not "A binds with exactly X energy"</p></div>
 </div>
+
+
+<h2>🎓 Foundations — Scoring Theory to CNN Architecture</h2>
+
+${ex('d','What Is a Scoring Function? (AP Chemistry → Computational Chemistry)',`
+<p><strong>AP Chem level:</strong> Atoms interact through forces — attractive at medium range, repulsive when too close. The total energy of a drug-protein system is the sum of all pairwise interactions between every atom in the drug and every atom in the protein.</p>
+<p><strong>The scoring function problem:</strong> You can't solve the quantum mechanical Schrödinger equation for 50,000+ atoms (drug + protein + water). So you APPROXIMATE. A scoring function is a simplified equation that estimates binding energy. It trades accuracy for speed.</p>
+<p><strong>Three generations of scoring functions:</strong></p>
+<p>• <strong>Physics-based (1st gen):</strong> Sum of Lennard-Jones (van der Waals) + Coulomb (electrostatics) + H-bond terms. Based on physical laws. Example: AutoDock 4. Problem: missing entropy, solvation.</p>
+<p>• <strong>Empirical (2nd gen):</strong> Fit coefficients to reproduce experimental binding data. Example: Vina. Score = weighted sum of terms, weights learned from ~1,300 complexes. Better correlation with experiment (~R=0.5).</p>
+<p>• <strong>ML-based (3rd gen):</strong> Train a neural network on ~20,000 real complexes from PDBbind. No explicit equation — the network LEARNS what good binding looks like. Example: GNINA. Better enrichment (finds real binders more reliably) but less interpretable.</p>
+`)}
+
+${ex('d','GNINA Architecture — How the CNN Actually Works (Computer Science)',`
+<p><strong>Input:</strong> GNINA takes the 3D coordinates of every atom in the drug and nearby protein atoms. It converts this into a 3D grid (like voxels/pixels but in 3D) where each voxel contains atomic density information — atom types, charges, hydrophobicity.</p>
+<p><strong>CNN layers:</strong> Convolutional filters slide across this 3D grid and learn to detect features: "is there a hydrogen bond donor next to an acceptor?", "does the shape complement the cavity?", "are hydrophobic atoms packed together?" Multiple layers build increasingly abstract features.</p>
+<p><strong>Training data:</strong> PDBbind database — ~20,000 experimental protein-drug complex structures with measured binding affinities (Kd, Ki, IC50). The CNN learns: given these 3D atomic arrangements, what binding affinity was measured?</p>
+<p><strong>Output:</strong> Two scores per pose: (1) CNN_score = probability this pose is a correct binding mode (0-1), (2) CNN_affinity = predicted binding affinity in pKd units. You used CNN_affinity for ranking.</p>
+<p><strong>Why CNN beats classical:</strong> Classical scoring functions use ~5-10 hand-designed terms. CNNs can learn complex, non-linear relationships from data that humans can't encode manually — like subtle cooperativity between multiple contacts.</p>
+`)}
+
+${ex('d','What Is Exhaustiveness and Why It Matters (Search Algorithm)',`
+<p><strong>Docking has two problems:</strong> (1) POSE: find the right orientation/position of the drug in the pocket (search problem), (2) SCORE: evaluate how good each pose is (scoring problem).</p>
+<p><strong>The search:</strong> GNINA uses a Monte Carlo + local optimization algorithm. It randomly places the drug, optimizes locally (gradient descent on the energy surface), then randomly perturbs and optimizes again. Each independent search run is like dropping a ball onto a hilly landscape from a random point — it rolls into the nearest valley (local minimum).</p>
+<p><strong>Exhaustiveness = number of independent search runs.</strong> Default 8 = 8 random starting points. If the energy landscape has many valleys (flexible drug, large pocket), 8 runs might miss the GLOBAL minimum. Setting to 32 = 4× more starting points = much higher chance of finding the best pose.</p>
+<p><strong>Trade-off:</strong> Exhaustiveness 32 takes 4× longer than 8. For 9,566 compounds this added ~2 days of compute. Worth it for a novel target with no known binding mode to validate against.</p>
+`)}
 
 <div class="lim"><p style="margin-top:8px">AlphaFold2 structure adds uncertainty. Grid box center was chosen manually. Exhaustiveness 32 may still miss poses in very flexible molecules. CNN predictions have ~1.5 pKd units of error. Docking ignores water molecules in the pocket (they get pushed aside, but in reality they sometimes stay and help).</p></div>
 
@@ -545,6 +607,40 @@ ${ex('x','Data Leakage Discovery — Your AUC was 0.998',`
 <div class="cons"><p>Training labels come from docking, not experiments — they're proxies, not ground truth</p><p>856 compounds is small for ML (most models train on thousands to millions)</p><p>Morgan fingerprints lose 3D shape info — molecule shape matters for binding</p></div>
 </div>
 
+
+<h2>🎓 Foundations — Decision Trees to Gradient Boosting</h2>
+
+${ex('d','Decision Trees From Scratch (AP Computer Science level)',`
+<p><strong>A decision tree</strong> is exactly what it sounds like — a flowchart of yes/no questions. "Is molecular weight > 400?" → if yes, go left. "Does the molecule have a nitrogen ring?" → if yes, go left. Keep splitting until you reach a leaf node that says "binder" or "non-binder."</p>
+<p><strong>How does it learn?</strong> The algorithm tries EVERY possible split on EVERY feature and picks the one that best separates binders from non-binders. "Best" = highest information gain (the split that reduces uncertainty the most). It keeps splitting until a stopping condition (max depth, min samples per leaf).</p>
+<p><strong>Problem:</strong> A single deep tree memorizes the training data perfectly (overfitting). Give it new data → terrible performance. Solution: build MANY shallow trees and combine them.</p>
+`)}
+
+${ex('d','Gradient Boosting — Why XGBoost Wins (Statistics/ML)',`
+<p><strong>Random Forest</strong> = build 100 trees on random subsets of data + random subsets of features. Average their predictions. Each tree is independent. Good but doesn't learn from mistakes.</p>
+<p><strong>Gradient Boosting</strong> = build trees SEQUENTIALLY. Tree 1 makes predictions → calculate the ERRORS (residuals) → Tree 2 is trained to predict Tree 1's errors → Tree 3 predicts Tree 2's remaining errors → etc. Each tree corrects the previous one's mistakes.</p>
+<p><strong>Mathematically:</strong> You're doing gradient descent in FUNCTION SPACE. The loss function L(y, ŷ) measures prediction error. The gradient ∂L/∂ŷ tells you which direction to adjust predictions. Each new tree approximates this gradient. Learning rate (0.05) = how big a step each tree takes.</p>
+<p><strong>XGBoost specifically:</strong> Adds L1 and L2 regularization to prevent overfitting, uses second-order gradient approximations (Newton's method, not just gradient descent), handles missing values natively, and implements column/row subsampling. This makes it the most popular ML algorithm for tabular data in drug discovery.</p>
+<p><strong>Your model:</strong> 100 trees × depth 4 × lr 0.05 = each tree captures 5% of remaining signal with 16 leaves. After 100 trees, essentially all learnable signal is captured. The shallow depth (4) prevents each individual tree from memorizing — the ENSEMBLE captures complexity.</p>
+`)}
+
+${ex('d','AUC-ROC: What It Actually Calculates (Statistics)',`
+<p><strong>ROC curve</strong> plots True Positive Rate (sensitivity) vs False Positive Rate (1 - specificity) at EVERY possible classification threshold from 0 to 1.</p>
+<p><strong>At threshold 0:</strong> Everything is called positive → TPR=1, FPR=1 (top right corner).</p>
+<p><strong>At threshold 1:</strong> Nothing is called positive → TPR=0, FPR=0 (bottom left corner).</p>
+<p><strong>AUC</strong> = Area Under this Curve. Ranges from 0.5 (diagonal = random guessing) to 1.0 (perfect). Geometrically: AUC = the probability that a randomly chosen positive example scores higher than a randomly chosen negative example.</p>
+<p><strong>Your AUC 0.85-0.93:</strong> If you pick a random binder and a random non-binder from your test set, the model correctly ranks them 85-93% of the time. Pretty good for a model trained on noisy pseudo-labels with no experimental data!</p>
+<p><strong>Why scaffold-split AUC is lower:</strong> Random split lets the model see "cousins" of test molecules during training (same scaffold, different substituents). It memorizes the scaffold. Scaffold split forces it to generalize to entirely new backbones — a much harder test.</p>
+`)}
+
+${ex('d','Morgan Fingerprints — The Molecular Barcode (Cheminformatics)',`
+<p><strong>How they work:</strong> Start at each atom. Look at the atom's neighbors within radius 0 (just itself), radius 1 (immediate neighbors), radius 2 (neighbors of neighbors). At each radius, hash the atom + neighborhood into a number. Collect all hashes → fold into a fixed-length binary vector (2048 bits).</p>
+<p><strong>Example:</strong> A benzene ring generates specific hash patterns at radius 2 (6-carbon ring). An amide group generates different hashes. Two molecules with similar chemical groups → similar fingerprints → similar model predictions.</p>
+<p><strong>What they capture:</strong> Local chemical environment around each atom. Substructure presence/absence. Functional group patterns.</p>
+<p><strong>What they miss:</strong> 3D shape (a flat molecule and a curved molecule with the same groups get similar fingerprints). Global topology (can't distinguish certain stereoisomers). Long-range intramolecular effects.</p>
+<p><strong>Your 10 additional descriptors:</strong> Global molecular properties (MW, LogP, TPSA, HBA, HBD, rotatable bonds, etc.) that fingerprints can't capture. Together: 2,048 + 10 = 2,058 features.</p>
+`)}
+
 <div class="lim"><p style="margin-top:8px">Pseudo-labels inherit docking errors. 2D fingerprints miss 3D binding geometry. 5-fold CV may still have some scaffold similarity between folds (Murcko scaffolds don't capture ALL structural similarity). Model may not generalize to chemical classes outside the training distribution (e-Drug3D + COCONUT).</p></div>
 
 <p>NOD2-Scout selected the top <span class="n">2,129</span> predicted binders. These were clustered down to 150 diverse representatives to avoid redundancy → ADMET filtering next.</p>
@@ -606,6 +702,35 @@ ${ex('l','HOW I chose these specific filters',`
 <div class="pros"><p>TPSA filter is target-specific (intracellular NOD2 = membrane crossing required)</p><p>PAINS catches invisible false positives that docking and ML miss</p><p>Fast — seconds per compound</p></div>
 <div class="cons"><p>Rules are guidelines, not laws — some successful drugs violate Lipinski (e.g. cyclosporin)</p><p>No actual metabolism prediction — just substructure alerts</p><p>98.7% pass rate means this filter didn't narrow much</p></div>
 </div>
+
+
+<h2>🎓 Foundations — Pharmacokinetics & Drug-Likeness</h2>
+
+${ex('d','ADME: The Journey of a Drug Through Your Body (AP Bio → Pharmacology)',`
+<p><strong>A</strong>bsorption: Drug enters bloodstream. Oral drugs must survive stomach acid (pH 1-2), dissolve in intestinal fluid, cross the intestinal epithelium (a lipid bilayer). Lipinski rules predict this.</p>
+<p><strong>D</strong>istribution: Drug travels through blood to tissues. Must cross membranes to reach intracellular targets like NOD2. Factors: protein binding (albumin sequesters drugs), blood-brain barrier, tissue perfusion.</p>
+<p><strong>M</strong>etabolism: Liver enzymes (CYP450 family) modify the drug — usually making it more water-soluble for excretion. Some drugs are ACTIVATED by metabolism (prodrugs). First-pass metabolism = drug absorbed from gut goes DIRECTLY to liver before systemic circulation.</p>
+<p><strong>E</strong>xcretion: Drug leaves the body. Kidneys (filtration → urine) for small/polar. Liver (bile → feces) for large/hydrophobic. Half-life = time for concentration to drop by half.</p>
+<p><strong>T</strong>oxicity: Reactive groups can covalently modify DNA (mutagen), form toxic metabolites, interfere with hERG potassium channels (cardiac arrhythmia), or trigger immune-mediated liver injury.</p>
+`)}
+
+${ex('d','Why Each Lipinski Number Exists (Biology Behind the Cutoff)',`
+<p><strong>MW ≤ 500:</strong> Intestinal epithelial cells have tight junctions that block molecules larger than ~500 Da from paracellular transport. Larger molecules must use active transport or dissolve through the lipid membrane (harder with increasing size).</p>
+<p><strong>LogP ≤ 5:</strong> LogP = log₁₀(concentration in octanol / concentration in water). Measures hydrophobicity. LogP > 5 = too oily → drug partitions into fat tissue, gets stuck in cell membranes, accumulates rather than distributing. Also correlates with metabolic instability (CYP enzymes love hydrophobic substrates) and toxicity.</p>
+<p><strong>HBD ≤ 5:</strong> Hydrogen bond donors (OH, NH) form bonds with water. Each additional HBD costs ~2 kcal/mol to desolvate (break water shell) before crossing the lipid membrane. More than 5 = energy penalty too high to cross membranes efficiently.</p>
+<p><strong>HBA ≤ 10:</strong> Hydrogen bond acceptors (O, N) also interact with water. Same desolvation penalty argument. Together with HBD, these determine the polar surface area that must be "paid for" during membrane crossing.</p>
+<p><strong>The Rule of 5 name:</strong> All cutoffs are multiples of 5. Chris Lipinski at Pfizer analyzed all oral drugs that made it to Phase II clinical trials and found these patterns (published 1997). Not a strict law — ~15% of approved drugs violate at least one rule — but a strong statistical filter.</p>
+`)}
+
+${ex('d','PAINS: How False Positives Fool Scientists (Medicinal Chemistry)',`
+<p><strong>The problem:</strong> Some chemical substructures non-specifically interact with many different assay systems — they LOOK like hits against almost ANY target. Scientists waste years pursuing them before realizing the activity is artifactual.</p>
+<p><strong>Mechanisms of PAINS interference:</strong></p>
+<p>• <strong>Aggregation:</strong> Hydrophobic compounds form colloidal particles in aqueous buffer. These particles non-specifically sequester proteins → apparent inhibition. Especially common at high LogP.</p>
+<p>• <strong>Redox cycling:</strong> Quinones and catechols cycle between oxidized/reduced forms, generating reactive oxygen species (ROS) that non-specifically damage proteins.</p>
+<p>• <strong>Michael acceptors:</strong> α,β-unsaturated carbonyls react covalently with cysteine residues on any protein (not target-specific).</p>
+<p>• <strong>Metal chelation:</strong> Hydroxamic acids, rhodanines chelate metal ions in the assay system.</p>
+<p><strong>Your 2 PAINS failures:</strong> Had Michael acceptor substructures — reactive with any exposed cysteine. Correctly removed.</p>
+`)}
 
 <div class="lim"><p style="margin-top:8px">Lipinski violations don't always mean failure (about 15% of approved drugs break at least one rule). ADMET doesn't predict actual metabolic half-life or CYP enzyme interactions. Brenk filter is conservative — may flag compounds that are actually safe in context.</p></div>
 
@@ -711,6 +836,46 @@ ${ex('x','NaN Explosion — January 1 (Worst Crash)',`
 <div class="cons"><p>20 ns is short compared to real biological events (protein folding takes microseconds to milliseconds — 1,000-1,000,000× longer)</p><p>Force field parameters for novel natural compounds (like Bufadienolide) are less validated</p><p>Starting from an AlphaFold-predicted structure, not experimental</p></div>
 </div>
 
+
+<h2>🎓 Foundations — From Newton's Laws to Molecular Movies</h2>
+
+${ex('d','F = ma for Atoms (AP Physics → Molecular Dynamics)',`
+<p><strong>The core idea:</strong> Every atom in your simulation obeys Newton's second law: F = ma. The FORCE on each atom comes from its interactions with all other atoms (bonds, angles, van der Waals, electrostatics). Given the force, you calculate the ACCELERATION. Given acceleration, you calculate new VELOCITY. Given velocity, you calculate new POSITION. Repeat every 2 femtoseconds (2 × 10⁻¹⁵ seconds).</p>
+<p><strong>The algorithm (Velocity Verlet integration):</strong></p>
+<p>1. Calculate forces on all atoms from the force field</p>
+<p>2. Update positions: x(t+Δt) = x(t) + v(t)·Δt + ½a(t)·Δt²</p>
+<p>3. Calculate NEW forces at new positions</p>
+<p>4. Update velocities: v(t+Δt) = v(t) + ½[a(t) + a(t+Δt)]·Δt</p>
+<p>5. Go to step 1. Repeat 10,000,000 times for 20 ns.</p>
+<p><strong>Why 2 fs timestep?</strong> Fastest motion in your system = C-H bond stretching (~10 fs period). Nyquist theorem: must sample at ≥2× the frequency → Δt ≤ 5 fs. Using 2 fs gives a safety margin. HMR (Hydrogen Mass Repartitioning) slows H vibrations, allowing 4 fs — but NaN crashes at 4 fs in your FEP ghost states forced you back to 2 fs.</p>
+`)}
+
+${ex('d','What Is a Force Field? (Physical Chemistry)',`
+<p><strong>A force field</strong> is a set of equations + parameters that approximate atomic interactions without quantum mechanics. The total energy:</p>
+<p><strong>E_total = E_bonds + E_angles + E_torsions + E_vdW + E_electrostatic</strong></p>
+<p>• <strong>E_bonds</strong> = ½k(r - r₀)² — harmonic spring for each covalent bond (spring constant k, equilibrium length r₀)</p>
+<p>• <strong>E_angles</strong> = ½k(θ - θ₀)² — harmonic spring for bond angles</p>
+<p>• <strong>E_torsions</strong> = Σ Vn[1 + cos(nφ - γ)] — rotation around bonds (dihedral angles)</p>
+<p>• <strong>E_vdW</strong> = 4ε[(σ/r)¹² - (σ/r)⁶] — Lennard-Jones potential (r⁻¹² repulsion + r⁻⁶ attraction)</p>
+<p>• <strong>E_electrostatic</strong> = q₁q₂/(4πε₀r) — Coulomb's law for partial charges</p>
+<p><strong>Your force fields:</strong> AMBER14 provides the k, r₀, θ₀, ε, σ, q values for PROTEIN atoms (parameterized against quantum mechanical calculations and experimental data for amino acids). OpenFF 2.1 provides parameters for DRUG atoms. TIP3P-FB provides parameters for WATER (3 interaction sites per molecule).</p>
+<p><strong>The ~1 kcal/mol accuracy limit:</strong> Force fields approximate quantum mechanics. Bond polarization, charge transfer, many-body dispersion — all ignored. This introduces ~1 kcal/mol systematic error, which is why your ΔΔG values have this intrinsic uncertainty floor even with infinite sampling.</p>
+`)}
+
+${ex('d','Periodic Boundary Conditions — Simulating Infinity (Computational Physics)',`
+<p><strong>Problem:</strong> You can't simulate an infinite ocean of water. But if you simulate a small box, atoms at the edges experience artificial forces from the vacuum outside.</p>
+<p><strong>Solution:</strong> Periodic boundary conditions (PBC). Your simulation box is surrounded by infinite copies of itself in all directions. When an atom exits the right side, it enters from the left. Every atom interacts with the NEAREST image of every other atom.</p>
+<p><strong>PME (Particle Mesh Ewald):</strong> Electrostatic interactions decay slowly (1/r) — you can't just cut them off at a distance. PME splits the calculation into short-range (computed directly, fast) and long-range (computed in reciprocal/Fourier space, also fast). This gives you accurate electrostatics in O(N log N) instead of O(N²).</p>
+<p><strong>Your simulation box:</strong> Protein + drug + ~30,000 water molecules + 0.15 M NaCl ions. Cubic box large enough that the protein doesn't interact with its own periodic image (minimum 12 Å buffer on each side).</p>
+`)}
+
+${ex('d','NVT vs NPT Ensembles (Statistical Mechanics)',`
+<p><strong>NVT (canonical):</strong> Fixed Number of particles, Volume, Temperature. A thermostat (Langevin in your case) adds/removes kinetic energy to maintain 310.15 K. Used during equilibration.</p>
+<p><strong>NPT (isothermal-isobaric):</strong> Fixed Number, Pressure, Temperature. A barostat (Monte Carlo in your case) adjusts box volume to maintain 1 atm. Used during production — allows the box to contract/expand naturally.</p>
+<p><strong>Why this matters:</strong> Real biological systems are at constant temperature and pressure, not constant volume. NPT matches physiological conditions. The barostat also accounts for density changes when a drug binds (slight box volume adjustment).</p>
+<p><strong>Langevin thermostat:</strong> Adds friction (γ = collision frequency) and random forces to mimic collisions with implicit solvent. At equilibrium, produces correct NVT ensemble. Friction coefficient = 1/ps in your setup.</p>
+`)}
+
 <div class="lim"><p style="margin-top:8px">20 ns may miss slow conformational changes that happen on longer timescales. Pocket occupancy is a proxy for binding strength — it doesn't directly tell you HOW tightly the drug binds (just that it stays nearby). Force field accuracy is ~1 kcal/mol. OpenFF parameters for unusual natural product scaffolds are less thoroughly validated than for typical drug molecules.</p></div>
 
 <div class="bridge">🔗 MD confirmed that Febuxostat and Bufadienolide stay in the pocket. But "stays" isn't a number — you need to know EXACTLY how tightly each one binds, and whether R702W changes that. Only FEP gives you that number.</div>
@@ -803,6 +968,46 @@ ${ex('w','Why FEP instead of MM-GBSA (your cheaper first attempt)',`
 <div class="pros"><p>Gold standard accuracy — used by pharma companies</p><p>Thermodynamically exact (state function, no approximations)</p><p>8σ significance on Febuxostat result — extraordinarily robust</p><p>You built it for free using OpenMM + pymbar (pharma pays $100K+/yr for Schrödinger FEP+)</p></div>
 <div class="cons"><p>Extremely expensive: 48 GPU-hours per compound pair</p><p>Only 2 compounds could be characterized (3,500+ GPU-hrs for all 148)</p><p>Requires careful setup (Boresch restraints, softcore parameters, sequential seeding)</p><p>Accuracy depends on force field quality</p></div>
 </div>
+
+
+<h2>🎓 Foundations — Thermodynamics to Alchemical Transformations</h2>
+
+${ex('d','Gibbs Free Energy — Why ΔG Matters (AP Chemistry)',`
+<p><strong>AP Chem refresher:</strong> ΔG = ΔH - TΔS. A reaction is spontaneous when ΔG < 0.</p>
+<p>• <strong>ΔH</strong> (enthalpy) = heat released/absorbed. For binding: H-bonds formed, van der Waals contacts made, charge interactions — all RELEASE energy (ΔH < 0 = favorable).</p>
+<p>• <strong>TΔS</strong> (entropy × temperature) = disorder. For binding: the drug loses translational and rotational freedom when it enters the pocket (ΔS < 0 = unfavorable). But water molecules trapped in the pocket are RELEASED when the drug displaces them (ΔS > 0 = favorable).</p>
+<p><strong>ΔG of binding:</strong> The NET balance between favorable interactions (enthalpy) and the entropic cost of restricting motion. More negative ΔG = tighter binding. Typical drug range: -6 to -12 kcal/mol.</p>
+<p><strong>Relationship to Kd:</strong> ΔG = RT·ln(Kd). At 310K: Kd = e^(ΔG/0.616). So ΔG = -10 kcal/mol → Kd ≈ 10⁻⁷ M (100 nM). ΔG = -8 kcal/mol → Kd ≈ 10⁻⁶ M (1 µM). Every 1.4 kcal/mol = 10× change in Kd.</p>
+`)}
+
+${ex('d','The Thermodynamic Cycle — Why FEP Works (Physical Chemistry)',`
+<p><strong>The problem:</strong> You want ΔΔG = ΔG(R702W) - ΔG(WT). You COULD run two separate FEP calculations and subtract. But subtracting two large numbers with errors gives a very noisy result.</p>
+<p><strong>The trick — thermodynamic cycle:</strong> Free energy is a STATE function — it doesn't depend on the PATH. So instead of computing absolute ΔG values, you compute the RELATIVE difference directly. The cycle:</p>
+<p>ΔG_bind(WT) + ΔG_mutate(bound) = ΔG_mutate(free) + ΔG_bind(R702W)</p>
+<p>Therefore: ΔΔG = ΔG_bind(R702W) - ΔG_bind(WT) = ΔG_mutate(bound) - ΔG_mutate(free)</p>
+<p><strong>In your case:</strong> You computed ΔG_bind for each protein variant separately (not a mutation cycle), which is the direct approach. The thermodynamic cycle would be used if you were mutating the protein computationally — applicable to future work.</p>
+`)}
+
+${ex('d','Lambda Windows — The Alchemical Pathway (Computational Chemistry)',`
+<p><strong>You can't just delete the drug instantaneously</strong> — the energy change would be enormous and unmeasurable. Instead, you do it SLOWLY through a series of intermediate states parameterized by λ (lambda).</p>
+<p><strong>At λ=0:</strong> Drug is fully present. All interactions at full strength.</p>
+<p><strong>At λ=0.5:</strong> Drug is "half there" — interactions at 50% strength. A ghost-like state.</p>
+<p><strong>At λ=1:</strong> Drug is completely gone. No interactions with protein.</p>
+<p><strong>20 windows:</strong> λ = 0.00, 0.05, 0.10, ..., 0.95, 1.00. Each window runs 1 ns of MD at that specific λ value. The system equilibrates at each intermediate state.</p>
+<p><strong>3 legs (phases):</strong></p>
+<p>1. <strong>Restraints:</strong> Add position restraints on the drug (prevents it from wandering during decoupling)</p>
+<p>2. <strong>Electrostatics:</strong> Turn off drug's charges (λ_elec: 1→0). Safe because removing charges doesn't create overlapping atoms.</p>
+<p>3. <strong>Sterics:</strong> Turn off van der Waals (λ_vdW: 1→0). Uses SOFT-CORE potentials to avoid singularities when atoms overlap (normal Lennard-Jones → ∞ at r=0, soft-core stays finite).</p>
+<p><strong>Order matters:</strong> Charges OFF before sterics OFF. If you remove sterics first, a now-uncharged-but-still-existing atom could overlap with protein atoms → numerical explosion. Charges first = safe.</p>
+`)}
+
+${ex('d','MBAR — How You Combine 120 Windows Into One Number (Statistical Mechanics/PhD)',`
+<p><strong>MBAR</strong> = Multistate Bennett Acceptance Ratio. Given energy samples from multiple λ states, it computes the optimal free energy estimate by combining information from ALL states simultaneously.</p>
+<p><strong>Why not just sum differences?</strong> Simple numerical integration (trapezoid rule on ⟨dU/dλ⟩ vs λ — called Thermodynamic Integration/TI) works but doesn't optimally use information from overlapping states.</p>
+<p><strong>MBAR is provably optimal:</strong> It's the maximum likelihood estimator for free energy differences given samples from multiple states. It minimizes the statistical uncertainty of the final ΔG estimate. Developed by Shirts & Chodera (2008) — reference [5] on your poster.</p>
+<p><strong>How it works intuitively:</strong> At each λ window, the simulation samples configurations. MBAR asks: "what is the probability that a configuration sampled at λ=0.3 could have been generated at λ=0.35?" If there's good overlap between adjacent windows, the free energy difference is estimated precisely. Poor overlap → large error bars → need more/finer windows.</p>
+<p><strong>Your error bars (±0.18 kcal/mol):</strong> Computed from MBAR's covariance matrix. The fact that they're this small indicates excellent phase-space overlap between adjacent windows — your 20-window spacing was sufficient.</p>
+`)}
 
 <div class="lim"><p style="margin-top:8px">1 ns per window may be insufficient for slow protein motions. Only 2 of 148 compounds fully characterized — broader coverage would strengthen conclusions. Force field parameters for Bufadienolide (unusual steroid scaffold) are less validated than for standard drugs. Boresch restraint atom selection can affect results. No experimental binding data exists for NOD2 to calibrate against.</p></div>
 
@@ -1563,6 +1768,9 @@ ${ex('j','9 references is thin for a project of this scope',`
 `},
 
 
+{id:'quiz',icon:'📝',label:'11. Quiz Mode',ct:'<div id="quiz-root"><div style="text-align:center;padding:40px"><h1 style="color:var(--f2)">Loading Quiz...</h1></div></div>'},
+
+
 {id:'glo',icon:'📖',label:'Audio Glossary',ct:`
 <h1>Audio Pronunciation Glossary</h1>
 <p class="sub">75 terms. Tap 🔊 to hear each one pronounced. Come back here whenever a term trips you up.</p>
@@ -1643,6 +1851,159 @@ const b=document.createElement('button');b.className='nb'+(i===0?' on':'');b.inn
 const m=document.createElement('button');m.className='mb'+(i===0?' on':'');m.textContent=s.icon+' '+s.label;m.onclick=()=>go(s.id);mn.appendChild(m);
 const d=document.createElement('div');d.id='s_'+s.id;d.className='sec'+(i===0?' on':'');d.innerHTML=s.ct;ct.appendChild(d);
 });
+// ===== QUIZ ENGINE =====
+const QZ=[
+{cat:"Biology",type:"mc",q:"What does NOD2 stand for?",ch:["Nucleotide-binding Oligomerization Domain 2","Neural Oxidative Degradation 2","Nitric Oxide Deaminase 2","Non-coding Open Domain 2"],a:0,ex:"NOD2 = Nucleotide-binding Oligomerization Domain 2. Intracellular innate immune sensor (PRR) that detects bacterial cell wall fragments."},
+{cat:"Biology",type:"mc",q:"What bacterial fragment does NOD2 detect?",ch:["Lipopolysaccharide (LPS)","Muramyl dipeptide (MDP)","Flagellin","Double-stranded RNA"],a:1,ex:"MDP (muramyl dipeptide) = smallest immunostimulatory fragment from peptidoglycan. LPS is detected by TLR4."},
+{cat:"Biology",type:"mc",q:"What signaling pathway does NOD2 activate?",ch:["JAK-STAT","MAPK/ERK only","NF-κB","Wnt/β-catenin"],a:2,ex:"NOD2 → RIPK2 → TAK1 → IKK → NF-κB → nucleus → inflammatory cytokines (TNF-α, IL-1β, IL-6, IL-8)."},
+{cat:"Biology",type:"mc",q:"Which domain of NOD2 binds MDP?",ch:["CARD","NBD","HD1","LRR domain (residues 744-1040)"],a:3,ex:"LRR (Leucine-Rich Repeat) domain is the ligand sensor. CARD recruits RIPK2. NBD binds nucleotides. HD1/HD2 are hinge domains."},
+{cat:"Biology",type:"mc",q:"The R702W mutation is in which domain?",ch:["CARD","LRR","HD2","NBD"],a:2,ex:"R702W is in HD2 — 79.4 Å from the LRR binding pocket. Effects are ALLOSTERIC (acting at a distance)."},
+{cat:"Biology",type:"mc",q:"R702W replaces which amino acid with which?",ch:["Arginine (+) → Tryptophan (neutral)","Tryptophan → Arginine","Glycine → Valine","Leucine → Proline"],a:0,ex:"R=Arginine (positively charged, +1) → W=Tryptophan (neutral, hydrophobic aromatic). Lost positive charge disrupts electrostatic networks."},
+{cat:"Biology",type:"mc",q:"How does R702W affect the NOD2 protein per YOUR data?",ch:["Destabilizes it (more flexible)","Rigidifies it (less flexible)","No structural effect","Unfolds the LRR domain"],a:1,ex:"RMSD: WT 4.05 Å → R702W 3.27 Å. Frames >5 Å: WT 12.6% → R702W 0%. Rigidification, not destabilization. CHALLENGES prior literature."},
+{cat:"Biology",type:"mc",q:"How far is R702W from the LRR binding pocket?",ch:["7.9 Å","79.4 Å","794 Å","7.94 Å"],a:1,ex:"79.4 Å measured in PyMOL. ~8 nanometers. At molecular scale this is HUGE — effects must propagate through the backbone (allostery)."},
+{cat:"Biology",type:"mc",q:"~What % of Crohn's patients carry R702W?",ch:["~1%","~5%","~10%","~25%"],a:2,ex:"~10%. Doubles disease risk for heterozygous carriers. Most common of 3 major NOD2 variants (R702W, G908R, 1007fs)."},
+{cat:"Biology",type:"mc",q:"Why does NOD2 loss-of-function cause INFLAMMATION?",ch:["NOD2 normally causes inflammation","Impaired bacterial clearance → adaptive immune overreaction","NOD2 blocks inflammation normally","Unknown mechanism"],a:1,ex:"Paradox: weak innate sensor → bacteria accumulate → adaptive immune system overcompensates → chronic inflammation. The innate system is too WEAK, so adaptive goes into overdrive."},
+
+{cat:"Docking",type:"mc",q:"What makes GNINA different from Vina?",ch:["Quantum mechanics","CNN trained on ~20,000 real protein-drug complexes","It is faster","No protein needed"],a:1,ex:"GNINA uses a CNN trained on PDBbind. Classical Vina uses a fixed scoring function from 2010. GNINA LEARNED to score from data."},
+{cat:"Docking",type:"mc",q:"How many compounds were docked?",ch:["2,152","7,414","9,566","2,129"],a:2,ex:"9,566 = 2,152 FDA drugs (e-Drug3D) + 7,414 natural products (COCONUT). Duplicates removed."},
+{cat:"Docking",type:"mc",q:"Why exhaustiveness 32 instead of default 8?",ch:["Random","Novel target needs more thorough search (4× default)","Lower is better","Required by GNINA"],a:1,ex:"32 = 4× more independent search runs. For novel target with no known binding mode, reduces chance of missing best poses."},
+{cat:"Docking",type:"mc",q:"Why AlphaFold2 instead of crystal structure?",ch:["AlphaFold is more accurate","No experimental structure of full-length human NOD2 exists","Easier to use","Crystal structures cant be docked"],a:1,ex:"No crystal/cryo-EM structure of full-length human NOD2 exists. Only structure (5IRM) is rabbit NOD2 missing the LRR domain. pLDDT >90 in LRR = high confidence."},
+{cat:"Docking",type:"mc",q:"The docking grid was 30×30×30 Å. Why 30?",ch:["Random","Pocket ~20 Å across + 5 Å padding per side","Standard for all proteins","Smallest possible"],a:1,ex:"Pocket ~20 Å diameter + 5 Å buffer on each side = 30 Å. Ensures full pocket coverage without wasting computation on distant space."},
+
+{cat:"ML",type:"mc",q:"What are pseudo-labels?",ch:["Labels from literature","Labels from docking scores (top 20% = binder, bottom 20% = non-binder)","Random labels","Labels from chemical similarity"],a:1,ex:"Zero experimental NOD2 binding data exists. Used GNINA scores as proxies: top 20% = binder, bottom 20% = non-binder, middle 60% discarded."},
+{cat:"ML",type:"mc",q:"Why scaffold-split CV is stricter than random?",ch:["More folds","Keeps same-backbone molecules together, preventing scaffold memorization","Removes duplicates","Different seeds"],a:1,ex:"All molecules sharing same backbone go to SAME fold. Prevents memorization. AUC drops from 0.998 (random) to 0.85-0.93 (scaffold) — lower number is REAL performance."},
+{cat:"ML",type:"mc",q:"What was the AUC range? And shuffled control?",ch:["0.50-0.60, control 0.25","0.85-0.93, control 0.50","0.95-0.99, control 0.90","0.70-0.75, control 0.50"],a:1,ex:"AUC 0.85-0.93 (mean 0.89±0.03). Shuffled control = 0.50 (coin flip). Proves real signal, not noise."},
+{cat:"ML",type:"mc",q:"Why XGBoost over deep neural network?",ch:["XGBoost is always better","856 samples too small for deep learning","Deep learning doesnt work on molecules","XGBoost is newer"],a:1,ex:"856 samples is tiny. Neural nets with millions of parameters would memorize instantly. XGBoost uses shallow trees (depth 4 = 16 leaves) with regularization."},
+{cat:"ML",type:"mc",q:"XGBoost hyperparameters?",ch:["100 trees, depth 4, lr 0.05","50 trees, depth 8, lr 0.1","200 trees, depth 6, lr 0.01","500 trees, depth 2, lr 0.5"],a:0,ex:"100 trees × depth 4 × lr 0.05. Depth 4 = 2⁴ = 16 leaves. 856/16 ≈ 53 samples/leaf. Each tree contributes 5% of signal."},
+{cat:"ML",type:"mc",q:"What are 2,048-bit Morgan fingerprints?",ch:["DNA sequences","Binary barcodes encoding atom neighborhoods within radius 2 bonds","3D shape descriptors","Protein features"],a:1,ex:"Molecular barcode — each molecule hashed into 2,048 binary bits based on local chemical environment. 2D features only (no 3D shape)."},
+{cat:"ML",type:"mc",q:"How is gradient boosting different from random forest?",ch:["Same thing","Trees built sequentially — each corrects previous errors","Uses fewer trees","No subsampling"],a:1,ex:"Random forest: independent parallel trees averaged. Gradient boosting: sequential trees, each trained on the RESIDUALS (errors) of the previous. Each tree corrects mistakes."},
+
+{cat:"ADMET",type:"mc",q:"What does Lipinski Rule of 5 predict?",ch:["Toxicity","Oral bioavailability","Binding affinity","Solubility only"],a:1,ex:"MW≤500, LogP≤5, HBD≤5, HBA≤10. Predicts oral absorption. Called Rule of 5 because all cutoffs are multiples of 5."},
+{cat:"ADMET",type:"mc",q:"PAINS filters remove what?",ch:["Toxic compounds","Compounds causing false positives in assays","Too-large compounds","Expensive compounds"],a:1,ex:"Pan-Assay INterference compoundS. 480 substructure patterns that non-specifically interfere with assays (Michael acceptors, rhodanines, quinones)."},
+{cat:"ADMET",type:"mc",q:"148 of 150 passed ADMET. Why so high?",ch:["Filters are weak","FDA drugs are already drug-like by design","Lucky coincidence","Errors in filtering"],a:1,ex:"98.7% pass rate because FDA drugs were designed to be drug-like. 2 failures had PAINS alerts (Michael acceptor substructures)."},
+{cat:"ADMET",type:"mc",q:"Why does LogP > 5 predict poor absorption?",ch:["Too polar","Too hydrophobic — accumulates in fat, gets stuck in membranes","Too small","Too large"],a:1,ex:"LogP measures hydrophobicity. >5 = too oily → partitions into fat tissue, gets stuck in cell membranes. Also more toxic and metabolically unstable."},
+
+{cat:"MD",type:"mc",q:"What does RMSD measure?",ch:["Binding strength","How much protein moves from starting position","Temperature","Energy consumption"],a:1,ex:"Root Mean Square Deviation. Higher RMSD = more flexibility. WT: 4.05 Å (flexible). R702W: 3.27 Å (rigid)."},
+{cat:"MD",type:"mc",q:"What was the negative control and what happened?",ch:["Water — stayed","Cysteamine — escaped to 45.9 Å, 0% occupancy","Random protein — didnt bind","No control used"],a:1,ex:"Cysteamine (bottom 3% CNN score) escaped pocket in <5 ns. 45.9 Å final distance, 0% occupancy, 0 contacts. VALIDATES pocket specificity."},
+{cat:"MD",type:"mc",q:"Why 310.15 K?",ch:["Room temperature","Standard convention","Human body temperature (37°C)","Boiling point"],a:2,ex:"310.15 K = 37°C = body temperature. Standard for biomedical MD."},
+{cat:"MD",type:"mc",q:"Which 3 force fields did you use?",ch:["Only AMBER14","AMBER14 (protein), OpenFF 2.1 (ligand), TIP3P-FB (water)","CHARMM only","OPLS for both"],a:1,ex:"Three force fields for three components. AMBER14 = protein parameters. OpenFF 2.1 = drug molecule parameters. TIP3P-FB = water model (3 sites per molecule, force-balance optimized)."},
+{cat:"MD",type:"mc",q:"Total simulation time across 26 trajectories?",ch:["20 ns","100 ns","240 ns","520 ns"],a:3,ex:"520 ns total. 20 ns × 3 replicates per system across various compounds, WT/R702W, and apo controls = 26 trajectories."},
+{cat:"MD",type:"mc",q:"Pocket occupancy: Febuxostat ___%, Bufadienolide ___%, Cysteamine ___%",ch:["70, 80, 0","50, 60, 10","90, 95, 5","80, 70, 20"],a:0,ex:"Febuxostat 70%, Bufadienolide 80% — both stable (>50% threshold). Cysteamine 0% — validates specificity."},
+{cat:"MD",type:"mc",q:"What core physics law drives MD simulation?",ch:["Quantum mechanics","F = ma (Newton 2nd law for every atom)","Thermodynamics only","Schrodinger equation"],a:1,ex:"F = ma. Forces from the force field → acceleration → velocity → new positions. Repeat every 2 femtoseconds, 10 million times for 20 ns."},
+
+{cat:"FEP",type:"mc",q:"What does FEP actually measure?",ch:["Protein folding","Energy cost of making drug vanish from binding pocket (= binding strength)","Drug toxicity","Simulation speed"],a:1,ex:"FEP alchemically transforms drug → nothing over 20 lambda windows. Energy cost of removing it = how strongly it was bound (ΔG)."},
+{cat:"FEP",type:"mc",q:"Febuxostat: ΔG(WT) and ΔG(R702W)?",ch:["-10.36 and -8.02 kcal/mol","-8.02 and -10.36 kcal/mol","-15.22 and -15.66 kcal/mol","-5.0 and -3.0 kcal/mol"],a:0,ex:"WT: -10.36±0.18 (strong). R702W: -8.02±0.19 (weaker). Mutation costs 2.34 kcal/mol of binding energy."},
+{cat:"FEP",type:"mc",q:"Febuxostat ΔΔG = +2.34 kcal/mol converts to approximately what fold-change?",ch:["~5× weaker","~10× weaker","~50× weaker","~500× weaker"],a:2,ex:"At 310K: kT=0.616. e^(2.34/0.616) ≈ 45-50×. Range: 19-105× at 95% CI. Report as ~50-fold weaker."},
+{cat:"FEP",type:"mc",q:"What does 8σ significance mean?",ch:["8% chance wrong","Signal is 8× larger than noise — p < 10⁻¹⁵","8 measurements","8 replicates"],a:1,ex:"|ΔΔG|/error = 2.34/0.26 ≈ 9 (poster rounds to 8σ). For reference: Higgs boson discovery required 5σ. Virtually impossible to be random chance."},
+{cat:"FEP",type:"mc",q:"Why is Bufadienolide ΔΔG = -0.44 NOT significant?",ch:["Number too small","Error bar (±0.37) nearly equals signal — only 1.2σ","Calculation failed","Bufadienolide doesnt bind"],a:1,ex:"1.2σ < 2σ threshold. Error engulfs signal. Cannot distinguish from zero. Mutation has NO meaningful effect on Bufadienolide binding."},
+{cat:"FEP",type:"mc",q:"How many lambda windows total?",ch:["20","60","120","240"],a:2,ex:"120 total: 20 windows/leg × 3 legs (restraints, electrostatics, sterics) × 2 compounds. Each window = 1 ns. MBAR combines all."},
+{cat:"FEP",type:"mc",q:"Why turn off electrostatics BEFORE sterics?",ch:["Alphabetical order","Removing sterics first creates atom overlaps → numerical explosion","Faster","Tradition"],a:1,ex:"Removing vdW first lets atoms overlap (steric clashes). Without charges to repel, overlapping atoms → infinite energy → simulation crashes. Charges off first is safe."},
+
+{cat:"Key Finding",type:"mc",q:"What is the CORE discovery?",ch:["NOD2 causes Crohns","R702W makes ALL drugs weaker","Mutation effects are LIGAND-DEPENDENT — some drugs affected, others not","Bufadienolide cures Crohns"],a:2,ex:"Same mutation makes Febuxostat 50× weaker but has NO effect on Bufadienolide. Drug selection should depend on patient GENOTYPE → precision medicine."},
+{cat:"Key Finding",type:"mc",q:"WHY is Febuxostat sensitive but Bufadienolide resistant?",ch:["Size difference","Febuxostat uses H-bonds (precise geometry, broken by pocket shift) vs Bufadienolide uses hydrophobic contacts (tolerant of shifts)","Random chance","Different binding sites"],a:1,ex:"H-bonds need <3.5 Å + exact angle. A 0.5 Å shift breaks them (+2.34 kcal/mol). Van der Waals contacts work at 4-6 Å without angle requirements — survive the pocket shift."},
+{cat:"Key Finding",type:"mc",q:"Pipeline: 9,566 → ? → ? → ? → ? → 2 leads",ch:["2129, 148, 8, 5","5000, 500, 50, 10","1000, 100, 10, 5","3000, 300, 30, 10"],a:0,ex:"9,566 → 2,129 (ML) → 148 (ADMET) → 8 (Tier-1 curation) → 5 (MD) → 2 FEP-validated leads. 99.98% reduction."},
+
+{cat:"Compounds",type:"mc",q:"Febuxostat is FDA-approved for what?",ch:["Cancer","Gout (xanthine oxidase inhibitor)","Crohns directly","Depression"],a:1,ex:"Brand name Uloric. Approved for gout (reduces uric acid). Drug repurposing = existing safety/manufacturing data. MW 315.37, LogP 2.39, TPSA 86."},
+{cat:"Compounds",type:"mc",q:"Bufadienolide source?",ch:["FDA drug database","Natural cardiac glycoside (toad venom/plants) from COCONUT database","Synthetic antibiotic","Peptide hormone"],a:1,ex:"CID 10128. Steroidal bufadienolide class — related to digoxin. MW 402.53, LogP 3.36, TPSA 91. NOT approved — needs safety testing."},
+{cat:"Compounds",type:"mc",q:"Febuxostat contact residues include ARG1034 (82%) and ASP1011. What type of interactions?",ch:["Only hydrophobic","Primarily electrostatic/H-bond dependent","Covalent bonds","Pi-stacking only"],a:1,ex:"Electrostatic + H-bonds with charged residues ASP1011, ARG1034. These require precise geometry that rigidification disrupts. → Mutation-sensitive."},
+
+{cat:"AI Role",type:"mc",q:"How do you describe Claude AI's role vs yours?",ch:["Claude did all research","Claude wrote implementation code, I made every scientific decision","No AI used","Claude designed experiments"],a:1,ex:"Clear separation: Claude = code implementation (timestamped in logbook). You = all scientific decisions (target, mutation, force field, interpretation). Like a carpenter using a power drill."},
+
+{cat:"Future",type:"mc",q:"What experimental technique confirms binding?",ch:["More computation","SPR or ITC","Asking patients","Gene sequencing"],a:1,ex:"SPR = binding kinetics (kon, koff, Kd). ITC = binding thermodynamics (ΔH, ΔS, ΔG). HDX-MS validates allosteric dynamics."},
+{cat:"Future",type:"mc",q:"What assay tests if binding affects NOD2 FUNCTION?",ch:["Western blot","NF-κB reporter assay in NOD2-expressing cells","PCR","Mass spec"],a:1,ex:"Cells with NOD2 + NF-κB-driven luciferase reporter. Add MDP → light. Add compound + MDP → does light change? Tests FUNCTION, not just binding."},
+];
+
+let qzState=null;
+function initQuiz(){
+const root=document.getElementById('quiz-root');
+if(!root)return;
+qzState={deck:[],idx:0,right:0,wrong:0,streak:0,wrongQs:[],cat:'All',mode:'quiz'};
+renderQuizUI(root);
+}
+function shuffleArr(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function renderQuizUI(root){
+const s=qzState;
+const cats=['All',...[...new Set(QZ.map(q=>q.cat))]];
+s.deck=shuffleArr(s.cat==='All'?QZ:QZ.filter(q=>q.cat===s.cat));
+s.idx=0;s.right=0;s.wrong=0;s.streak=0;s.wrongQs=[];
+let h='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px">';
+h+='<h1 style="margin:0;font-size:24px">📝 Quiz Mode</h1>';
+h+='<div id="qz-stats" style="display:flex;gap:12px;font-size:14px;color:var(--txd)"><span style="color:var(--grn)">✓ <b>0</b></span><span style="color:var(--red)">✗ <b>0</b></span><span style="color:var(--f3)">🔥 <b>0</b></span></div></div>';
+h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">';
+cats.forEach(c=>{
+const n=c==='All'?QZ.length:QZ.filter(q=>q.cat===c).length;
+h+='<button onclick="qzCat(this,\''+c+'\')" class="qz-cat'+(c===s.cat?' on':'')+'" style="padding:5px 14px;border-radius:99px;border:1px solid var(--brd);background:'+(c===s.cat?'var(--f2)':'var(--s1)')+';color:'+(c===s.cat?'#000':'var(--txd)')+';cursor:pointer;font-size:12px;font-family:inherit;font-weight:'+(c===s.cat?'700':'400')+'">'+c+' <span style="opacity:.6">('+n+')</span></button>';
+});
+h+='</div>';
+h+='<div style="height:4px;background:var(--s2);border-radius:99px;margin-bottom:16px;overflow:hidden"><div id="qz-prog" style="height:100%;width:0%;background:linear-gradient(90deg,var(--f2),var(--f3));border-radius:99px;transition:width .3s"></div></div>';
+h+='<div id="qz-card"></div>';
+root.innerHTML=h;
+renderQuizCard();
+}
+window.qzCat=function(btn,cat){qzState.cat=cat;renderQuizUI(document.getElementById('quiz-root'))};
+function renderQuizCard(){
+const s=qzState,card=document.getElementById('qz-card');
+if(!card)return;
+if(s.idx>=s.deck.length){renderQuizSummary(card);return}
+const q=s.deck[s.idx];
+const prog=document.getElementById('qz-prog');
+if(prog)prog.style.width=Math.round(s.idx/s.deck.length*100)+'%';
+let h='<div style="background:var(--s1);border:1px solid var(--brd);border-radius:14px;overflow:hidden;animation:fadeIn .25s">';
+h+='<div style="padding:10px 18px;background:var(--s2);display:flex;justify-content:space-between"><span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:2px 10px;border-radius:99px;background:rgba(249,115,22,.15);color:var(--f2)">'+q.cat+'</span><span style="font-size:12px;color:var(--txd)">'+(s.idx+1)+' / '+s.deck.length+'</span></div>';
+h+='<div style="padding:24px 20px">';
+h+='<p style="font-size:18px;font-weight:700;line-height:1.4;margin-bottom:18px">'+q.q+'</p>';
+h+='<div id="qz-choices" style="display:flex;flex-direction:column;gap:8px">';
+const letters='ABCD';
+q.ch.forEach((c,i)=>{
+h+='<button onclick="qzPick('+i+')" id="qzc'+i+'" style="padding:12px 16px;border:1px solid var(--brd);border-radius:10px;cursor:pointer;font-size:14px;line-height:1.4;background:var(--s2);text-align:left;color:var(--tx);font-family:inherit;transition:.15s"><strong style="margin-right:6px">'+letters[i]+'.</strong>'+c+'</button>';
+});
+h+='</div>';
+h+='<div id="qz-explain" style="display:none;margin-top:14px;padding:14px;border-radius:10px;background:rgba(56,189,248,.06);border:1px solid rgba(56,189,248,.15);font-size:13px;line-height:1.6;color:var(--txd)"></div>';
+h+='<button id="qz-next" onclick="qzNext()" style="display:none;margin-top:14px;width:100%;padding:12px;border:none;border-radius:10px;background:var(--f2);color:#000;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Next →</button>';
+h+='</div></div>';
+card.innerHTML=h;
+}
+window.qzPick=function(i){
+const s=qzState,q=s.deck[s.idx];
+for(let j=0;j<q.ch.length;j++){
+const btn=document.getElementById('qzc'+j);
+if(!btn)continue;
+btn.style.cursor='default';btn.onclick=null;
+if(j===q.a){btn.style.borderColor='var(--grn)';btn.style.background='rgba(34,197,94,.1)';btn.style.color='var(--grn)'}
+if(j===i&&j!==q.a){btn.style.borderColor='var(--red)';btn.style.background='rgba(239,68,68,.08)';btn.style.color='var(--red)';btn.style.opacity='.7'}
+}
+if(i===q.a){s.right++;s.streak++}else{s.wrong++;s.streak=0;s.wrongQs.push(q)}
+const ex=document.getElementById('qz-explain');
+if(ex){ex.style.display='block';ex.innerHTML='<strong style="color:var(--tx)">'+q.ch[q.a]+'</strong><br><br>'+q.ex}
+const nx=document.getElementById('qz-next');if(nx)nx.style.display='block';
+const st=document.getElementById('qz-stats');
+if(st)st.innerHTML='<span style="color:var(--grn)">✓ <b>'+s.right+'</b></span><span style="color:var(--red)">✗ <b>'+s.wrong+'</b></span><span style="color:var(--f3)">🔥 <b>'+s.streak+'</b></span><span>'+Math.round(s.right/(s.right+s.wrong)*100)+'%</span>';
+};
+window.qzNext=function(){qzState.idx++;renderQuizCard()};
+function renderQuizSummary(card){
+const s=qzState,pct=Math.round(s.right/(s.right+s.wrong)*100)||0;
+const prog=document.getElementById('qz-prog');if(prog)prog.style.width='100%';
+let h='<div style="text-align:center;padding:32px 20px;background:var(--s1);border:1px solid var(--brd);border-radius:14px">';
+h+='<h2 style="font-size:24px">'+(pct>=90?'🔥 You know this.':pct>=70?'💪 Almost there.':'📖 Keep studying.')+'</h2>';
+h+='<div style="font-size:56px;font-weight:700;margin:12px 0;color:'+(pct>=90?'var(--grn)':pct>=70?'var(--f3)':'var(--red)')+'">'+pct+'%</div>';
+h+='<p style="color:var(--txd)">'+s.right+' correct, '+s.wrong+' wrong out of '+s.deck.length+'</p>';
+if(s.wrongQs.length){
+h+='<div style="text-align:left;padding:14px;background:var(--s2);border-radius:10px;margin:14px 0"><h3 style="font-size:13px;color:var(--red);margin-bottom:8px">❌ Review these:</h3><ul style="list-style:none;padding:0">';
+s.wrongQs.forEach(q=>{h+='<li style="font-size:12px;color:var(--txd);margin:5px 0;padding-left:8px;border-left:2px solid var(--red)"><strong>['+q.cat+']</strong> '+q.q+'</li>'});
+h+='</ul></div>';
+}
+h+='<button onclick="initQuiz()" style="padding:12px 28px;border:none;border-radius:10px;background:var(--f2);color:#000;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin:6px">🔄 Try Again</button>';
+h+='<button onclick="qzRetryWrong()" style="padding:12px 28px;border:none;border-radius:10px;background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin:6px">❌ Retry Wrong ('+s.wrongQs.length+')</button>';
+h+='</div>';card.innerHTML=h;
+}
+window.qzRetryWrong=function(){
+if(!qzState.wrongQs.length){initQuiz();return}
+qzState.deck=shuffleArr(qzState.wrongQs);qzState.idx=0;qzState.right=0;qzState.wrong=0;qzState.streak=0;qzState.wrongQs=[];
+const card=document.getElementById('qz-card');if(card)renderQuizCard();
+const prog=document.getElementById('qz-prog');if(prog)prog.style.width='0%';
+const st=document.getElementById('qz-stats');if(st)st.innerHTML='<span style="color:var(--grn)">✓ <b>0</b></span><span style="color:var(--red)">✗ <b>0</b></span><span style="color:var(--f3)">🔥 <b>0</b></span>';
+};
+
 function go(id){
 document.querySelectorAll('.nb,.mb').forEach(b=>b.classList.remove('on'));
 document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
@@ -1651,6 +2012,7 @@ document.querySelectorAll('.nb')[ix]?.classList.add('on');
 document.querySelectorAll('.mb')[ix]?.classList.add('on');
 document.getElementById('s_'+id)?.classList.add('on');
 window.scrollTo({top:0,behavior:'smooth'});
+if(id==='quiz')setTimeout(initQuiz,50);
 }
 </script>
 </body>
