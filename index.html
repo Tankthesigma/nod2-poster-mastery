@@ -308,81 +308,43 @@ const S=[
 <p>Think of NOD2 as a <strong>smoke detector inside your house</strong>. MDP is the smoke. When smoke hits the detector → alarm goes off → firefighters come → fire gets put out.</p>
 
 <h2>What Happens When NOD2 Detects Bacteria (The Signaling Cascade)</h2>
-<p>In AP Bio you learned about signal transduction — one protein activating the next in a chain. NOD2 is one of the most important innate immune cascades in your gut. Here's every step, from the bacterium breaking in to the cytokines killing it.</p>
+
+<div class="tldr"><p>Bacteria break in → NOD2 detects them → chain of proteins → NF-κB turns on inflammation genes → immune cells kill bacteria. R702W weakens step 1, which paradoxically causes MORE inflammation.</p></div>
 
 <div class="c cc">
+<h3>The Chain (This is what you need to know)</h3>
 
-<h3>Step 1: Bacteria break into your gut cells</h3>
-<p>Your gut lumen (the inside of your intestine) has ~38 TRILLION bacteria. Normally they stay on the outside of the epithelial layer — a single-cell-thick wall separating your body from the bacterial world. But sometimes bacteria cross this wall. They can sneak through damaged tight junctions (the "zippers" between epithelial cells), get carried in by phagocytes that engulf them, or actively invade using specialized secretion systems (like <em>Salmonella</em>'s Type III secretion system — a molecular syringe that injects proteins into your cells).</p>
-<p>Once bacteria are INSIDE your cells, your surface-mounted sensors (like TLR4 on the cell membrane) can't see them anymore. You need an INTRACELLULAR sensor. That's NOD2.</p>
+<p><strong>1. MDP enters the cell.</strong> MDP = muramyl dipeptide, the smallest fragment of bacterial cell wall. Your cells never make it, so MDP inside = guaranteed bacterial invasion. It gets in through transporters (SLC15A3/A4) or when bacteria break apart inside the cell.</p>
 
-<h3>Step 2: MDP enters the cytoplasm</h3>
-<p><strong>MDP</strong> (muramyl dipeptide = MurNAc-L-Ala-D-isoGln) is the smallest piece of bacterial cell wall that your immune system can detect. It's a disaccharide linked to two amino acids — and it's found in the peptidoglycan of virtually every bacterium on Earth. Your own cells NEVER make peptidoglycan, so MDP inside the cytoplasm = guaranteed bacterial invasion.</p>
-<p>MDP gets into the cytoplasm through three routes: (1) <strong>SLC15A3/SLC15A4</strong> — proton-coupled oligopeptide transporters in the endosomal membrane that pump MDP from phagosomes into the cytoplasm, (2) direct injection by bacterial secretion systems, or (3) passive release when intracellular bacteria are killed and their cell walls break apart.</p>
+<p><strong>2. MDP lands on NOD2's LRR domain.</strong> NOD2 sits in the cytoplasm in an "OFF" position — the LRR acts like a lid keeping the protein closed. MDP binds the concave face of the LRR horseshoe and pops the lid open.</p>
 
-<h3>Step 3: MDP touches NOD2's LRR domain</h3>
-<p>NOD2 floats in the cytoplasm in an <strong>autoinhibited</strong> (OFF) conformation. Think of it like a folded-up Swiss Army knife. The LRR domain (your sensor, residues 744-1040) is curled back over the NBD domain, physically blocking it. The LRR acts as both the sensor AND the safety lock.</p>
-<p>MDP binds to the <strong>concave face</strong> of the LRR horseshoe. The binding involves direct hydrogen bonds between MDP's sugar hydroxyl groups and specific LRR residues, plus hydrophobic packing of MDP's amino acid side chains into a groove. This binding is relatively weak on its own (~µM affinity) — but it's enough to trigger the next step.</p>
+<p><strong>3. NOD2 opens → exposes its CARD domains.</strong> The lid opens, ATP binds, and multiple activated NOD2 molecules cluster together (this cluster is called a <strong>nodosome</strong>). The CARD domains are now exposed and ready to signal.</p>
 
-<h3>Step 4: NOD2 opens up (conformational change)</h3>
-<p>MDP binding destabilizes the LRR-NBD interaction. The LRR "lid" swings open, exposing the NBD (Nucleotide-Binding Domain). Here's where ATP comes in. The NBD is an ATPase — it binds and hydrolyzes ATP. When MDP opens the lid:</p>
-<p>• ATP binds the now-exposed NBD → drives a further conformational change</p>
-<p>• The CARD domains (residues 1-120) are no longer buried → they swing outward and become accessible</p>
-<p>• Multiple activated NOD2 molecules cluster together through NBD-NBD interactions → forms an oligomeric signaling platform (like the NLRP3 inflammasome assembles, but NOD2 forms a different structure called a <strong>nodosome</strong>)</p>
-<p><strong>Key detail for your project:</strong> R702W is at position 702 in HD2, between NBD and LRR. This hinge region controls HOW the lid opens and closes. Your MD data shows R702W rigidifies this hinge — the protein can't flex properly → impaired opening → weakened signaling. The mutation doesn't destroy the protein — it makes it STIFF.</p>
+<p><strong>4. CARD grabs ${au('RIPK2','RIPK2')}.</strong> NOD2's CARD (+charged) snaps onto RIPK2's CARD (-charged) like magnets. Multiple RIPK2 molecules get recruited and activate each other.</p>
 
-<h3>Step 5: Exposed CARD domains recruit RIPK2</h3>
-<p>${au('RIPK2','RIPK2')} (Receptor-Interacting Protein Kinase 2, also called RICK or CARDIAK) is a serine/threonine kinase floating in the cytoplasm, waiting for this signal. RIPK2 has its own CARD domain at the C-terminus.</p>
-<p><strong>CARD-CARD interaction:</strong> NOD2's exposed CARD domains physically grab RIPK2's CARD domain through electrostatic complementarity — positive patches on one CARD face match negative patches on the other. This is a homotypic interaction (same domain type on both proteins). The CARD-CARD binding brings RIPK2 close to the nodosome.</p>
-<p>Once recruited, RIPK2 <strong>autophosphorylates</strong> — it adds phosphate groups to itself (specifically on Ser176 in its kinase domain activation loop). This self-activation is triggered by proximity: multiple RIPK2 molecules brought close together by the NOD2 nodosome phosphorylate each other (trans-autophosphorylation). Now RIPK2 is ON.</p>
-<p><strong>Why this step is impaired in R702W:</strong> Reduced NOD2 conformational flexibility → fewer NOD2 molecules fully open → smaller nodosome → fewer RIPK2 molecules recruited → weaker activation. It's not zero — it's REDUCED. That's why R702W carriers still have SOME innate immunity, just ~50% less effective.</p>
+<p><strong>5. RIPK2 → ${au('TAK1','TAK1')} → IKK.</strong> RIPK2 gets tagged with ubiquitin chains that recruit TAK1. TAK1 activates IKK (a kinase complex).</p>
 
-<h3>Step 6: RIPK2 activates TAK1 through ubiquitination</h3>
-<p>This step is the most biochemically complex. Active RIPK2 gets decorated with <strong>K63-linked polyubiquitin chains</strong> by E3 ubiquitin ligases (mainly XIAP = X-linked Inhibitor of Apoptosis Protein). Ubiquitin is a small 76-amino-acid protein that gets covalently attached to lysine residues on target proteins.</p>
-<p><strong>K63-linked</strong> means each ubiquitin is linked through its Lysine-63 to the next one — forming a chain. (This is different from K48-linked chains, which mark proteins for destruction by the proteasome. K63 chains are SIGNALING scaffolds.)</p>
-<p>The K63-ubiquitin chains on RIPK2 act as a docking platform for ${au('TAK1','TAK1')} (TGF-β Activated Kinase 1, also called MAP3K7). Specifically, TAK1's regulatory subunits TAB2 and TAB3 have <strong>NZF domains</strong> (Npl4 Zinc Finger) that specifically recognize K63-linked ubiquitin chains. TAB2/TAB3 bind the ubiquitin chains on RIPK2, bringing TAK1 into the complex.</p>
-<p>Once TAK1 is recruited and activated (by autophosphorylation at Thr187 in its activation loop), it phosphorylates two downstream targets simultaneously: <strong>IKK complex</strong> and <strong>MAPKs</strong> (p38, JNK). We care about IKK.</p>
+<p><strong>6. IKK destroys IκBα.</strong> IκBα is the "handcuff" keeping ${au('NF_kappa_B','NF-κB')} trapped in the cytoplasm. IKK tags IκBα for destruction → proteasome shreds it → NF-κB is free.</p>
 
-<h3>Step 7: TAK1 activates the IKK complex → IκBα gets destroyed</h3>
-<p>The <strong>IKK complex</strong> (IκB Kinase) is a heterotrimer: IKKα + IKKβ (the catalytic kinase subunits) + NEMO/IKKγ (the regulatory scaffold). NEMO also has a ubiquitin-binding domain that helps recruit it to the K63-ubiquitin chains on RIPK2.</p>
-<p>TAK1 phosphorylates IKKβ on Ser177 and Ser181 in its activation loop → IKKβ becomes active.</p>
-<p>Active IKKβ then phosphorylates <strong>IκBα</strong> (Inhibitor of κB alpha) on Ser32 and Ser36. In the resting state, IκBα is wrapped around ${au('NF_kappa_B','NF-κB')} in the cytoplasm like a straitjacket — physically masking NF-κB's Nuclear Localization Signal (NLS) so it can't enter the nucleus.</p>
-<p>Once IκBα is phosphorylated on Ser32/Ser36:</p>
-<p>• An E3 ubiquitin ligase (SCF-βTrCP) recognizes the phosphorylated serines</p>
-<p>• It attaches <strong>K48-linked polyubiquitin chains</strong> to IκBα (K48 = "destroy me" signal)</p>
-<p>• The 26S proteasome recognizes K48-ubiquitin chains → chews up IκBα → gone</p>
-<p>• NF-κB is finally free</p>
+<p><strong>7. NF-κB enters the nucleus → genes turn on.</strong> NF-κB (p50/p65) moves into the nucleus, binds DNA, and turns on inflammatory genes: <strong>TNF-α, IL-1β, IL-6, IL-8</strong>, and defensins.</p>
 
-<h3>Step 8: NF-κB enters the nucleus and turns on genes</h3>
-<p><strong>NF-κB</strong> (Nuclear Factor kappa-light-chain-enhancer of activated B cells) is actually a family of transcription factors. The most common active form is a <strong>p50/p65 heterodimer</strong> (also called p50/RelA). With IκBα destroyed, the NLS on p65 is now exposed → the nuclear import machinery (importin-α/β) carries the heterodimer through nuclear pores into the nucleus.</p>
-<p>Inside the nucleus, NF-κB binds specific DNA sequences called <strong>κB sites</strong> (consensus: 5'-GGGRNWYYCC-3', where R=purine, N=any, W=A/T, Y=pyrimidine). These sites sit in the promoter/enhancer regions of hundreds of target genes. NF-κB binding recruits RNA Polymerase II and coactivators → transcription begins.</p>
-<p><strong>Key target genes for innate immunity:</strong></p>
-<p>• <strong>TNF-α</strong> (Tumor Necrosis Factor alpha) — activates macrophages, induces fever, promotes apoptosis of infected cells</p>
-<p>• <strong>IL-1β</strong> (Interleukin 1 beta) — pro-inflammatory, activates endothelium, recruits immune cells. Requires NLRP3 inflammasome for maturation (caspase-1 cleaves pro-IL-1β → active IL-1β)</p>
-<p>• <strong>IL-6</strong> — induces acute phase response in liver, promotes B cell differentiation</p>
-<p>• <strong>IL-8</strong> (CXCL8) — powerful neutrophil chemoattractant. Recruits neutrophils from blood to the site of infection</p>
-<p>• <strong>Defensins</strong> — antimicrobial peptides that directly kill bacteria by poking holes in their membranes</p>
-<p>• <strong>IκBα itself</strong> — negative feedback loop! NF-κB turns on its OWN inhibitor, ensuring the response shuts off eventually</p>
-
-<h3>Step 9: Immune cells arrive → bacteria die</h3>
-<p>The cytokines released from your gut epithelial cells diffuse outward and hit nearby blood vessels. IL-8 creates a <strong>chemotactic gradient</strong> — neutrophils in the blood detect increasing IL-8 concentration and migrate toward it (like following a smell). TNF-α makes the blood vessel walls stickier (upregulates E-selectin, ICAM-1 on endothelial cells) so neutrophils can grab on, squeeze through the vessel wall (diapedesis), and crawl to the infection site.</p>
-<p>At the site: neutrophils engulf bacteria (phagocytosis), kill them with reactive oxygen species (superoxide burst) and antimicrobial enzymes (myeloperoxidase, lysozyme, defensins). Macrophages clean up the debris. If everything works → infection cleared → inflammation resolves.</p>
-</div>
-
-<div class="c ca">
-<h3>The Complete Chain (Memorize This)</h3>
-<p><strong>MDP</strong> (via SLC15A3/A4) → <strong>NOD2 LRR</strong> (sensor opens) → <strong>ATP/NBD oligomerization</strong> (nodosome forms) → <strong>CARD-CARD recruitment of RIPK2</strong> → <strong>RIPK2 autophosphorylation</strong> (Ser176) → <strong>K63-ubiquitination by XIAP</strong> → <strong>TAB2/TAB3 recruit TAK1</strong> → <strong>TAK1 phosphorylates IKKβ</strong> (Ser177/181) → <strong>IKKβ phosphorylates IκBα</strong> (Ser32/36) → <strong>K48-ubiquitin → proteasomal destruction of IκBα</strong> → <strong>NF-κB (p50/p65) enters nucleus</strong> → <strong>TNF-α, IL-1β, IL-6, IL-8, defensins</strong> → <strong>neutrophil recruitment → bacterial killing</strong></p>
+<p><strong>8. Cytokines recruit immune cells → bacteria die.</strong> IL-8 attracts neutrophils. TNF-α makes blood vessel walls sticky so immune cells can get to the infection. Neutrophils engulf and kill the bacteria.</p>
 </div>
 
 <div class="c" style="border-left:3px solid var(--red)">
-<h3>What Goes Wrong in R702W Carriers</h3>
-<p>The mutation doesn't break any single step completely. It WEAKENS the entire chain by rigidifying the HD2 hinge:</p>
-<p>• <strong>NOD2 opening:</strong> Stiffer hinge → fewer molecules fully open per MDP signal → smaller nodosome</p>
-<p>• <strong>RIPK2 recruitment:</strong> Smaller nodosome → fewer CARD-CARD interactions → ~50% less RIPK2 activation</p>
-<p>• <strong>NF-κB output:</strong> Less TAK1 → less IKK → less IκBα destruction → less NF-κB entering nucleus → fewer cytokines</p>
-<p>• <strong>Bacterial clearance:</strong> Fewer neutrophils recruited → bacteria persist longer → the ADAPTIVE immune system (T cells, B cells) overcompensates → chronic inflammation → Crohn's disease</p>
-<p>The paradox: too LITTLE innate immunity → too MUCH adaptive inflammation. That's why Crohn's looks like excessive inflammation even though the root cause is a LOSS of function.</p>
+<h3>What R702W Breaks</h3>
+<p>R702W sits in the <strong>hinge</strong> (HD2 domain) between the sensor (LRR) and the signaling output (CARD). It makes the hinge <strong>stiff</strong> → the lid doesn't open fully → smaller nodosome → ~50% less signaling.</p>
+<p><strong>The Crohn's paradox:</strong> Weaker innate immunity → bacteria persist → adaptive immune system overcompensates → chronic inflammation. Too LITTLE sensing → too MUCH inflammation.</p>
 </div>
+
+${ex('d','The Full Biochemistry (PhD-level detail)',`
+<p><strong>Step 5 in detail — the ubiquitin bridge:</strong> RIPK2 gets tagged with <strong>K63-linked polyubiquitin chains</strong> by an E3 ligase called XIAP. K63 chains are SIGNALING scaffolds (not destruction tags). TAK1's partners TAB2/TAB3 have zinc finger domains (NZF) that grab these K63 chains, physically bridging RIPK2 to TAK1.</p>
+<p><strong>Step 6 in detail — IκBα destruction:</strong> IKKβ phosphorylates IκBα on Ser32/Ser36. Then SCF-βTrCP E3 ligase recognizes the phospho-serines and attaches <strong>K48-linked ubiquitin chains</strong>. K48 = "destroy me" tag. The 26S proteasome recognizes K48 chains and shreds IκBα.</p>
+<p><strong>K63 vs K48 ubiquitin:</strong> K63 = signaling scaffold ("come here"). K48 = death tag ("destroy this"). In our pathway: RIPK2 gets K63 (recruit TAK1), IκBα gets K48 (destroy it).</p>
+<p><strong>NF-κB nuclear import:</strong> p50/p65 heterodimer has a Nuclear Localization Signal (NLS) on p65 that IκBα was masking. Once IκBα is gone, importin-α/β carries NF-κB through nuclear pores. It binds κB sites (consensus: GGGRNWYYCC) in gene promoters.</p>
+<p><strong>Negative feedback:</strong> NF-κB turns on IκBα itself — so the response shuts off automatically after bacteria are cleared.</p>
+<p><strong>RIPK2 autophosphorylation:</strong> Ser176 in the kinase activation loop. TAK1 autophosphorylation: Thr187. IKKβ gets phosphorylated at Ser177/Ser181 by TAK1.</p>
+`)}
 
 <h2>The Protein's Parts (Domain Map)</h2>
 <p>Proteins are long chains, but different regions do different jobs. These regions are called <strong>domains</strong> — like rooms in a house. NOD2 has 5 domains:</p>
@@ -400,27 +362,18 @@ const S=[
 
 <p>This means the mutation doesn't directly touch where drugs bind. Instead, it changes the protein's behavior <em>at a distance</em>. Scientists call this an <strong>${au('allosteric','allosteric')} effect</strong> — "allo" (other) + "steric" (shape). A shape change in one place causing effects somewhere else. Like pressing the brake pedal in a car changes what happens at the wheels, even though your foot is far from the wheels.</p>
 
-<h2>How Each Protein Physically Connects to the Next</h2>
-<p>Judges love asking "but HOW does X talk to Y?" Here's every physical handoff in the chain.</p>
+<h2>How Each Protein Connects (If a Judge Asks)</h2>
 
-<table>
-<tr><th>Connection</th><th>How They Physically Touch</th><th>What Kind of Bond</th><th>Where on NOD2</th></tr>
-<tr><td><strong>MDP → NOD2</strong></td><td>MDP's sugar hydroxyls H-bond to residues on the concave face of the LRR horseshoe. MDP's amino acid side chains pack into a hydrophobic groove.</td><td>H-bonds + hydrophobic packing</td><td>LRR domain (res. 744-1040), concave face</td></tr>
-<tr><td><strong>NOD2 → RIPK2</strong></td><td>NOD2's CARD domain has a positive electrostatic patch. RIPK2's CARD domain has a matching negative patch. They snap together like magnets — same domain type on both proteins (homotypic).</td><td>Electrostatic (charge-charge) CARD-CARD interaction</td><td>CARD domain (res. 1-120)</td></tr>
-<tr><td><strong>RIPK2 → TAK1</strong></td><td>RIPK2 gets tagged with K63-linked ubiquitin chains by XIAP (an E3 ligase). TAK1's partners TAB2/TAB3 have zinc finger domains (NZF) that GRAB these ubiquitin chains. The ubiquitin chain is the physical bridge.</td><td>Ubiquitin chain = molecular "leash" linking them</td><td>Not on NOD2 — happens downstream in cytoplasm</td></tr>
-<tr><td><strong>TAK1 → IKK</strong></td><td>TAK1 directly phosphorylates IKKβ. TAK1's kinase domain transfers a phosphate group (from ATP) onto IKKβ's activation loop (Ser177/Ser181). Physical enzyme-substrate contact.</td><td>Kinase-substrate (enzyme adds phosphate)</td><td>Not on NOD2 — downstream</td></tr>
-<tr><td><strong>IKK → IκBα</strong></td><td>IKKβ phosphorylates IκBα on Ser32/Ser36. Then the SCF-βTrCP E3 ligase recognizes these phospho-serines and attaches K48-ubiquitin chains. The proteasome (a protein shredder) eats IκBα.</td><td>Phosphorylation → ubiquitination → proteasomal destruction</td><td>Not on NOD2 — downstream</td></tr>
-<tr><td><strong>NF-κB → DNA</strong></td><td>p50/p65 heterodimer enters nucleus through nuclear pores (importin-α/β carries it). p65 has a DNA-binding domain that recognizes κB sites (GGGRNWYYCC sequence) in gene promoters.</td><td>Protein-DNA (specific sequence recognition via major groove)</td><td>Not on NOD2 — in the nucleus</td></tr>
-</table>
-
-<div class="ky"><strong>For judges — the simple version:</strong> MDP lands on the LRR sensor → NOD2 opens up → its CARD domain magnetically grabs RIPK2's CARD → RIPK2 gets tagged with ubiquitin chains → TAK1 reads the tags and activates → TAK1 activates IKK → IKK destroys the handcuffs on NF-κB → NF-κB enters the nucleus → genes turn on → cytokines → immune cells come kill the bacteria.</div>
-
-<div class="c" style="border-left:3px solid var(--cyn)">
-<h3>Two Types of Ubiquitin Chains — Know the Difference</h3>
-<p><strong>K63-linked ubiquitin</strong> = a SIGNALING scaffold. Like a flag that says "recruit proteins here." Used on RIPK2 to attract TAK1. The chain stays attached — it's a platform, not a death sentence.</p>
-<p><strong>K48-linked ubiquitin</strong> = a DEATH tag. Like a sticker that says "destroy this." Used on IκBα to send it to the proteasome for destruction. The proteasome is a barrel-shaped protein shredder — IκBα enters one end, amino acid fragments come out the other.</p>
-<p><strong>If a judge asks:</strong> "What's the difference between K63 and K48 ubiquitin?" → "K63 is a signaling scaffold that recruits downstream kinases. K48 marks proteins for proteasomal degradation. In our pathway, RIPK2 gets K63 chains to recruit TAK1, and IκBα gets K48 chains to be destroyed."</p>
+<div class="c cc">
+<p><strong>MDP → NOD2:</strong> H-bonds + hydrophobic packing on the LRR concave face (res 744-1040)</p>
+<p><strong>NOD2 → RIPK2:</strong> CARD-CARD electrostatic interaction — positive patch meets negative patch, like magnets (res 1-120)</p>
+<p><strong>RIPK2 → TAK1:</strong> Ubiquitin chains act as a bridge (K63-linked = "come here" signal)</p>
+<p><strong>TAK1 → IKK:</strong> Direct phosphorylation (adds phosphate group)</p>
+<p><strong>IKK → IκBα:</strong> Phosphorylation → K48-ubiquitin tag ("destroy me") → proteasome shreds it</p>
+<p><strong>NF-κB → DNA:</strong> Enters nucleus, binds gene promoters, turns on TNF-α/IL-1β/IL-6/IL-8</p>
 </div>
+
+<div class="ky"><strong>Key detail for judges:</strong> K63 ubiquitin = "come here" (signaling). K48 ubiquitin = "destroy this" (degradation). Two different tags, completely different outcomes.</div>
 
 ${ex('l','HOW I chose NOD2 and the LRR pocket as my target',`
 <p><strong>Personal starting point:</strong> At 14, a clinical genetic test revealed you carry R702W. During Remicade infusions (2-4× per month), you asked your doctor "are there drugs that target NOD2 itself?" Answer: "No." That was the starting question.</p>
