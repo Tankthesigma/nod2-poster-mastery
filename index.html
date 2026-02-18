@@ -1092,6 +1092,57 @@ ${ex('j','"What\'s the biggest thing that could be wrong with this entire projec
 `)}
 
 
+<h3>👨‍🏫 If the Judge is a TEACHER / BUSINESS PERSON / NON-SPECIALIST</h3>
+<p><em>They might not know what docking, FEP, or machine learning even are. They'll ask you to EXPLAIN. If you can't make a non-scientist understand, you'll lose their points. These judges are extremely common at regionals.</em></p>
+
+${ex('j','"Can you explain what you did in simple terms — like I\'m not a scientist?"',`
+<p>"Sure. I carry a gene mutation linked to Crohn's disease — a painful gut condition. Current drugs treat the symptoms but not the root cause. I used computers to search through nearly 10,000 existing drugs and natural compounds to find ones that might fix the broken protein in my immune system. I found that my mutation makes some drugs work 50 times worse — but other drugs are completely unaffected by the mutation. That means someday, doctors could choose which drug to give based on a patient's DNA. Like choosing the right key for a specific lock."</p>
+`)}
+
+${ex('j','"What exactly is docking? I\'ve never heard of that."',`
+<p>"Imagine you have a lock — that's the protein in my body. And you have 10,000 keys — those are potential drugs. Docking is when the computer tries each key in the lock, rotates it every which way, and scores how well it fits. The computer scores each one based on how snugly the key fits and how many good contact points it makes. At the end, I have a ranking from best-fitting to worst-fitting."</p>
+`)}
+
+${ex('j','"What\'s machine learning? Did the computer just do all the work?"',`
+<p>"Machine learning is when you show a computer hundreds of examples — 'this drug fits well, this one doesn't' — and it figures out the PATTERN. Like if I showed you 500 photos of cats and 500 of dogs, eventually you'd notice patterns — cats have pointy ears, dogs have longer snouts. My computer learned which chemical properties make a drug likely to fit the protein. I made the decisions about what data to feed it and how to test if it was actually learning vs just memorizing. The computer did the math. I did the science."</p>
+`)}
+
+${ex('j','"What was the hardest part?"',`
+<p>"The crashes. On January 1st, my simulation exploded — an atom literally flew across the virtual box because three settings that were individually fine became lethal together. NaN error, no helpful message, just 'your math produced infinity.' I spent hours debugging the physics of why it happened. That's when I learned the most — not when things worked, but when I had to understand WHY they broke."</p>
+`)}
+
+${ex('j','"Who helped you? Be specific."',`
+<p>"Three types of help. First, Claude — an AI coding tool — wrote most of the Python implementation code. I directed what to build and why. Every AI interaction is timestamped in my logbook. Second, I learned methods from YouTube tutorials, research papers I read during Remicade infusions, and Gemini AI for reviewing my plans. Third, my high school doesn't have a science mentor, so I was my own PI — I designed the pipeline, chose which methods to use, interpreted the results, caught a major data error, and made every scientific decision. Nobody told me to use FEP or what compounds to test."</p>
+`)}
+
+${ex('j','"Why should anyone care about this? What\'s the real-world impact?"',`
+<p>"One million Americans have Crohn's disease. About 10% carry the mutation I studied. Right now, all of them get the same drugs regardless of their genetics. My work shows that genetics change how well drugs bind to their target. If this is validated in the lab, doctors could someday run a genetic test and say 'your mutation means Drug A won't work well for you — let's try Drug B instead.' That's precision medicine — the right drug for the right patient. It could save years of trial-and-error treatment and reduce suffering."</p>
+`)}
+
+${ex('j','"This is all on a computer. How do you know it\'s real?"',`
+<p>"Fair question. Three reasons I trust the computational results. First, my negative controls worked — when I simulated a compound that SHOULDN'T bind, it fell out of the pocket within 5 nanoseconds, exactly as expected. When I scrambled my machine learning labels, accuracy dropped to a coin flip. The method correctly identifies what DOESN'T work. Second, FEP — the technique I used for the final energy calculations — is the same method pharmaceutical companies like Pfizer and Schrödinger use to develop real drugs. It's not experimental — it's industry standard. Third, my result was 8 standard deviations from zero. In particle physics, 5 standard deviations is enough to declare a discovery. But yes — experimental confirmation is the necessary next step."</p>
+`)}
+
+${ex('j','"What would you do differently if you started over?"',`
+<p>"Three things. First, I'd use scaffold-split cross-validation from day one instead of discovering data leakage after the fact — I wasted a week thinking my model was near-perfect when it was just memorizing. Second, I'd budget more GPU time for FEP so I could test more than 2 compounds — the pattern I found (electrostatic vs hydrophobic) needs more data points to be convincing. Third, I'd reach out to a university lab earlier to plan experimental validation in parallel with the computation. The computational and experimental work could have overlapped instead of being sequential."</p>
+`)}
+
+${ex('j','"What problems did you run into? How did you solve them?"',`
+<p>"Constant problems. Linux crashed because 9,566 filenames exceeded the operating system's command-line limit — no error message, just silence. My GPU ran at 1% because a library path was missing. My simulation exploded on New Year's Day because heavy restraints plus a fast timestep caused an atom to accelerate to infinity. An RTX 5090 GPU wouldn't run my code because the CUDA drivers were too new. My machine learning model scored 99.8% accuracy — which turned out to be a bug, not brilliance. Each crash forced me to understand the physics or the code at a deeper level than I would have if everything worked perfectly."</p>
+`)}
+
+${ex('j','"You\'re a junior in high school. How do I know you actually understand all this and didn\'t just follow instructions?"',`
+<p>"Ask me anything about the project and I'll explain the science behind it, not just the steps. I can tell you WHY exhaustiveness 32 matters for docking accuracy, WHY scaffold-split prevents data leakage, WHY hydrogen bonds break at 79 Angstroms through allosteric rigidification, and WHY 2.34 kcal/mol converts to 50-fold weaker binding through the Boltzmann equation at body temperature. I can also tell you about every crash, every mistake, and every limitation — because I lived through all of them. Someone following instructions would give you the results. I can give you the reasoning."</p>
+`)}
+
+${ex('j','"What was the most important thing you learned?"',`
+<p>"That being wrong is more valuable than being right. When my ML model scored 99.8%, I could have reported it and moved on — it would have looked great on a poster. Instead, something felt off. I investigated, found data leakage, and corrected it. The honest score of 0.85-0.93 is less impressive on paper but infinitely more scientifically valid. The same lesson applied everywhere — the NaN crash taught me more physics than a successful simulation ever would. Science isn't about getting clean results. It's about being honest when results are messy."</p>
+`)}
+
+${ex('j','"Could your data be explained any other way?"',`
+<p>"Yes, and I should be honest about that. The ΔΔG of +2.34 could be partly an artifact of force field inaccuracy — AMBER14 has systematic errors around 1 kcal/mol. The AlphaFold structure might have subtle errors in the pocket geometry. The pseudo-labels from docking could be teaching the ML model wrong patterns. Each of these could contribute noise. But: 8 sigma significance means even with substantial systematic error, the DIRECTION of the effect (mutation weakens Febuxostat binding) is almost certainly real. And the mechanistic explanation — H-bonds break because the pocket shifts — is physically consistent. Still, experimental confirmation is the only way to know for sure."</p>
+`)}
+
 <h2>Delivery Tips</h2>
 <div class="c">
 <p><strong>Point at your poster.</strong> Physically touch near each figure as you discuss it. Guide the judge's eyes.</p>
