@@ -101,52 +101,149 @@ const S=[
 
 // ============ ISEF JUDGING GUIDE ============
 {id:'isef',icon:'🏆',label:'ISEF Judging Guide',ct:`
-<h1>What ISEF Judges Actually Score</h1>
-<p class="sub">The official rubric, decoded. Know exactly what earns points.</p>
+<h1>What ISEF Judges Actually Score — The Real Rubric</h1>
+<p class="sub">From the actual scoring forms judges hold in their hands. Know exactly what LOW vs HIGH looks like.</p>
 
 <div class="c ca">
-<p>ISEF judges have PhDs or 6+ years of research experience. They score 5 categories totaling <span class="n">100 points</span>. <strong>Presentation alone is 35%</strong> — the single biggest category. Your poster could be flawless, but if you can't explain it, you lose a third of your score.</p>
+<p>Judges score 6 criteria on a 1-5 scale, each multiplied by a weight. Total = <span class="n">100 points</span>. The <strong>Interview alone is worth 25%</strong> (×5 multiplier — the highest weight). Your poster could be perfect, but if you can't explain it, you lose a quarter of your score.</p>
+<p><strong>At Fort Worth regional:</strong> Expect 8-10 minutes per judge, one at a time. Multiple judges visit. They'll ask questions rather than let you give a long prepared speech. Some judges may be PhDs, others may be engineers, teachers, or business professionals.</p>
 </div>
 
-<h2>The Official Scoring Breakdown</h2>
+<h2>The Actual Scoring Form (1-5 Scale × Weight)</h2>
 <table>
-<tr><th>Category</th><th>Points</th><th>What They're Grading</th><th>Your Strength</th></tr>
-<tr><td><strong>I. Research Question</strong></td><td class="n">10</td><td>Clear purpose, contributes something new</td><td>✅ Zero NOD2 binding data exists anywhere</td></tr>
-<tr><td><strong>II. Design & Method</strong></td><td class="n">15</td><td>Well-designed plan, controls defined</td><td>✅ Multi-stage pipeline, controls at every level</td></tr>
-<tr><td><strong>III. Execution</strong></td><td class="n">20</td><td>Systematic data, reproducibility, statistics</td><td>✅ 3 replicates, 120 lambda windows, 8σ</td></tr>
-<tr><td><strong>IV. Creativity & Impact</strong></td><td class="n">20</td><td>Imagination, real-world potential</td><td>✅ Drug choice by genotype + personal story</td></tr>
-<tr><td><strong>V. Presentation</strong></td><td class="n">35</td><td>Poster (10) + Interview (25)</td><td>⚠️ What this website trains you for</td></tr>
+<tr><th>Category</th><th>×</th><th>Max</th><th style="color:var(--red)">LOW (1-2)</th><th style="color:var(--yel)">MID (3)</th><th style="color:var(--grn)">HIGH (4-5)</th></tr>
+
+<tr><td colspan="6" style="background:rgba(255,107,43,0.1);font-weight:700;padding:8px">Research Question</td></tr>
+<tr><td>Purpose, Contribution, Method</td><td>×2</td><td class="n">10</td>
+<td style="font-size:0.85em">Purpose unclear. No contribution to field identified. Not testable with scientific methods.</td>
+<td style="font-size:0.85em">Lacks focus. Vague contribution. Partly testable.</td>
+<td style="font-size:0.85em">Clear purpose. Identified contribution. Testable with sound methods.</td></tr>
+<tr><td colspan="3"></td><td colspan="3"><strong>YOUR PROJECT:</strong> ✅ HIGH — Clear question (can computation ID mutation-sensitive binders?). Novel contribution (zero NOD2 binding data exists). Testable hypothesis with defined pipeline.</td></tr>
+
+<tr><td colspan="6" style="background:rgba(255,107,43,0.1);font-weight:700;padding:8px">Design & Methodology</td></tr>
+<tr><td>Data collection plan, Variables, Controls</td><td>×3</td><td class="n">15</td>
+<td style="font-size:0.85em">Poorly designed plan. Variables/controls not defined, inappropriate, or incomplete.</td>
+<td style="font-size:0.85em">Clear plan but data collection methods lack clarity. Variables somewhat vague. Replication unclear.</td>
+<td style="font-size:0.85em">Well-designed plan with clear methods. Variables explicitly described. Easily replicable from description.</td></tr>
+<tr><td colspan="3"></td><td colspan="3"><strong>YOUR PROJECT:</strong> ✅ HIGH — Multi-stage pipeline (dock→ML→ADMET→MD→FEP). Independent: compound identity + WT/R702W. Dependent: ΔG, RMSD, occupancy. Controls: shuffled labels, non-binder, apo.</td></tr>
+
+<tr><td colspan="6" style="background:rgba(255,107,43,0.1);font-weight:700;padding:8px">Execution: Data Collection & Analysis</td></tr>
+<tr><td>Reproducibility, Systematic analysis, Math/stats, Sufficient data</td><td>×4</td><td class="n">20</td>
+<td style="font-size:0.85em">Not systematic. No reproducibility. Erroneous math. Insufficient data for conclusions.</td>
+<td style="font-size:0.85em">Organized but moderate reproducibility. Stats weak or incomplete. Insufficient data for full support.</td>
+<td style="font-size:0.85em">Systematic collection. Reproducible. Appropriate statistics. Sufficient data for conclusions.</td></tr>
+<tr><td colspan="3"></td><td colspan="3"><strong>YOUR PROJECT:</strong> ✅ HIGH — 3 replicates in MD. MBAR statistics on 120 FEP windows. 8σ significance. Scaffold-split CV (AUC 0.85-0.93). 520 ns total simulation. Shuffled control AUC ~0.50.</td></tr>
+
+<tr><td colspan="6" style="background:rgba(255,107,43,0.1);font-weight:700;padding:8px">Creativity</td></tr>
+<tr><td>Imagination, new perspectives, alternatives</td><td>×4</td><td class="n">20</td>
+<td style="font-size:0.85em">Cookbook / no new ideas. Fails to demonstrate imagination. No new perspectives.</td>
+<td style="font-size:0.85em">Some imagination. Offers different perspectives but weak.</td>
+<td style="font-size:0.85em">Clearly demonstrates imagination and inventiveness. Offers perspectives that open new possibilities.</td></tr>
+<tr><td colspan="3"></td><td colspan="3"><strong>YOUR PROJECT:</strong> ✅ HIGH — Student-initiated (personal genetic motivation). Novel finding (ligand-dependent mutation effects). New perspective (pharmacogenomic drug selection for NOD2). No one has done this before.</td></tr>
+
+<tr><td colspan="6" style="background:rgba(255,107,43,0.1);font-weight:700;padding:8px">Poster</td></tr>
+<tr><td>Organization, graphics, supporting docs</td><td>×2</td><td class="n">10</td>
+<td style="font-size:0.85em">Illogical or unreadable. Graphics/legends unclear or absent. No supporting docs.</td>
+<td style="font-size:0.85em">Somewhat scattered. Graphics appropriate but legends weak. Could use more documentation.</td>
+<td style="font-size:0.85em">Clearly articulated and logical organization. Excellent graphics and legends. Supporting docs displayed.</td></tr>
+<tr><td colspan="3"></td><td colspan="3"><strong>YOUR PROJECT:</strong> ⚠️ Make sure: logbook visible, abstract copies ready (bring 30), Form 1C if applicable, figures have clear legends, flow is left→right logical.</td></tr>
+
+<tr><td colspan="6" style="background:rgba(255,154,68,0.15);font-weight:700;padding:8px">🎯 INTERVIEW (highest weight!)</td></tr>
+<tr><td>Responses, understanding, limitations, independence, impact, future</td><td><strong>×5</strong></td><td class="n"><strong>25</strong></td>
+<td style="font-size:0.85em">Poor responses. Basic misunderstanding of science. Doesn't understand results/limitations. No independence. No recognition of impact. No future ideas.</td>
+<td style="font-size:0.85em">Moderately clear responses. Limited understanding. Limited grasp of limitations. Moderate independence. Some recognition of impact. Struggles with future research.</td>
+<td style="font-size:0.85em">Very clear, concise, thoughtful responses. Understands basic science. Understands interpretation AND limitations. Demonstrates independence. Recognizes impact. Quality future ideas.</td></tr>
+<tr><td colspan="3"></td><td colspan="3"><strong>YOUR PROJECT:</strong> ⚠️ THIS IS WHAT THIS ENTIRE WEBSITE TRAINS YOU FOR. The interview has the highest multiplier (×5). Every point matters 5× here.</td></tr>
 </table>
 
-<h2>What the Interview Tests (25 Points)</h2>
-<div class="c cc">
-<ul>
-<li><strong>Clear responses</strong> — 30 seconds max per answer. Don't ramble.</li>
-<li><strong>Understanding of basic science</strong> — Not just WHAT you did, but WHY each step works.</li>
-<li><strong>Knowing your limitations</strong> — Admitting weaknesses scores HIGHER than pretending perfection.</li>
-<li><strong>Independence</strong> — What did YOU decide vs AI/mentors?</li>
-<li><strong>Bigger picture</strong> — What does this mean for patients?</li>
-<li><strong>Future work</strong> — Shows you're thinking beyond the poster.</li>
-</ul>
+<h2>What Gets a 5 vs a 3 vs a 1 on Interview</h2>
+<div class="vs">
+<div class="vl"><h3 style="color:var(--red)">Score 1-2 (FAIL)</h3>
+<p>Memorized speech. Can't answer when interrupted. Says "I don't know" without trying to reason. Doesn't understand basic terms they used. Can't explain limitations. Says "it was perfect." Doesn't know what they'd do next. Can't distinguish their work from AI/mentor work.</p></div>
+<div class="vw"><h3 style="color:var(--grn)">Score 4-5 (WIN)</h3>
+<p>Stops mid-sentence to answer a question. Explains WHY each method was chosen. Volunteers limitations before asked. Says "I don't know, but my hypothesis would be..." and reasons through it. Clearly separates "Claude coded this" from "I decided this." Connects to patients. Has specific next experiments (SPR, ITC, HDX-MS).</p></div>
 </div>
 
-<h2>10 Standard Questions (Full Answers in Section 8)</h2>
-<div class="c co">
+<h2>The Standard Interview Questions</h2>
+<p><em>From actual ISEF judge training documents. Full scripted answers in Section 8.</em></p>
+<div class="c cc">
 <ol>
-<li>"Describe your project in one minute."</li>
-<li>"How did you come up with this idea?"</li>
-<li>"What did your background research show?"</li>
-<li>"What are your variables and controls?"</li>
-<li>"What are the limitations?"</li>
-<li>"What would you do differently?"</li>
-<li>"What's the potential impact?"</li>
-<li>"What would you do next?"</li>
-<li>"How much help did you receive?"</li>
-<li>"Why should I believe computational results?"</li>
+<li>"<strong>Please spend a minute describing your project.</strong>" — Look at the board.</li>
+<li>"<strong>How did you get the idea?</strong>" — Personal story.</li>
+<li>"<strong>Describe the timeline for this project.</strong>" — Look at the notebook.</li>
+<li>"<strong>What are the independent and dependent variables? Controls?</strong>"</li>
+<li>"<strong>How did you decide the number of trials to do?</strong>" — 3 replicates.</li>
+<li>"<strong>What obstacles or unexpected results did you encounter?</strong>" — Crashes, data leakage.</li>
+<li>"<strong>On what basis did you reach your conclusion?</strong>" — FEP + statistics.</li>
+<li>"<strong>What could be done to strengthen the work?</strong>" — Experimental validation.</li>
 </ol>
 </div>
 
-<div class="ky"><strong>From actual ISEF judges:</strong> Your display is SECONDARY to your knowledge. If they interrupt your speech — STOP and answer immediately. They're testing if you can think, not recite.</div>
+<h2>Critical Tips from the Actual Judge Guide</h2>
+<div class="ky">
+<p><strong>"Ask many questions to form an opinion, rather than letting the student deliver a long prepared speech."</strong> — This means they WILL interrupt you. When they do — STOP and answer immediately. Don't try to finish your sentence.</p>
+<p><strong>"Watch out for memorized speeches that reflect little understanding of principles."</strong> — If you sound rehearsed, you score LOW on Clarity. Speak naturally. It's okay to pause and think.</p>
+<p><strong>"If the student can't explain it to your satisfaction, then the student doesn't understand the science."</strong> — They will ask you to define terms you used. If you say "allosteric" — they'll say "what does that mean?" Know EVERY word on your poster.</p>
+<p><strong>"Never assume the student knows what the technical terms mean."</strong> — They'll test terminology as an impostor check. Real understanding = you can explain it simply. Fake understanding = you repeat jargon without knowing what it means.</p>
+<p><strong>8-10 minutes per judge.</strong> ~1-2 min pitch + 6-8 min Q&A. Have 30 copies of your abstract ready to hand out. Point at your poster physically — guide their eyes.</p>
+</div>
+
+<h2>Self-Assessment: Score Yourself Honestly</h2>
+<div class="c co">
+<p>Before Saturday, score yourself 1-5 on each criterion. Be brutally honest — judges will be.</p>
+<table>
+<tr><th>Criterion</th><th>Can you...</th><th>Your Score (1-5)</th></tr>
+<tr><td>Research Q</td><td>State the purpose in one sentence? Explain why it's novel?</td><td>___</td></tr>
+<tr><td>Design</td><td>Name all variables and controls without looking at the poster?</td><td>___</td></tr>
+<tr><td>Execution</td><td>Explain why 3 replicates? Why scaffold split? What 8σ means?</td><td>___</td></tr>
+<tr><td>Creativity</td><td>Explain what's new that nobody has done before?</td><td>___</td></tr>
+<tr><td>Poster</td><td>Walk someone through Figure 16 in 60 seconds?</td><td>___</td></tr>
+<tr><td>Interview</td><td>Define every term on your poster? Explain every number?</td><td>___</td></tr>
+</table>
+<p>Any criterion below 4 → study that section of this website until it's a 5.</p>
+</div>
+
+<h2>Alternative Rubric: Grand Awards Format</h2>
+<p><em>Some fairs use this older system instead of the ×2/×3/×4/×5 form above. Know both.</em></p>
+<table>
+<tr><th>Category</th><th>Points</th><th>What They Check</th></tr>
+<tr><td><strong>I. Creative Ability</strong></td><td class="n">30</td><td>Originality in questions asked, approach to solving, analysis, interpretation. "Distinguish between gadgeteering and ingenuity."</td></tr>
+<tr><td><strong>IIa. Scientific Thought</strong></td><td class="n">30</td><td>Problem clearly stated? Variables defined? Controls correct? Adequate data? Knows limitations? Understands related research? Cites scientific literature (not just newspapers)?</td></tr>
+<tr><td><strong>III. Thoroughness</strong></td><td class="n">15</td><td>Carried to completion? Replication or single experiment? How complete are notes? Aware of other approaches? How much time spent?</td></tr>
+<tr><td><strong>IV. Skill</strong></td><td class="n">15</td><td>Has required computation/lab skills? Where was project done? How much help? Built equipment independently?</td></tr>
+<tr><td><strong>V. Clarity</strong></td><td class="n">10</td><td>"Watch out for memorized speeches that reflect little understanding." Data clearly presented? Orderly? Done without tricks?</td></tr>
+</table>
+
+<h2>Two Types of Judges You'll See</h2>
+<div class="c ca">
+<p><strong>A. Category Place Judges</strong> — determine 1st, 2nd, 3rd place awards. These are the main judges who score your project on the rubric above.</p>
+<p><strong>B. Special Awards Judges</strong> — represent specific organizations (companies, professional societies). They look for projects matching their organization's interests. These can award internships, scholarships, gift cards, etc. Be ready for ANYONE to walk up.</p>
+</div>
+
+<h2>17 Presentation Pointers (From Official Fair Guide)</h2>
+<div class="c cc">
+<ol>
+<li><strong>Eye contact and smile.</strong> Always look judges in the eye.</li>
+<li><strong>Shake their hand.</strong> Greet them. First impressions matter.</li>
+<li><strong>Speak clearly and loud enough.</strong> Don't talk too fast. Stop and breathe if you need to organize your thinking.</li>
+<li><strong>Neat appearance.</strong> Not sloppy.</li>
+<li><strong>Use your resources.</strong> Pick up and refer to your logbook, photos, extra data.</li>
+<li><strong>Hand judges a copy of your abstract.</strong> Have at least 30 copies printed.</li>
+<li><strong>Use your abstract as the basis.</strong> It helps flow.</li>
+<li><strong>Initial presentation: 2-3 minutes MAX.</strong> Be brief and concise. Leave time for questions. Do NOT read off notecards.</li>
+<li><strong>Start with what you did.</strong> Identify your variables.</li>
+<li><strong>Tell them WHY you chose this study.</strong> Make real-world connections. (Your personal story is your biggest weapon here.)</li>
+<li><strong>Do NOT read your procedure.</strong> It's long and wastes time. Highlight what you did.</li>
+<li><strong>Discuss data by describing TRENDS.</strong> Do NOT read off data tables to the judges.</li>
+<li><strong>Answer what they actually asked.</strong> Don't stray off topic.</li>
+<li><strong>If you don't understand the question — ask them to explain.</strong> They know you're nervous and won't mind.</li>
+<li><strong>Practice, practice, practice.</strong> With peers and parents. Get feedback. Have them time you.</li>
+<li><strong>Show pride.</strong> Let judges see you care about this project.</li>
+<li><strong>Thank them when they leave.</strong></li>
+</ol>
+</div>
+
+<div class="ky"><strong>From a past ISEF competitor:</strong> "This guy just asked me everything that was on my board. He also asked biology topics I needed to know in order to actually do the project." — The impostor check is REAL. If you wrote "allosteric" on your poster, you better be able to explain what allosteric means from scratch.</div>
 `},
 
 
