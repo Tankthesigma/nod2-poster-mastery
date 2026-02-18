@@ -110,6 +110,13 @@ ol,ul{padding-left:22px;margin-bottom:10px}li{margin-bottom:5px}
 .voice-panel select,.voice-panel input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:8px;background:var(--s2);color:var(--txt);font-size:12px;font-family:inherit}
 .voice-panel select:focus,.voice-panel input:focus{border-color:var(--f2);outline:none}
 @media(max-width:900px){.audio-bar{padding:8px 12px;gap:10px}.voice-panel{right:10px;left:10px;width:auto}}
+/* Per-paragraph play */
+.p-play{position:absolute;left:-32px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:1px solid rgba(99,102,241,.25);background:rgba(99,102,241,.06);color:#818cf8;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:.15s;z-index:5;font-family:inherit;padding:0}
+.p-wrap:hover .p-play{opacity:1}
+.p-play:hover{background:rgba(99,102,241,.2);border-color:rgba(99,102,241,.5);transform:translateY(-50%) scale(1.15)}
+.p-play.active{opacity:1;background:rgba(255,107,43,.2);border-color:var(--f2);color:var(--f2)}
+.p-wrap{position:relative;padding-left:8px}
+@media(max-width:900px){.p-play{left:-24px;width:20px;height:20px;font-size:8px}.p-wrap{padding-left:4px}}
 </style>
 </head>
 <body>
@@ -2276,7 +2283,9 @@ if(id==='quiz')setTimeout(initQuiz,50);
 </script>
 <!-- Audio Player Bar -->
 <div class="audio-bar" id="audioBar">
+<button class="ab-play" onclick="audioSkip(-1)" title="Previous paragraph" style="width:34px;height:34px;font-size:14px">⏮</button>
 <button class="ab-play" id="abPlay" onclick="audioToggle()">▶</button>
+<button class="ab-play" onclick="audioSkip(1)" title="Next paragraph" style="width:34px;height:34px;font-size:14px">⏭</button>
 <div class="ab-info"><div class="ab-title" id="abTitle">Ready</div><div class="ab-status" id="abStatus">Select a section to read</div></div>
 <div class="ab-speed">
 <button onclick="setSpeed(0.8)">0.8×</button>
@@ -2309,143 +2318,162 @@ if(id==='quiz')setTimeout(initQuiz,50);
 </div>
 
 <script>
-// ===== AUDIO ENGINE =====
+// ===== AUDIO ENGINE v2: Click any paragraph to start =====
 let synth=window.speechSynthesis;
-let audioState={playing:false,paused:false,current:null,speed:1,voice:null,queue:[],qIdx:0,elevenAudio:null};
+let audioState={playing:false,paused:false,speed:1,voice:null,queue:[],qIdx:0,elevenAudio:null,currentSec:null};
 
-// Populate voice selector
+// Voice setup
 function loadVoices(){
 const sel=document.getElementById('voiceSelect');
 if(!sel)return;
 const voices=synth.getVoices();
 sel.innerHTML='';
-// Rank voices: prefer neural/natural ones
 const ranked=voices.map(v=>{
-let score=0;
-const n=v.name.toLowerCase();
-if(n.includes('natural'))score+=100;
-if(n.includes('neural'))score+=90;
-if(n.includes('enhanced'))score+=80;
-if(n.includes('premium'))score+=70;
-if(n.includes('google'))score+=50;
-if(n.includes('microsoft'))score+=40;
+let score=0;const n=v.name.toLowerCase();
+if(n.includes('natural'))score+=100;if(n.includes('neural'))score+=90;
+if(n.includes('enhanced'))score+=80;if(n.includes('premium'))score+=70;
+if(n.includes('google'))score+=50;if(n.includes('microsoft'))score+=40;
 if(n.includes('samantha'))score+=60;
-if(v.lang.startsWith('en'))score+=20;
-if(v.lang==='en-US')score+=10;
+if(v.lang.startsWith('en'))score+=20;if(v.lang==='en-US')score+=10;
 return{v,score};
 }).filter(x=>x.v.lang.startsWith('en')).sort((a,b)=>b.score-a.score);
-
 ranked.forEach(({v,score})=>{
-const o=document.createElement('option');
-o.value=v.name;
-o.textContent=v.name+(score>=50?' ⭐':'');
-sel.appendChild(o);
+const o=document.createElement('option');o.value=v.name;
+o.textContent=v.name+(score>=50?' ⭐':'');sel.appendChild(o);
 });
 if(ranked.length)audioState.voice=ranked[0].v;
-
-// Restore saved preference
 const saved=localStorage.getItem('nod2-voice');
-if(saved){
-const match=ranked.find(r=>r.v.name===saved);
-if(match){audioState.voice=match.v;sel.value=saved}
-}
+if(saved){const m=ranked.find(r=>r.v.name===saved);if(m){audioState.voice=m.v;sel.value=saved}}
 }
 if(synth.onvoiceschanged!==undefined)synth.onvoiceschanged=loadVoices;
 setTimeout(loadVoices,100);setTimeout(loadVoices,500);
 
 function saveVoicePref(){
 const sel=document.getElementById('voiceSelect');
-if(sel&&sel.value){
-const v=synth.getVoices().find(x=>x.name===sel.value);
-if(v)audioState.voice=v;
-try{localStorage.setItem('nod2-voice',sel.value)}catch(e){}
-}
+if(sel&&sel.value){const v=synth.getVoices().find(x=>x.name===sel.value);if(v)audioState.voice=v;try{localStorage.setItem('nod2-voice',sel.value)}catch(e){}}
 }
 
-// Extract readable text from a section element
-function getSectionText(secEl){
+// Get readable blocks from a section
+function getSectionBlocks(secEl){
 if(!secEl)return[];
 const blocks=[];
-// Get all paragraphs, list items, table cells — but skip expandable bodies that are hidden
 const walker=document.createTreeWalker(secEl,NodeFilter.SHOW_ELEMENT,{
 acceptNode(n){
 if(n.classList.contains('exb')&&!n.classList.contains('op'))return NodeFilter.FILTER_REJECT;
-if(n.classList.contains('voice-panel'))return NodeFilter.FILTER_REJECT;
-if(n.classList.contains('audio-bar'))return NodeFilter.FILTER_REJECT;
-if(['P','LI','TH','TD','H1','H2','H3'].includes(n.tagName))return NodeFilter.FILTER_ACCEPT;
+if(n.classList.contains('voice-panel')||n.classList.contains('audio-bar'))return NodeFilter.FILTER_REJECT;
+if(n.closest('.voice-panel')||n.closest('.audio-bar'))return NodeFilter.FILTER_REJECT;
+if(['P','LI','H1','H2','H3'].includes(n.tagName))return NodeFilter.FILTER_ACCEPT;
 return NodeFilter.FILTER_SKIP;
 }
 });
 let node;
 while(node=walker.nextNode()){
 const txt=node.innerText?.trim();
-if(txt&&txt.length>3){
-// Clean up audio button text artifacts
-const clean=txt.replace(/🔊\s*\w+/g,'').replace(/\s+/g,' ').trim();
-if(clean.length>3)blocks.push({el:node,text:clean});
+if(txt&&txt.length>10){
+const clean=txt.replace(/🔊\s*\w+/g,'').replace(/🎧[^]*/,'').replace(/\s+/g,' ').trim();
+if(clean.length>10)blocks.push({el:node,text:clean});
 }
 }
 return blocks;
 }
 
-// Start reading a section
-function readSection(sectionId){
-audioStop();
-const secEl=document.getElementById('s_'+sectionId);
-if(!secEl)return;
-const blocks=getSectionText(secEl);
-if(!blocks.length)return;
+// Add per-paragraph play buttons to a section
+function addParagraphButtons(secId){
+const secEl=document.getElementById('s_'+secId);
+if(!secEl||secEl.dataset.audioReady)return;
+secEl.dataset.audioReady='1';
 
-audioState.queue=blocks;
+const blocks=getSectionBlocks(secEl);
+blocks.forEach((block,i)=>{
+const el=block.el;
+// Skip if already wrapped or is inside a table
+if(el.closest('.p-wrap')||el.closest('table')||el.closest('th')||el.closest('td'))return;
+if(el.tagName==='LI')return; // Don't wrap list items individually
+
+// Wrap in relative container
+const wrap=document.createElement('div');
+wrap.className='p-wrap';
+el.parentNode.insertBefore(wrap,el);
+wrap.appendChild(el);
+
+// Add play button
+const btn=document.createElement('button');
+btn.className='p-play';
+btn.innerHTML='▶';
+btn.title='Read from here';
+btn.onclick=(e)=>{
+e.stopPropagation();
+startFromBlock(secId,i);
+};
+wrap.insertBefore(btn,el);
+});
+}
+
+// Start reading from a specific block index
+function startFromBlock(secId,fromIdx){
+audioStop();
+const secEl=document.getElementById('s_'+secId);
+if(!secEl)return;
+
+const blocks=getSectionBlocks(secEl);
+if(fromIdx>=blocks.length)return;
+
+audioState.queue=blocks.slice(fromIdx);
 audioState.qIdx=0;
 audioState.playing=true;
 audioState.paused=false;
+audioState.currentSec=secId;
 
 const bar=document.getElementById('audioBar');
 bar.classList.add('on');
 document.getElementById('abPlay').textContent='⏸';
-const sec=S.find(s=>s.id===sectionId);
-document.getElementById('abTitle').textContent=sec?sec.label:'Reading...';
+const sec=S.find(s=>s.id===secId);
+document.getElementById('abTitle').textContent=(sec?sec.label:'Reading')+' — from paragraph '+(fromIdx+1);
 
 readNext();
 }
 
+// Start reading entire section
+function readSection(sectionId){
+startFromBlock(sectionId,0);
+}
+
+// Read next block in queue
 function readNext(){
 if(audioState.qIdx>=audioState.queue.length){
 audioStop();
-document.getElementById('abStatus').textContent='✅ Finished';
+document.getElementById('abStatus').textContent='✅ Finished!';
+document.getElementById('audioBar').classList.add('on');
 return;
 }
 const block=audioState.queue[audioState.qIdx];
-document.getElementById('abStatus').textContent=`Part ${audioState.qIdx+1} of ${audioState.queue.length}`;
+const total=audioState.queue.length;
+document.getElementById('abStatus').textContent='Part '+(audioState.qIdx+1)+' of '+total+' · Click any ▶ to jump';
 
-// Highlight current block
+// Highlight current
 document.querySelectorAll('.reading-now').forEach(el=>el.classList.remove('reading-now'));
+document.querySelectorAll('.p-play.active').forEach(el=>el.classList.remove('active'));
 block.el.classList.add('reading-now');
+// Highlight the play button too
+const wrap=block.el.closest('.p-wrap');
+if(wrap){const pb=wrap.querySelector('.p-play');if(pb)pb.classList.add('active')}
 block.el.scrollIntoView({behavior:'smooth',block:'center'});
 
-// Check if ElevenLabs key exists
 const key=document.getElementById('elevenKey')?.value?.trim();
-if(key&&key.startsWith('sk_')){
-readElevenLabs(block.text,key);
-} else {
-readBrowserTTS(block.text);
-}
+if(key&&key.startsWith('sk_')){readElevenLabs(block.text,key)}
+else{readBrowserTTS(block.text)}
 }
 
 function readBrowserTTS(text){
 synth.cancel();
-// Split very long text into chunks (browser TTS has a ~200 word limit on some engines)
 const chunks=splitText(text,180);
 let ci=0;
-
 function speakChunk(){
+if(!audioState.playing)return;
 if(ci>=chunks.length){audioState.qIdx++;readNext();return}
 const u=new SpeechSynthesisUtterance(chunks[ci]);
 if(audioState.voice)u.voice=audioState.voice;
-u.rate=audioState.speed;
-u.pitch=0.95; // slightly lower = calmer
-u.volume=1;
+u.rate=audioState.speed;u.pitch=0.95;u.volume=1;
 u.onend=()=>{ci++;speakChunk()};
 u.onerror=(e)=>{if(e.error!=='interrupted'){ci++;speakChunk()}};
 synth.speak(u);
@@ -2454,58 +2482,44 @@ speakChunk();
 }
 
 function splitText(text,maxWords){
-const words=text.split(/\s+/);
-const chunks=[];
-for(let i=0;i<words.length;i+=maxWords){
-chunks.push(words.slice(i,i+maxWords).join(' '));
-}
+const words=text.split(/\s+/);const chunks=[];
+for(let i=0;i<words.length;i+=maxWords)chunks.push(words.slice(i,i+maxWords).join(' '));
 return chunks;
 }
 
 async function readElevenLabs(text,key){
 const voiceId=document.getElementById('elevenVoice')?.value||'EXAVITQu4vr4xnSDxMaL';
 try{
-document.getElementById('abStatus').textContent=`⏳ Generating audio...`;
-const resp=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,{
-method:'POST',
-headers:{'Content-Type':'application/json','xi-api-key':key},
-body:JSON.stringify({
-text:text.slice(0,5000),
-model_id:'eleven_turbo_v2_5',
-voice_settings:{stability:0.65,similarity_boost:0.75,style:0.1,use_speaker_boost:true}
-})
+document.getElementById('abStatus').textContent='⏳ Generating audio...';
+const resp=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+voiceId,{
+method:'POST',headers:{'Content-Type':'application/json','xi-api-key':key},
+body:JSON.stringify({text:text.slice(0,5000),model_id:'eleven_turbo_v2_5',
+voice_settings:{stability:0.65,similarity_boost:0.75,style:0.1,use_speaker_boost:true}})
 });
-if(!resp.ok)throw new Error('API error '+resp.status);
-const blob=await resp.blob();
-const url=URL.createObjectURL(blob);
+if(!resp.ok)throw new Error('API '+resp.status);
+const blob=await resp.blob();const url=URL.createObjectURL(blob);
 if(audioState.elevenAudio){audioState.elevenAudio.pause();URL.revokeObjectURL(audioState.elevenAudio.src)}
-const audio=new Audio(url);
-audioState.elevenAudio=audio;
+const audio=new Audio(url);audioState.elevenAudio=audio;
 audio.playbackRate=audioState.speed;
 audio.onended=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
 audio.onerror=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
 audio.play();
-document.getElementById('abStatus').textContent=`Part ${audioState.qIdx+1} of ${audioState.queue.length}`;
-}catch(e){
-console.warn('ElevenLabs failed, falling back to browser TTS:',e);
-readBrowserTTS(text);
-}
+document.getElementById('abStatus').textContent='Part '+(audioState.qIdx+1)+' of '+audioState.queue.length+' · Click any ▶ to jump';
+}catch(e){console.warn('ElevenLabs fallback:',e);readBrowserTTS(text)}
 }
 
 function audioToggle(){
 if(!audioState.playing)return;
 if(audioState.paused){
-// Resume
 audioState.paused=false;
 document.getElementById('abPlay').textContent='⏸';
-if(audioState.elevenAudio&&audioState.elevenAudio.paused){audioState.elevenAudio.play()}
-else{synth.resume()}
+if(audioState.elevenAudio&&audioState.elevenAudio.paused)audioState.elevenAudio.play();
+else synth.resume();
 }else{
-// Pause
 audioState.paused=true;
 document.getElementById('abPlay').textContent='▶';
-if(audioState.elevenAudio&&!audioState.elevenAudio.paused){audioState.elevenAudio.pause()}
-else{synth.pause()}
+if(audioState.elevenAudio&&!audioState.elevenAudio.paused)audioState.elevenAudio.pause();
+else synth.pause();
 }
 }
 
@@ -2515,19 +2529,30 @@ if(audioState.elevenAudio){audioState.elevenAudio.pause();audioState.elevenAudio
 audioState.playing=false;audioState.paused=false;audioState.queue=[];audioState.qIdx=0;
 document.getElementById('audioBar')?.classList.remove('on');
 document.querySelectorAll('.reading-now').forEach(el=>el.classList.remove('reading-now'));
-document.querySelectorAll('.read-btn').forEach(b=>{b.classList.remove('playing');b.innerHTML='🎧 Read to Me'});
+document.querySelectorAll('.p-play.active').forEach(el=>el.classList.remove('active'));
+document.querySelectorAll('.read-btn').forEach(b=>{b.classList.remove('playing');b.innerHTML='🎧 Read All'});
 }
 
 function setSpeed(s){
 audioState.speed=s;
 document.querySelectorAll('.ab-speed button').forEach(b=>{b.classList.toggle('on',parseFloat(b.textContent)===s)});
 if(audioState.elevenAudio)audioState.elevenAudio.playbackRate=s;
-// For browser TTS, speed change takes effect on next utterance
 }
 
-// Inject "Read to Me" buttons + TL;DR boxes into each section
-function injectADHD(){
-const sections=['bio','dock','ml','admet','md','fep','res'];
+// Skip forward/back
+function audioSkip(dir){
+if(!audioState.playing||!audioState.queue.length)return;
+synth.cancel();
+if(audioState.elevenAudio){audioState.elevenAudio.pause();audioState.elevenAudio=null}
+audioState.qIdx=Math.max(0,Math.min(audioState.queue.length-1,audioState.qIdx+dir));
+audioState.paused=false;
+document.getElementById('abPlay').textContent='⏸';
+readNext();
+}
+
+function toggleVoicePanel(){document.getElementById('voicePanel')?.classList.toggle('on')}
+
+// === INJECT ADHD FEATURES ===
 const tldrMap={
 bio:"NOD2 is a bacterial sensor in your gut. R702W mutation stiffens the protein → weaker bacterial detection → Crohn's inflammation. Your drugs target the sensor's LRR pocket, 79.4 Å from the mutation.",
 dock:"GNINA (CNN-based) scored how well 9,566 compounds fit the NOD2 pocket. Exhaustiveness 32, grid 30×30×30 Å. Top compounds proceed to ML filtering.",
@@ -2537,47 +2562,43 @@ md:"Simulated atoms moving at body temperature (310K) for 20 ns × 3 replicates.
 fep:"The gold standard. Alchemically 'vanish' the drug in 20 lambda windows. Febuxostat: 50× weaker in R702W (ΔΔG +2.34, 8σ). Bufadienolide: unaffected (ΔΔG -0.44, 1.2σ NS). Precision medicine.",
 res:"R702W rigidifies NOD2 (RMSD 4.05→3.27). H-bond drugs (Febuxostat) break. Hydrophobic drugs (Bufadienolide) survive. Mutation effects are ligand-dependent."
 };
+const audioSections=['bio','dock','ml','admet','md','fep','res'];
 
-sections.forEach(id=>{
+function injectADHD(){
+audioSections.forEach(id=>{
 const sec=document.getElementById('s_'+id);
 if(!sec)return;
 const h1=sec.querySelector('h1');
 if(!h1)return;
 
-// Add TL;DR
+// TL;DR
 if(tldrMap[id]&&!sec.querySelector('.tldr')){
-const tldr=document.createElement('div');
-tldr.className='tldr';
+const tldr=document.createElement('div');tldr.className='tldr';
 tldr.innerHTML='<p>'+tldrMap[id]+'</p>';
-h1.parentNode.insertBefore(tldr,h1.nextSibling.nextSibling||h1.nextSibling);
+h1.parentNode.insertBefore(tldr,h1.nextSibling?.nextSibling||h1.nextSibling);
 }
 
-// Add Read to Me button
+// "Read All" button
 if(!sec.querySelector('.read-btn')){
-const btn=document.createElement('button');
-btn.className='read-btn';
-btn.innerHTML='🎧 Read to Me';
+const btn=document.createElement('button');btn.className='read-btn';
+btn.innerHTML='🎧 Read All';
 btn.onclick=function(){
 if(audioState.playing){audioStop();return}
-this.classList.add('playing');
-this.innerHTML='⏹ Stop Reading';
+this.classList.add('playing');this.innerHTML='⏹ Stop';
 readSection(id);
 };
 h1.parentNode.insertBefore(btn,h1.nextSibling);
 }
+
+// Per-paragraph buttons
+addParagraphButtons(id);
 });
 }
 
-// Voice settings toggle
-function toggleVoicePanel(){
-document.getElementById('voicePanel')?.classList.toggle('on');
-}
-
-// Run injection after sections are rendered
-setTimeout(injectADHD,200);
-// Re-inject when navigating sections
-const origGo=go;
-go=function(id){origGo(id);setTimeout(injectADHD,100)};
+setTimeout(injectADHD,300);
+const _origGo=typeof go==='function'?go:null;
+function goWrap(id){if(_origGo)_origGo(id);setTimeout(injectADHD,150)}
+if(_origGo){go=goWrap}
 </script>
 </body>
 </html>
