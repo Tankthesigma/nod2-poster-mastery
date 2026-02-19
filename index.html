@@ -2622,8 +2622,35 @@ if(id==='quiz')setTimeout(initQuiz,50);
 <!-- Voice Settings Panel (toggled by gear icon) -->
 <div class="voice-panel" id="voicePanel">
 <h3>🔊 Voice Settings</h3>
-<label>Voice</label>
-<select id="voiceSelect" onchange="saveVoicePref()"></select>
+
+<label>TTS Provider</label>
+<select id="ttsProvider" onchange="saveVoicePref();updateProviderUI()">
+<option value="deepgram">🟢 Deepgram Aura 2 (recommended — $200 credit)</option>
+<option value="eleven">ElevenLabs (limited free chars)</option>
+<option value="browser">Browser Voice (free, lower quality)</option>
+</select>
+
+<div id="deepgramSettings">
+<label>Deepgram API Key</label>
+<input type="text" id="deepgramKey" value="f26155fd66f65c614123328ff6d080814eb588f2" onchange="saveVoicePref()">
+<label>Deepgram Voice</label>
+<select id="deepgramVoice" onchange="saveVoicePref()">
+<option value="aura-2-jupiter-en">🪐 Jupiter — Confident, Clear (default)</option>
+<option value="aura-2-apollo-en">🚀 Apollo — Confident, Casual</option>
+<option value="aura-2-arcas-en">🎯 Arcas — Natural, Smooth</option>
+<option value="aura-2-atlas-en">🌍 Atlas — Professional, Authoritative</option>
+<option value="aura-2-orpheus-en">🎵 Orpheus — Warm, Engaging</option>
+<option value="aura-2-helios-en">☀️ Helios — Energetic, Clear</option>
+<option value="aura-2-thalia-en">🎭 Thalia — Clear, Feminine</option>
+<option value="aura-2-helena-en">👩‍🔬 Helena — Professional, Feminine</option>
+</select>
+<div style="margin-top:8px;font-size:11px;color:var(--grn)">
+<p>✅ Deepgram connected! ~$200 credit = millions of characters. $0.03/1K chars.</p>
+<p>🔥 Real audio file → <strong>preservesPitch works at 2×!</strong> Best quality at any speed.</p>
+</div>
+</div>
+
+<div id="elevenSettings" style="display:none">
 <label>ElevenLabs API Key <span style="font-size:10px;opacity:.6">(optional — premium voices)</span></label>
 <input type="text" id="elevenKey" value="sk_2d91489da50b7c8d413922949b4f19b67b2ac658e0d387ab" onchange="saveVoicePref()">
 <label>ElevenLabs Voice</label>
@@ -2642,9 +2669,16 @@ if(id==='quiz')setTimeout(initQuiz,50);
 <option value="hpp4J3VqNfWAUOO0d1Us">🎤 Bella — Professional, Bright</option>
 </select>
 <div style="margin-top:12px;font-size:11px;color:var(--dim)">
-<p>✅ Your ElevenLabs key is connected! 20,000 free chars/month on Flash/Turbo.</p>
-<p>🎧 Recommended for studying: <strong>Daniel</strong> (steady narrator) or <strong>Brian</strong> (deep, comforting).</p>
-<p>⚠️ Remember to rotate your key after studying sessions.</p>
+<p>⚠️ Limited free characters. Rotate key after sessions.</p>
+</div>
+</div>
+
+<div id="browserSettings" style="display:none">
+<label>Voice</label>
+<select id="voiceSelect" onchange="saveVoicePref()"></select>
+<div style="margin-top:8px;font-size:11px;color:var(--dim)">
+<p>⚠️ Browser voices sound robotic at 1.5×+. Free and unlimited though.</p>
+</div>
 </div>
 </div>
 
@@ -2682,7 +2716,20 @@ setTimeout(loadVoices,100);setTimeout(loadVoices,500);
 function saveVoicePref(){
 const sel=document.getElementById('voiceSelect');
 if(sel&&sel.value){const v=synth.getVoices().find(x=>x.name===sel.value);if(v)audioState.voice=v;try{localStorage.setItem('nod2-voice',sel.value)}catch(e){}}
+try{
+const p=document.getElementById('ttsProvider')?.value;if(p)localStorage.setItem('nod2-tts-provider',p);
+const dk=document.getElementById('deepgramKey')?.value;if(dk)localStorage.setItem('nod2-dg-key',dk);
+const dv=document.getElementById('deepgramVoice')?.value;if(dv)localStorage.setItem('nod2-dg-voice',dv);
+}catch(e){}
 }
+
+// Restore provider on load
+try{
+const sp=localStorage.getItem('nod2-tts-provider');if(sp){const ps=document.getElementById('ttsProvider');if(ps)ps.value=sp}
+const sdk=localStorage.getItem('nod2-dg-key');if(sdk){const ki=document.getElementById('deepgramKey');if(ki)ki.value=sdk}
+const sdv=localStorage.getItem('nod2-dg-voice');if(sdv){const vi=document.getElementById('deepgramVoice');if(vi)vi.value=sdv}
+}catch(e){}
+setTimeout(()=>{if(typeof updateProviderUI==='function')updateProviderUI()},50);
 
 // Get readable blocks from a section
 function getSectionBlocks(secEl){
@@ -2791,8 +2838,37 @@ if(wrap){const pb=wrap.querySelector('.p-play');if(pb)pb.classList.add('active')
 block.el.scrollIntoView({behavior:'smooth',block:'center'});
 
 const key=document.getElementById('elevenKey')?.value?.trim();
-if(key&&key.startsWith('sk_')){readElevenLabs(block.text,key)}
+const provider=document.getElementById('ttsProvider')?.value||'browser';
+if(provider==='deepgram'){const dk=document.getElementById('deepgramKey')?.value?.trim();if(dk)readDeepgram(block.text,dk);else readBrowserTTS(block.text)}
+else if(provider==='eleven'&&key&&key.startsWith('sk_')){readElevenLabs(block.text,key)}
 else{readBrowserTTS(block.text)}
+}
+
+function updateProviderUI(){
+const p=document.getElementById('ttsProvider')?.value||'browser';
+document.getElementById('deepgramSettings').style.display=p==='deepgram'?'block':'none';
+document.getElementById('elevenSettings').style.display=p==='eleven'?'block':'none';
+document.getElementById('browserSettings').style.display=p==='browser'?'block':'none';
+}
+
+async function readDeepgram(text,key){
+const voice=document.getElementById('deepgramVoice')?.value||'aura-2-jupiter-en';
+try{
+const resp=await fetch('https://api.deepgram.com/v1/speak?model='+voice+'&encoding=mp3',{
+method:'POST',headers:{'Authorization':'Token '+key,'Content-Type':'application/json'},
+body:JSON.stringify({text:text.slice(0,5000)})
+});
+if(!resp.ok)throw new Error('Deepgram API '+resp.status);
+const blob=await resp.blob();const url=URL.createObjectURL(blob);
+if(audioState.elevenAudio){audioState.elevenAudio.pause();URL.revokeObjectURL(audioState.elevenAudio.src)}
+const audio=new Audio(url);audioState.elevenAudio=audio;
+audio.preservesPitch=true;audio.mozPreservesPitch=true;audio.webkitPreservesPitch=true;
+audio.playbackRate=audioState.speed;
+audio.onended=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
+audio.onerror=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
+audio.play();
+document.getElementById('abStatus').textContent='Part '+(audioState.qIdx+1)+' of '+audioState.queue.length+' · Deepgram '+voice.replace('aura-2-','').replace('-en','')+' · Click any ▶ to jump';
+}catch(e){console.warn('Deepgram fallback:',e);readBrowserTTS(text)}
 }
 
 function readBrowserTTS(text){
