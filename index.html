@@ -2884,22 +2884,46 @@ document.getElementById('browserSettings').style.display=p==='browser'?'block':'
 
 async function readDeepgram(text,key){
 const voice=document.getElementById('deepgramVoice')?.value||'aura-2-jupiter-en';
+const statusEl=document.getElementById('abStatus');
+
+// Check if we already prefetched this text
+let url=audioState._dgCache?.url;
+if(audioState._dgCache?.text!==text)url=null;
+audioState._dgCache=null;
+
 try{
-const resp=await fetch('https://api.deepgram.com/v1/speak?model='+voice+'&encoding=mp3',{
-method:'POST',headers:{'Authorization':'Token '+key,'Content-Type':'application/json'},
-body:JSON.stringify({text:text.slice(0,5000)})
-});
-if(!resp.ok)throw new Error('Deepgram API '+resp.status);
-const blob=await resp.blob();const url=URL.createObjectURL(blob);
+if(!url){
+statusEl.textContent='⏳ Loading audio...';
+url=await dgFetch(text,key,voice);
+}
+if(!audioState.playing)return;
 if(audioState.elevenAudio){audioState.elevenAudio.pause();URL.revokeObjectURL(audioState.elevenAudio.src)}
 const audio=new Audio(url);audioState.elevenAudio=audio;
 audio.preservesPitch=true;audio.mozPreservesPitch=true;audio.webkitPreservesPitch=true;
 audio.playbackRate=audioState.speed;
+statusEl.textContent='Part '+(audioState.qIdx+1)+' of '+audioState.queue.length+' · Deepgram '+voice.replace('aura-2-','').replace('-en','')+' · Click any ▶ to jump';
+
+// Prefetch NEXT paragraph while this one plays
+const nextIdx=audioState.qIdx+1;
+if(nextIdx<audioState.queue.length){
+const nextText=audioState.queue[nextIdx].text;
+dgFetch(nextText,key,voice).then(u=>{audioState._dgCache={text:nextText,url:u}}).catch(()=>{});
+}
+
 audio.onended=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
 audio.onerror=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
 audio.play();
-document.getElementById('abStatus').textContent='Part '+(audioState.qIdx+1)+' of '+audioState.queue.length+' · Deepgram '+voice.replace('aura-2-','').replace('-en','')+' · Click any ▶ to jump';
 }catch(e){console.warn('Deepgram fallback:',e);readBrowserTTS(text)}
+}
+
+async function dgFetch(text,key,voice){
+const resp=await fetch('https://api.deepgram.com/v1/speak?model='+voice+'&encoding=mp3',{
+method:'POST',headers:{'Authorization':'Token '+key,'Content-Type':'application/json'},
+body:JSON.stringify({text:text.slice(0,5000)})
+});
+if(!resp.ok)throw new Error('Deepgram '+resp.status);
+const blob=await resp.blob();
+return URL.createObjectURL(blob);
 }
 
 function readBrowserTTS(text){
@@ -2972,6 +2996,7 @@ function audioStop(){
 synth.cancel();
 if(audioState.elevenAudio){audioState.elevenAudio.pause();audioState.elevenAudio=null}
 audioState.playing=false;audioState.paused=false;audioState.queue=[];audioState.qIdx=0;
+if(audioState._dgCache){try{URL.revokeObjectURL(audioState._dgCache.url)}catch(e){} audioState._dgCache=null}
 document.getElementById('audioBar')?.classList.remove('on');
 document.querySelectorAll('.reading-now').forEach(el=>el.classList.remove('reading-now'));
 document.querySelectorAll('.p-play.active').forEach(el=>el.classList.remove('active'));
