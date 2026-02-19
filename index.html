@@ -548,6 +548,15 @@ ${ex('x','GPU Running at 1% — Missing Library Path',`
 <p><strong>Fix:</strong> <code>export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH</code> — told Linux where to find the GPU libraries. Utilization jumped to ~50%.</p>
 `)}
 
+<div class="c cv">
+<h3>GNINA's Two Output Scores — Know the Difference</h3>
+<p><strong>CNN score (0 to 1)</strong> = "Does this LOOK like real binding?" Trained on real crystal structures. 0.8 = "this looks like a real drug bound to a real protein." 0.2 = "the drug is probably just floating randomly."</p>
+<p><strong>CNN affinity (pKd units)</strong> = "How TIGHTLY does it hold on?" Higher = stronger grip. pKd 7 = strong drug-level binding (~46 nM). pKd 3 = barely sticking (~1 mM).</p>
+<p><strong>Analogy:</strong> CNN score = "does this person look like they belong in this office?" CNN affinity = "how good will they actually be at the job?"</p>
+<p><strong>Your range:</strong> Across 9,566 compounds, CNN affinity went from 2.47 (worst) to 7.34 (best), mean 4.57. Top scorers advanced to ML filtering.</p>
+<p><strong>For judges:</strong> "GNINA gives two scores — one for binding confidence and one for predicted strength. I used both to rank compounds."</p>
+</div>
+
 <div class="pc">
 <div class="pros"><p>CNN scoring > classical (benchmarked on 20K+ structures)</p><p>GPU-accelerated: 13 hours for 9,566 compounds</p><p>Exhaustiveness 32 = thorough search</p></div>
 <div class="cons"><p>Docking is a frozen snapshot — proteins actually wiggle (that's what MD fixes later)</p><p>CNN was trained on general proteins, not NOD2 specifically</p><p>Scores are relative rankings, not exact binding energies — they say "A probably binds better than B" not "A binds with exactly X energy"</p></div>
