@@ -144,6 +144,7 @@ ol,ul{padding-left:22px;margin-bottom:10px}li{margin-bottom:5px}
 let cA=null;
 function pa(f,b){if(cA){cA.pause();document.querySelectorAll('.au.pl').forEach(x=>x.classList.remove('pl'))}
 const a=new Audio('audio/'+f+'.mp3');cA=a;if(b)b.classList.add('pl');
+a.preservesPitch=true;a.mozPreservesPitch=true;a.webkitPreservesPitch=true;
 a.onended=()=>{if(b)b.classList.remove('pl')};
 a.onerror=()=>{if('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(b?.dataset?.fb||f);u.rate=0.7;speechSynthesis.speak(u)}if(b)setTimeout(()=>b.classList.remove('pl'),2e3)};a.play()}
 function au(f,l,fb){return`<button class="au" data-fb="${fb||l}" onclick="pa('${f}',this)">🔊 ${l}</button>`}
@@ -2455,6 +2456,7 @@ if(id==='quiz')setTimeout(initQuiz,50);
 <button onclick="setSpeed(1)" class="on">1×</button>
 <button onclick="setSpeed(1.2)">1.2×</button>
 <button onclick="setSpeed(1.5)">1.5×</button>
+<button onclick="setSpeed(2)">2×</button>
 </div>
 <button class="ab-close" onclick="toggleVoicePanel()" title="Voice settings" style="font-size:16px">⚙️</button>
 <button class="ab-close" onclick="audioStop()" title="Close">✕</button>
@@ -2645,7 +2647,7 @@ if(!audioState.playing)return;
 if(ci>=chunks.length){audioState.qIdx++;readNext();return}
 const u=new SpeechSynthesisUtterance(chunks[ci]);
 if(audioState.voice)u.voice=audioState.voice;
-u.rate=audioState.speed;u.pitch=0.95;u.volume=1;
+u.rate=audioState.speed;u.pitch=audioState.speed>1.2?0.85:0.95;u.volume=1;
 u.onend=()=>{ci++;speakChunk()};
 u.onerror=(e)=>{if(e.error!=='interrupted'){ci++;speakChunk()}};
 synth.speak(u);
@@ -2677,6 +2679,7 @@ if(!resp.ok)throw new Error('API '+resp.status);
 const blob=await resp.blob();const url=URL.createObjectURL(blob);
 if(audioState.elevenAudio){audioState.elevenAudio.pause();URL.revokeObjectURL(audioState.elevenAudio.src)}
 const audio=new Audio(url);audioState.elevenAudio=audio;
+audio.preservesPitch=true;audio.mozPreservesPitch=true;audio.webkitPreservesPitch=true;
 audio.playbackRate=audioState.speed;
 audio.onended=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
 audio.onerror=()=>{URL.revokeObjectURL(url);audioState.qIdx++;readNext()};
@@ -2714,7 +2717,7 @@ document.querySelectorAll('.read-btn').forEach(b=>{b.classList.remove('playing')
 function setSpeed(s){
 audioState.speed=s;
 document.querySelectorAll('.ab-speed button').forEach(b=>{b.classList.toggle('on',parseFloat(b.textContent)===s)});
-if(audioState.elevenAudio)audioState.elevenAudio.playbackRate=s;
+if(audioState.elevenAudio){audioState.elevenAudio.preservesPitch=true;audioState.elevenAudio.playbackRate=s}
 }
 
 // Skip forward/back
