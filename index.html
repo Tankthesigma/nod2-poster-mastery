@@ -695,6 +695,56 @@ ${ex('l','HOW I chose XGBoost and these specific hyperparameters',`
 <p><strong>Was this tuned with Optuna or grid search?</strong> No formal hyperparameter optimization — these are well-established defaults from XGBoost documentation and drug discovery ML literature. With 856 pseudo-labeled samples, heavy tuning would just overfit to noise. I tested a few alternatives (depth 3-12, lr 0.01-0.1) and confirmed these were reasonable.</p>
 `)}
 
+${ex('l','The full story — WHY I built this, HOW I coded it, and the bugs I hit',`
+<h3>Why ML at all?</h3>
+<p>After GNINA docking, I had 9,566 compounds with CNN scores. The naive approach: sort by score, take the top ones, done. But GNINA's documentation says scores have ~1.5 pKd error. A compound scored 6.0 could really be 4.5 or 7.5. If I just sort, I'm grabbing a mix of real binders and lucky flukes.</p>
+<p>I needed a second opinion from a DIFFERENT angle. GNINA looks at 3D shape — does this molecule physically fit the pocket? What if I also looked at 2D chemistry — does this molecule have the right chemical features for binding? Two independent perspectives are more trustworthy than one. That's why ML.</p>
+
+<h3>Why Morgan fingerprints?</h3>
+<p>I needed to describe molecules as numbers for the ML. I read virtual screening papers — every one uses Morgan fingerprints (ECFP). They're the standard because they capture local chemical environments: for each atom, look at its neighbors within 2 bonds, hash that pattern into one of 2,048 bits. Similar molecules → similar barcodes → similar predictions. I used radius 2 (functional-group-sized patterns) and 2,048 bits (standard, balanced between detail and sparsity for my dataset size).</p>
+
+<h3>Why add 10 physicochemical descriptors?</h3>
+<p>Morgan fingerprints tell you what PIECES a molecule has — "hydroxyl group here, nitrogen ring there." But they don't tell you whole-molecule properties. And I'm targeting NOD2 — an intracellular protein. The drug has to cross the cell membrane to reach it. Fingerprints can't tell you if a molecule can cross a membrane. Molecular weight, LogP, and TPSA can. So I added 10 global descriptors to capture druglikeness and membrane permeability. The fingerprints see close-up chemistry. The descriptors see the big picture.</p>
+
+<h3>How I actually coded it (December 7, 2025)</h3>
+<p>I've been programming since age 6. Scored 5 on AP Computer Science Principles and 5 on AP Computer Science A. I know Python, Java, loops, functions, data structures. But I'd never used scientific Python libraries before — RDKit, XGBoost, scikit-learn were all new. I learned from documentation, tutorials, and reading example code in papers.</p>
+<p>The pipeline I wrote in Python:</p>
+<p><em>Step 1:</em> Load all 9,566 docked compounds from SDF files using RDKit's SDMolSupplier.</p>
+<p><em>Step 2:</em> For each molecule, call <code>AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)</code> → 2,048 bits. Then call <code>Descriptors.MolWt(mol)</code>, <code>Descriptors.MolLogP(mol)</code>, <code>Descriptors.TPSA(mol)</code>, etc. → 10 more numbers. Stack into a feature matrix: 9,566 rows × 2,058 columns.</p>
+<p><em>Step 3:</em> Pull CNN affinity scores from docking results. Label top 20% as binders (1), bottom 20% as non-binders (0), throw away middle 60%. Result: 856 labeled compounds.</p>
+<p><em>Step 4:</em> Create the XGBoost classifier with standard parameters from literature: <code>XGBClassifier(n_estimators=100, max_depth=4, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8)</code></p>
+<p><em>Step 5:</em> 5-fold scaffold-split cross-validation. Train on 4 folds, test on 1, rotate. Report AUC for each fold.</p>
+<p><em>Step 6:</em> Shuffled label control — retrain on scrambled labels. AUC should drop to 0.50.</p>
+<p><em>Step 7:</em> Apply to all 9,566 compounds. Save model as nod2_scout.pkl. Top 2,129 advance.</p>
+
+<h3>🐛 Bug #1: Jumping AUC (the NaN mystery)</h3>
+<p><strong>What happened:</strong> Ran the same code multiple times, got different AUC values each time. 0.87, then 0.91, then 0.83. Same data, same settings — AUC shouldn't jump like that.</p>
+<p><strong>How I found it:</strong> Added print statements to check the feature matrix. Found NaN values (Not a Number) — some compounds had molecular structures where RDKit couldn't compute LogP or TPSA (unusual functional groups, organometallics). XGBoost handles NaN by sending those samples down random tree branches — different random branch each run → different AUC each run.</p>
+<p><strong>How I fixed it:</strong> Added a check after feature generation. For any column with NaN values, fill with the column median. Now every cell has a real number. AUC became stable across runs.</p>
+<p><strong>For judges:</strong> "I noticed AUC variance between runs, traced it to undefined molecular descriptors for unusual compound scaffolds, and resolved it with median imputation — standard practice in cheminformatics."</p>
+
+<h3>🐛 Bug #2: Data leakage — AUC 0.998 (the big catch)</h3>
+<p><strong>What happened:</strong> First run with random train/test split gave AUC = 0.998. Almost perfect. My gut said this was wrong — no drug discovery ML model gets 0.998. Published models get 0.7–0.85.</p>
+<p><strong>How I found it:</strong> Checked feature importances — the top bits all encoded common molecular backbones (scaffolds), not binding-relevant chemistry. Then I checked if the same scaffolds appeared in both train AND test sets. Yes. Random splitting put structurally similar molecules on both sides. The model memorized families instead of learning chemistry.</p>
+<p><strong>How I fixed it:</strong> Switched to scaffold splitting using RDKit's <code>MurckoScaffold.GetScaffoldForMol(mol)</code>. This groups ALL molecules sharing the same backbone into the SAME fold. The model is now tested on entirely new chemical families it has never seen. AUC dropped from 0.998 to 0.85–0.93. Then ran shuffled labels → AUC = 0.50 (coin flip). Signal confirmed real.</p>
+<p><strong>Why judges love this:</strong> Catching your OWN error demonstrates more scientific maturity than having perfect results. It shows you understand WHY things work, not just what buttons to press. This is exactly what peer reviewers look for.</p>
+`)}
+
+<h2>The Thought Chain — Why Each ML Step Exists</h2>
+<div class="c ca">
+<p><strong>Docking is noisy</strong> (~1.5 pKd error) → need a second opinion</p>
+<p><strong>→ ML on chemistry</strong> gives an independent perspective (2D features, not 3D shape)</p>
+<p><strong>→ Need to describe molecules as numbers</strong> → Morgan fingerprints are the standard (2,048-bit barcode of chemical neighborhoods)</p>
+<p><strong>→ But fingerprints miss whole-molecule properties</strong> → add 10 descriptors (weight, LogP, TPSA, etc.)</p>
+<p><strong>→ Why these descriptors matter for YOUR project:</strong> NOD2 is intracellular — drugs must cross the membrane. LogP, TPSA, and molecular weight determine if a molecule CAN reach the target.</p>
+<p><strong>→ XGBoost</strong> because 856 samples is too small for neural networks and XGBoost's sequential error correction beats random forest on noisy pseudo-labels</p>
+<p><strong>→ Standard hyperparameters</strong> because 856 samples is too small to tune — heavy optimization would just overfit to noise</p>
+<p><strong>→ Scaffold split</strong> because random split inflated AUC to 0.998 (caught the leakage yourself)</p>
+<p><strong>→ Shuffled control</strong> = AUC 0.50, proving signal is real</p>
+<p><strong>→ Apply to all 9,566</strong> → top 2,129 advance to ADMET</p>
+</div>
+<div class="why"><strong>One sentence for judges:</strong> "Docking scores are noisy and only capture 3D shape. NOD2-Scout re-ranks compounds using 2D chemical features — Morgan fingerprints for substructure patterns plus physicochemical descriptors for membrane permeability, validated by scaffold-split CV and shuffled controls."</div>
+
 <h2>Features — Translating Molecules Into Numbers</h2>
 <p>A computer can't look at a molecular structure. It needs numbers. You need to convert each molecule into a list of numbers called a <strong>feature vector</strong>. You used <span class="n">2,050</span> numbers per molecule:</p>
 
