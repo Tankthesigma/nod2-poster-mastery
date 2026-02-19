@@ -814,6 +814,226 @@ ${ex('x','Data Leakage Discovery — Your AUC was 0.998',`
 </div>
 
 
+<h2>🧠 ML Deep Dive — Everything Explained Simply</h2>
+<p class="sub">A complete walkthrough of every ML concept, explained with analogies. Use this to review before judging.</p>
+
+${ex('d','Morgan Fingerprints — The Molecular Barcode (Deep Dive)',`
+<h3>What "radius 2" actually means</h3>
+<p><strong>School hallway analogy:</strong> You're an atom standing in a hallway. Radius 0 = just you. Radius 1 = you + the people directly next to you. Radius 2 = you + your neighbors + THEIR neighbors. That's your "neighborhood."</p>
+<p>Applied to molecules: a carbon atom's radius-2 neighborhood = that carbon + bonded atoms + their bonded atoms. This captures roughly one functional group (hydroxyl, amide, carboxyl).</p>
+<p><strong>Why radius 2 and not 1 or 3:</strong></p>
+<ul>
+<li>Radius 1 = too local (only immediate neighbors — every drug molecule looks the same)</li>
+<li>Radius 3 = too specific (3 bonds out, patterns are too unique for 856 samples — not enough data to learn from them)</li>
+<li>Radius 2 = functional-group scale. Rogers & Hahn 2010 ECFP paper tested 1/2/3, radius 2 performed best. It's the field standard.</li>
+</ul>
+
+<h3>How hashing works</h3>
+<p>Each atom neighborhood gets converted to a slot number (0-2047) by a <strong>hash function</strong> — a deterministic math formula. Same input always gives same output. Like a phone number: arbitrary assignment, but consistent.</p>
+<p><strong>Example:</strong> C-O-H pattern exists in molecule → hashes to slot 847 → slot 847 = 1. Every molecule with a C-O-H pattern will have slot 847 = 1. The hash function is built into RDKit. You don't need to know the internal math.</p>
+<p><strong>Slots have NO predefined chemical meaning.</strong> Slot 847 doesn't "mean" C-O-H in any human-readable way. The assignment is arbitrary but deterministic. XGBoost learns statistical correlations: "when slot 847 = 1, molecules tend to bind" — without knowing what slot 847 encodes.</p>
+<p><strong>Why flip to 1?</strong> 1 = pattern present. 0 = pattern absent. It's a presence/absence checklist for 2,048 possible chemical patterns.</p>
+
+<h3>Overlap vs uniqueness</h3>
+<p>Each molecule's FULL fingerprint (the combination of all 2,048 slots) is probably unique. But individual slots OVERLAP — many molecules share C-O patterns, so slot 847 = 1 for all of them. That's the point. XGBoost learns that binders share certain slots = 1 and non-binders share certain slots = 0.</p>
+
+<h3>Why 2,048 and not more or fewer</h3>
+<p><strong>Too few (100 slots):</strong> Tons of collisions. C-O and N-C-ring both hash to slot 47. Information lost.</p>
+<p><strong>Too many (100,000 slots):</strong> Almost no collisions but most slots are 0. With 856 compounds, each active slot appears in 1-2 molecules. Can't learn from 1 example.</p>
+<p><strong>2,048 = sweet spot.</strong> A typical drug has 50-100 unique neighborhoods. Those spread across 2,048 slots = low collision rate. And 856 molecules = enough data per active slot. Also 2¹¹ (power of 2 — how computers organize memory). It's the RDKit default from the ECFP literature.</p>
+
+<h3>For a judge:</h3>
+<p>"2,048-bit Morgan fingerprints at radius 2 — field standard from the ECFP publications. Radius 2 captures functional-group-scale features. Each atom neighborhood is hashed to a bit position, creating a binary molecular barcode. I used established parameters rather than tuning because with 856 samples, optimizing fingerprint encoding would risk overfitting."</p>
+`)}
+
+${ex('d','The 10 Physicochemical Descriptors — Full List',`
+<p>All 10 are computed by RDKit from the molecular structure. One line of code each. No experiments needed.</p>
+<ol>
+<li><strong>Molecular Weight (MW)</strong> — Add up every atom's weight. Carbon=12, Oxygen=16, Hydrogen=1. Aspirin = 180.</li>
+<li><strong>LogP</strong> — How oily vs watery. RDKit uses Wildman-Crippen method: each atom gets an oiliness score based on what it's bonded to. Carbon in ring = oily. Oxygen with hydrogen = watery. Sum them.</li>
+<li><strong>TPSA</strong> — Add up surface area of just oxygen and nitrogen atoms (polar ones). Higher = more polar = harder to cross membranes.</li>
+<li><strong>H-bond donors (HBD)</strong> — Count every OH and NH group.</li>
+<li><strong>H-bond acceptors (HBA)</strong> — Count every O and N atom.</li>
+<li><strong>Rotatable bonds</strong> — Count bonds that can spin freely (single bonds between non-ring, non-terminal atoms).</li>
+<li><strong>Aromatic rings</strong> — Count flat rings.</li>
+<li><strong>Heavy atom count</strong> — Total non-hydrogen atoms.</li>
+<li><strong>Ring count</strong> — Total rings (aromatic + non-aromatic).</li>
+<li><strong>Fsp3</strong> — Fraction of carbons that are sp3 (tetrahedral, not flat). Low = flat molecule. High = 3D. Drug companies try to increase this.</li>
+</ol>
+<p><strong>Why these matter for YOUR project:</strong> NOD2 is intracellular. The drug must cross the cell membrane. MW, LogP, and TPSA are the three properties that determine membrane crossing. These are the same properties used in Lipinski's Rule of 5 and ADMET filtering — but in ML they're continuous features for predicting BINDING, not pass/fail for druglikeness.</p>
+`)}
+
+${ex('d','The Training Table — What X and y Actually Look Like',`
+<h3>The table</h3>
+<p>856 rows (one per labeled molecule). 2,058 feature columns + 1 label column.</p>
+<table style="font-size:12px;border-collapse:collapse;width:100%;margin:10px 0">
+<tr style="background:var(--s2)"><th style="padding:4px;border:1px solid var(--s3)">Compound</th><th style="padding:4px;border:1px solid var(--s3)">Bit 0</th><th style="padding:4px;border:1px solid var(--s3)">Bit 1</th><th style="padding:4px;border:1px solid var(--s3)">...</th><th style="padding:4px;border:1px solid var(--s3)">Bit 2047</th><th style="padding:4px;border:1px solid var(--s3)">MW</th><th style="padding:4px;border:1px solid var(--s3)">LogP</th><th style="padding:4px;border:1px solid var(--s3)">TPSA</th><th style="padding:4px;border:1px solid var(--s3)">...7 more</th><th style="padding:4px;border:1px solid var(--s3)">LABEL</th></tr>
+<tr><td style="padding:4px;border:1px solid var(--s3)">fda_510</td><td style="padding:4px;border:1px solid var(--s3)">0</td><td style="padding:4px;border:1px solid var(--s3)">1</td><td style="padding:4px;border:1px solid var(--s3)">...</td><td style="padding:4px;border:1px solid var(--s3)">1</td><td style="padding:4px;border:1px solid var(--s3)">346</td><td style="padding:4px;border:1px solid var(--s3)">3.2</td><td style="padding:4px;border:1px solid var(--s3)">86</td><td style="padding:4px;border:1px solid var(--s3)">...</td><td style="padding:4px;border:1px solid var(--s3);color:var(--grn);font-weight:700">1</td></tr>
+<tr><td style="padding:4px;border:1px solid var(--s3)">fda_148</td><td style="padding:4px;border:1px solid var(--s3)">1</td><td style="padding:4px;border:1px solid var(--s3)">0</td><td style="padding:4px;border:1px solid var(--s3)">...</td><td style="padding:4px;border:1px solid var(--s3)">0</td><td style="padding:4px;border:1px solid var(--s3)">314</td><td style="padding:4px;border:1px solid var(--s3)">4.1</td><td style="padding:4px;border:1px solid var(--s3)">37</td><td style="padding:4px;border:1px solid var(--s3)">...</td><td style="padding:4px;border:1px solid var(--s3);color:var(--grn);font-weight:700">1</td></tr>
+<tr><td style="padding:4px;border:1px solid var(--s3)">coconut_3821</td><td style="padding:4px;border:1px solid var(--s3)">0</td><td style="padding:4px;border:1px solid var(--s3)">0</td><td style="padding:4px;border:1px solid var(--s3)">...</td><td style="padding:4px;border:1px solid var(--s3)">0</td><td style="padding:4px;border:1px solid var(--s3)">521</td><td style="padding:4px;border:1px solid var(--s3)">5.8</td><td style="padding:4px;border:1px solid var(--s3)">142</td><td style="padding:4px;border:1px solid var(--s3)">...</td><td style="padding:4px;border:1px solid var(--s3);color:var(--red);font-weight:700">0</td></tr>
+<tr><td style="padding:4px;border:1px solid var(--s3)">fda_1064</td><td style="padding:4px;border:1px solid var(--s3)">1</td><td style="padding:4px;border:1px solid var(--s3)">1</td><td style="padding:4px;border:1px solid var(--s3)">...</td><td style="padding:4px;border:1px solid var(--s3)">0</td><td style="padding:4px;border:1px solid var(--s3)">289</td><td style="padding:4px;border:1px solid var(--s3)">1.9</td><td style="padding:4px;border:1px solid var(--s3)">91</td><td style="padding:4px;border:1px solid var(--s3)">...</td><td style="padding:4px;border:1px solid var(--s3);color:var(--red);font-weight:700">0</td></tr>
+</table>
+<p><strong>X</strong> = the first 2,058 columns (the "front of the flashcard" — molecular description)</p>
+<p><strong>y</strong> = the last column (the "back of the flashcard" — binder or not)</p>
+<p>Row 0 of X corresponds to y[0]. Row 1 of X corresponds to y[1]. All the way down. Front of flashcard #0 matches back of flashcard #0.</p>
+<p><strong>9,566 vs 856:</strong> ALL 9,566 molecules got fingerprints (X_all = 9,566 × 2,058). But only 856 got labels. 856 were used for training. After training, ALL 9,566 were scored by the model. Like: 9,566 students photographed (fingerprinted), 856 took a test (labeled), model trained on those 856, then predicted scores for all 9,566.</p>
+`)}
+
+${ex('d','How XGBoost ACTUALLY Trains — Step by Step',`
+<h3>The code is embarrassingly simple</h3>
+<pre style="background:var(--s2);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px">model = XGBClassifier(
+    n_estimators=100,       # 100 trees
+    max_depth=4,            # 4 questions per tree
+    learning_rate=0.05,     # each tree counts 5%
+    subsample=0.8,          # each tree sees 80% of rows
+    colsample_bytree=0.8    # each tree sees 80% of columns
+)
+model.fit(X, y)  # ONE LINE does everything</pre>
+
+<h3>What model.fit() does behind the scenes</h3>
+<p><strong>Tree 1:</strong> Looks at all 856 flashcards. Has 2,058 possible questions it could ask. Tries EVERY one: "What if I split on Bit 0 = 1 vs 0?" Counts binders vs non-binders on each side. Tries Bit 1. Bit 2. All the way to Fsp3. Picks the SINGLE BEST question — the one that separates binders from non-binders most cleanly. Say it picks "TPSA > 95?"</p>
+<p>Now two groups. Each group gets split again — same process, try all 2,058, pick the best. Then again. Then again. 4 levels deep = 2⁴ = 16 final groups. Each group gets a prediction ("this group has 45 binders and 3 non-binders → predict binder").</p>
+<p>Tree 1 is done. It gets most right but misses some.</p>
+
+<p><strong>Tree 2:</strong> The compounds Tree 1 got WRONG get extra weight. Tree 2 sees the same 856 cards but the hard cases matter more. It asks 4 different questions targeting those mistakes. Its opinion only counts 5% (learning rate).</p>
+
+<p><strong>Tree 3:</strong> Focuses on what Tree 2 still got wrong. 4 more questions. 5% weight.</p>
+
+<p><strong>This repeats 100 times.</strong> Each tree studies previous mistakes, asks 4 questions from 2,058 columns, contributes 5%. Each tree only sees 80% of rows and 80% of columns (prevents memorization).</p>
+
+<p><strong>Like studying for a test:</strong> Attempt 1 → 70%. Check what you got wrong. Attempt 2 → focus on those → 85%. Attempt 3 → focus on remaining mistakes → 91%. By attempt 100, you've found every pattern.</p>
+
+<h3>Then to predict new molecules:</h3>
+<pre style="background:var(--s2);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px">probabilities = model.predict_proba(X_all)[:, 1]
+# Each molecule gets 0 to 1
+# 0.95 = almost certainly binder
+# 0.12 = almost certainly NOT
+top_compounds = sorted(zip(probabilities, compounds), reverse=True)[:2129]</pre>
+<p>Run all 9,566 through the 100 trees. Each tree votes. Sum all votes. Sort by probability. Top 2,129 advance.</p>
+`)}
+
+${ex('d','Scaffold Split — The "Schools" Analogy',`
+<h3>The problem with random split</h3>
+<p>Imagine 856 students from different high schools. Students from the SAME school are similar — same teachers, curriculum, habits. Random split puts 30 Westwood kids in training and 10 in testing. Model learns "Westwood kids get A's" → sees a Westwood kid on the test → guesses A → correct! But it learned SCHOOL IDENTITY, not what makes a good student.</p>
+
+<h3>Scaffold = school</h3>
+<p>Take any molecule. Strip off all decorations (side chains). What's left = the skeleton = the Murcko scaffold. Aspirin's skeleton is a benzene ring. Any molecule with a benzene ring skeleton = same "school." RDKit does this in one line:</p>
+<pre style="background:var(--s2);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px">scaffold = MurckoScaffold.GetScaffoldForMol(mol)</pre>
+
+<h3>How scaffold split works</h3>
+<p>Sort all 856 molecules by family first. Bundle families into 5 groups (~170 molecules each). Each group contains many families, but NO family appears in two groups.</p>
+<pre style="background:var(--s2);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px">Group 1: Benzene family (12 mol), Indole family (8 mol), Pyridine family (15 mol)... = ~170
+Group 2: Naphthalene family (10 mol), Quinoline family (7 mol)... = ~170
+Group 3: Thiophene family, Morpholine family... = ~170
+Group 4: Steroid family, Flavonoid family... = ~170
+Group 5: Pyrimidine family, Lactam family... = ~170</pre>
+<p>When Group 1 is the test set, the model has NEVER seen a benzene-family molecule. It must predict using real chemistry patterns, not family recognition.</p>
+
+<h3>The random split was like</h3>
+<p>Training on algebra and geometry. Test also has algebra and geometry. Model memorizes question types. Gets 99.8%.</p>
+
+<h3>The scaffold split was like</h3>
+<p>Training on algebra and geometry. Test has CALCULUS and STATISTICS (completely new types). Model must learn the underlying math rules. Gets 85-93%. Lower but real.</p>
+`)}
+
+${ex('d','5-Fold Cross-Validation — Why 5, and What Happened to the Models',`
+<h3>Why test 5 times</h3>
+<p>One test isn't enough. What if family E is easy? You got lucky. What if family E is hard? You got unlucky. Rotate: every group takes a turn as the test. 5 rounds, 5 scores.</p>
+<pre style="background:var(--s2);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px">Round 1: Train on 1,2,3,4 → Test on 5 → AUC = 0.926
+Round 2: Train on 1,2,3,5 → Test on 4 → AUC = 0.854
+Round 3: Train on 1,2,4,5 → Test on 3 → AUC = 0.913
+Round 4: Train on 1,3,4,5 → Test on 2 → AUC = 0.872
+Round 5: Train on 2,3,4,5 → Test on 1 → AUC = 0.891</pre>
+<p>All between 0.85-0.93. Tight range = consistent performance on ALL chemical families. The method works.</p>
+
+<h3>Why 5 and not 10 or 20</h3>
+<p>Two things fighting each other:</p>
+<ul>
+<li><strong>More groups = smaller test sets.</strong> 10 folds → 85 per test. Too small, AUC bounces around.</li>
+<li><strong>Fewer groups = less training data.</strong> 3 folds → only 571 for training (67%). Model learns worse.</li>
+</ul>
+<p>5 folds: test set = 170 (big enough for stable AUC), training set = 685 (big enough to learn). Standard in the field.</p>
+
+<h3>All 5 models were THROWN AWAY</h3>
+<p>This is the part that confused me at first. The 5 models were crash tests — they existed only to prove the design works. Then:</p>
+<pre style="background:var(--s2);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px">Model 1-5: trained on ~685 each → tested → AUC 0.85-0.93 → DELETED
+Model 6 (NOD2-Scout): trained on ALL 856 → never tested → KEPT</pre>
+<p>Model 6 sees every flashcard. More data = more patterns learned = better predictions. You trust it because Models 1-5 proved the design works.</p>
+
+<h3>The car analogy</h3>
+<p>Build 5 cars. Crash test all 5. They survive. Proves the DESIGN is safe. Now build a 6th car (same design) and sell it. The 6th car was never crashed, but you trust it because the design was validated.</p>
+`)}
+
+${ex('d','The Final Model vs Random Split Model — What Actually Changed',`
+<h3>The models are IDENTICAL</h3>
+<p>Same XGBoost. Same settings. Same 856 flashcards. Same code. Same output. Same top 2,129.</p>
+<p><strong>The difference is what you KNOW about them.</strong></p>
+
+<h3>Path A (random split):</h3>
+<p>Random split test → AUC 0.998 → "wow amazing!" → Build final model on all 856 → Score 9,566 → Pick top 2,129.</p>
+<p>You BELIEVE it works because 0.998. But 0.998 was a lie. A judge asks "did you use scaffold split?" You say no. Judge says "that's data leakage." You're destroyed.</p>
+
+<h3>Path B (scaffold split):</h3>
+<p>Random split → 0.998 → "wait that's suspicious" → Found leakage → Scaffold split → 0.85-0.93 → "THAT'S real" → Build final model on all 856 → Score 9,566 → Pick top 2,129.</p>
+<p>Same final model. Same results. But now you KNOW it works. You can stand in front of a judge and defend every number.</p>
+
+<p><strong>The scaffold split didn't change the model. It changed YOUR credibility.</strong> It changed whether you should BELIEVE the model. Without it, you're a doctor prescribing medicine based on a rigged trial. With it, the trial was honest.</p>
+`)}
+
+${ex('d','Why ML is NOT the Same as ADMET',`
+<h3>ADMET asks: "Can this molecule be a DRUG?"</h3>
+<p>Hard cutoffs. MW > 500? Fail. LogP > 5? Fail. PAINS alert? Fail. It doesn't care about binding. A molecule that passes ADMET might bind NOD2 or bind nothing.</p>
+
+<h3>ML asks: "Does this molecule's CHEMISTRY predict binding to NOD2?"</h3>
+<p>Completely different question. ML learns which fingerprint patterns show up in top scorers. It doesn't check druglikeness. ADMET has no idea which bits predict binding.</p>
+
+<h3>Why you can't skip ML and just do GNINA → ADMET</h3>
+<p>Top 2,000 from GNINA contains real binders + lucky flukes. ADMET can't distinguish them — both might pass Lipinski, both might pass PAINS. ADMET lets lucky flukes through because they LOOK like drugs but aren't actually binders. ML catches the flukes because bad chemistry = low fingerprint similarity to real binders.</p>
+
+<h3>Same inputs, different questions</h3>
+<p>LogP in ML = one of 2,058 continuous features for predicting binding. No cutoff. LogP 5.5 doesn't fail — gets weighted by trees.</p>
+<p>LogP in ADMET = hard cutoff. LogP > 5? Gone. Best binder in the world? Doesn't matter.</p>
+<p>ML might say "compound X is an amazing binder." ADMET says "compound X has MW 620 and LogP 6.1 — can't be absorbed. Removed." Different stages catching different problems.</p>
+`)}
+
+${ex('d','pKd, AUC-ROC, and the Shuffled Label Control Explained',`
+<h3>pKd — binding strength on a log scale</h3>
+<p>Kd = dissociation constant (how easily drug lets go). Small Kd = holds tight. But Kd numbers are tiny (0.0000001 M). So: pKd = -log₁₀(Kd). Same idea as pH.</p>
+<ul>
+<li>pKd 7 = Kd 100 nM. Strong binding. Drug-quality.</li>
+<li>pKd 3 = Kd 1 mM. Barely sticking. Useless.</li>
+<li>pKd 9 = Kd 1 nM. Best drugs in the world.</li>
+</ul>
+<p>GNINA scores ranged 2.47-7.34 pKd. The "~1.5 pKd error" means a score of 6.0 could really be 4.5 to 7.5. Huge range — that's why ML is needed.</p>
+
+<h3>AUC-ROC — how well the model ranks</h3>
+<p>Pick a random binder. Pick a random non-binder. Does the model rank the binder higher? Do this for every possible pair. Count how often it's right.</p>
+<ul>
+<li>AUC 1.00 = always right. Perfect.</li>
+<li>AUC 0.89 = right 89% of the time. Your model.</li>
+<li>AUC 0.50 = coin flip. Random guessing.</li>
+</ul>
+<p><strong>The 0.50 diagonal line:</strong> On the ROC graph, a diagonal from bottom-left to top-right = random guessing. Your model's curve bows above it. More area under the curve = better.</p>
+<p><strong>Why AUC and not "percent correct":</strong> If 90% of your data is non-binders, a model that ALWAYS says "non-binder" gets 90% accuracy. Looks great, completely useless. AUC doesn't fall for that — it specifically tests binder-vs-non-binder pairs.</p>
+
+<h3>Shuffled label control</h3>
+<p>Take your 856 labels (the 1s and 0s). Scramble them randomly. Molecule A was labeled binder → now randomly labeled non-binder. The chemistry-to-binding connection is broken.</p>
+<p>Train XGBoost on this garbage. Same settings. It can't learn anything because the labels are nonsense. AUC = 0.50. Coin flip.</p>
+<p><strong>Why this matters:</strong> Proves your real AUC of 0.85-0.93 comes from genuine chemical patterns. If it came from data artifacts, scrambled labels would still produce high AUC. They didn't. Signal is real.</p>
+<p>Like acing a test, then retaking it with a scrambled answer key. You get 50%. Proves your original grade came from knowing the material.</p>
+`)}
+
+${ex('d','Why Exactly 2,129 Advanced',`
+<p>Each molecule now has TWO independent scores:</p>
+<ul>
+<li>GNINA score (3D shape fitting)</li>
+<li>NOD2-Scout probability (2D chemical features)</li>
+</ul>
+<p>Only molecules where BOTH agree = binder advance. Like needing two references for a job — if both independently say "this person is great," you trust it.</p>
+<p>2,129 is where the agreement zone naturally fell. Not a pre-chosen number. If GNINA says good + ML says good → advance. If they disagree → cut. Count the agreements = 2,129.</p>
+<p><strong>The other ~7,400:</strong> Had disagreements. GNINA said binder but ML said no (maybe lucky fluke — good shape but bad chemistry). Or ML said binder but GNINA said no (good chemistry but doesn't physically fit). Not trustworthy enough.</p>
+`)}
+
 <h2>🎓 Foundations — Decision Trees to Gradient Boosting</h2>
 
 ${ex('d','Decision Trees From Scratch (AP Computer Science level)',`
@@ -938,6 +1158,208 @@ ${ex('l','HOW I chose these specific filters',`
 <div class="pros"><p>TPSA filter is target-specific (intracellular NOD2 = membrane crossing required)</p><p>PAINS catches invisible false positives that docking and ML miss</p><p>Fast — seconds per compound</p></div>
 <div class="cons"><p>Rules are guidelines, not laws — some successful drugs violate Lipinski (e.g. cyclosporin)</p><p>No actual metabolism prediction — just substructure alerts</p><p>98.7% pass rate means this filter didn't narrow much</p></div>
 </div>
+
+
+<h2>🧪 ADMET Deep Dive — Everything Explained Simply</h2>
+<p class="sub">A complete walkthrough of every ADMET concept, from membrane crossing to DNA damage. Use this to review before judging.</p>
+
+${ex('l','The ADMET Origin Story — How I Found These Filters',`
+<h3>The moment I realized I needed ADMET</h3>
+<p>After ML, I had 2,129 compounds that GNINA and NOD2-Scout both agreed were binders. I was ready to throw all 2,129 into molecular dynamics. Then I did the math. Each MD simulation = 20 ns × 3 replicates = 60 ns per compound. At ~100 ns/day on my GPU, that's 14 hours per compound. 2,129 compounds × 14 hours = <strong>29,806 hours</strong>. Over 3 years of non-stop GPU time. For a science fair project due in 2 months.</p>
+<p>I needed to cut the list. But not randomly — I needed to cut compounds that would NEVER work as real drugs, even if they bind NOD2 perfectly in a simulation.</p>
+
+<h3>How I found drug-likeness filtering</h3>
+<p>I searched "virtual screening pipeline steps" and "drug discovery workflow computational." Every published pipeline I found had the same step after scoring: ADMET filtering. Paper after paper referenced the same names — Lipinski, Veber, PAINS, Brenk.</p>
+<p>I read Lipinski's original 1997 paper. Then Veber 2002. Then Baell's PAINS paper from 2010. Then I found RDKit's documentation — it has all four filters built in. Lipinski properties through the Descriptors module. PAINS and Brenk through the FilterCatalog module.</p>
+<p>The code took about 30 minutes to write. The READING took two days. Understanding WHY each filter exists, what it catches, and what it misses — that was the real work.</p>
+
+<h3>Alternatives I considered</h3>
+<p><strong>SwissADME:</strong> A web tool that predicts specific ADMET properties — CYP enzyme inhibition, blood-brain barrier penetration, P-glycoprotein substrate status. More sophisticated than rule-based filters. I didn't use it because: (1) it's a black-box ML model, harder to defend to judges, (2) my rule-based approach is fully reproducible and interpretable, (3) SwissADME would add value but isn't standard in published virtual screening papers at this stage.</p>
+<p><strong>pkCSM:</strong> Another ML-based ADMET predictor. Predicts specific toxicity endpoints (hepatotoxicity, hERG channel inhibition, AMES mutagenicity). Same reasoning — more sophisticated but less interpretable. Good future work.</p>
+<p><strong>Stricter TPSA cutoff (90 instead of 140):</strong> Since NOD2 is intracellular, some papers suggest TPSA ≤ 90 Å² for drugs that must cross the cell membrane (not just the gut wall). I kept 140 because: (1) my library includes FDA drugs already proven to reach intracellular targets at TPSA > 90, (2) a stricter cutoff without published validation for NOD2 specifically would be arbitrary, (3) I didn't want to lose real candidates for a cutoff I couldn't justify to judges.</p>
+<p><strong>No ADMET at all (jump straight to manual curation):</strong> Could have just hand-picked the best-looking compounds from 2,129. But that's subjective and not reproducible. ADMET gives objective, published, defensible criteria. Any other researcher could apply the same filters and get the same 148. That's science.</p>
+
+<h3>Controls and validation</h3>
+<p><strong>Why 98.7% passed (and that's OK):</strong> Most of my compounds are FDA-approved drugs. They were literally designed by pharmaceutical chemists to pass Lipinski and Veber. Testing drug-likeness on drugs is almost circular. The high pass rate doesn't mean the filters are weak — it means the input was already high-quality. If I'd started with a random chemical library instead of FDA drugs, the pass rate would be 40-60%.</p>
+<p><strong>The 2 PAINS failures are the proof the system works:</strong> These compounds passed docking (good shape) and ML (good chemistry) but had Michael acceptor substructures that would bind non-specifically. Without PAINS, they'd have entered MD. I'd have spent GPU time simulating fraud compounds. ADMET caught what two previous stages missed.</p>
+<p><strong>Dependency on pipeline order:</strong> ADMET comes AFTER ML because ML narrows 9,566 → 2,129. Running ADMET on all 9,566 would work but wastes compute checking compounds that don't bind anyway. ADMET comes BEFORE MD because MD is expensive — you want to filter out non-drug-like compounds before investing 14 GPU-hours per compound.</p>
+`)}
+
+${ex('d','Filter 1: Lipinski\'s Rule of 5 — The Membrane Bouncer',`
+<h3>The gut wall is a bouncer with 4 rules</h3>
+<p>You swallow a pill. Billions of individual drug molecules dissolve in stomach fluid. They hit your gut wall — a layer of cells packed tightly together. To reach your blood (and eventually your target), each molecule must cross this cell membrane.</p>
+<p>The membrane is a lipid bilayer — oily on the inside. Think of it as a bouncer at a club. Four rules to get in:</p>
+
+<h3>Rule 1: MW ≤ 500 (how big are you?)</h3>
+<p>Small molecules slip through. Big ones can't. Between gut cells are tiny gaps (tight junctions). Molecules under ~500 daltons walk through. Bigger ones can't fit.</p>
+<p><strong>Real example:</strong> Aspirin = 180 Da. Tiny. Absorbed in minutes. Cyclosporine = 1,203 Da. Can't get through. Needs special lipid formulations. Only 30% absorbed.</p>
+<p><strong>Your compounds:</strong> Febuxostat = 315 Da. Easy. Bufadienolide = 402 Da. Fine.</p>
+
+<h3>Rule 2: LogP ≤ 5 (how oily are you?)</h3>
+<p>LogP = log₁₀(amount dissolved in oil ÷ amount dissolved in water). Measures how oily a molecule is.</p>
+<ul>
+<li>LogP 0 = equal in oil and water. Balanced.</li>
+<li>LogP 3 = 1,000× more in oil. Moderately oily. Ideal for drugs.</li>
+<li>LogP 5+ = 100,000× more in oil. Way too oily.</li>
+</ul>
+<p><strong>What makes something oily?</strong> Carbon-hydrogen chains. They're nonpolar. Water ignores them. Oil loves them.</p>
+<p><strong>What makes something watery?</strong> Oxygen, nitrogen, OH, NH groups. Polar. Water grabs onto them.</p>
+<p><strong>Why too oily is bad — the hot tub analogy:</strong> A moderately oily drug enters the oily membrane, slides through, and exits into the watery cytoplasm. Its polar groups (OH, NH) are uncomfortable in the membrane and PULL it out the other side toward water.</p>
+<p>A super oily drug (LogP > 5) enters the membrane and STAYS. It has so few polar groups that nothing pulls it out. Like someone in a hot tub who refuses to get out into the cold. Also: the liver's CYP enzymes evolved to destroy oily molecules. High LogP = liver targets it for destruction before it reaches NOD2.</p>
+<p><strong>The sweet spot:</strong> LogP 1-3. Oily enough to enter the membrane. Watery enough to exit it. Febuxostat = 2.39. Bufadienolide = 3.36. Both perfect.</p>
+
+<h3>Rule 3: HBD ≤ 5 (how many hands grabbing water?)</h3>
+<p>HBD = Hydrogen Bond Donor. Every OH and NH group DONATES a hydrogen to water molecules. Like little hands gripping water.</p>
+<p>To cross the oily membrane, the drug must LET GO of water. Each hand costs ~2 kcal/mol to rip off (desolvation energy). 5 hands = 10 kcal/mol. Doable. 8 hands = 16 kcal/mol. Too expensive. Drug stays in blood, never crosses.</p>
+<p><strong>Real example:</strong> Metformin = 3 donors. Crosses fine. Insulin = hundreds of donors. Cannot cross membranes. That's why diabetics inject it.</p>
+
+<h3>Rule 4: HBA ≤ 10 (how sticky are you to water?)</h3>
+<p>HBA = Hydrogen Bond Acceptor. Every O and N atom ACCEPTS hydrogen bonds from water. Same desolvation logic — more acceptors = more water stuck to the drug = harder to cross the membrane.</p>
+<p>Cutoff is 10 (not 5) because molecules typically have more acceptors than donors — every O counts whether it has a hydrogen attached or not.</p>
+<p>Together HBD + HBA determine total polar interaction with water, directly related to TPSA.</p>
+
+<h3>The name "Rule of 5":</h3>
+<p>All cutoffs are multiples of 5 (500, 5, 5, 10). Chris Lipinski at Pfizer analyzed all oral drugs that reached Phase II trials and found these patterns (1997). Not absolute — ~15% of approved drugs break at least one rule — but a strong statistical filter.</p>
+`)}
+
+${ex('d','Filter 2: Veber\'s Rules — Surface Area and Floppiness',`
+<p>Lipinski asked "can it cross the gut?" Veber asked two additional questions that Lipinski missed.</p>
+
+<h3>TPSA ≤ 140 Å² (how much water-grabbing surface?)</h3>
+<p>TPSA = Topological Polar Surface Area. Adds up the surface area of all oxygen and nitrogen atoms on the molecule. This is a more precise version of HBD + HBA — instead of just counting polar atoms, it measures how much SURFACE they occupy.</p>
+<p><strong>Basketball vs sponge:</strong> A basketball (nonpolar) rolls across an oily surface easily. A wet sponge (polar) sticks. TPSA measures how sponge-like your drug is. Below 140 = basketball enough to cross. Above 140 = too spongy.</p>
+<p><strong>For intracellular targets like NOD2:</strong> Some researchers use TPSA ≤ 90 because the drug must cross TWO membranes (gut wall + cell membrane). You kept 140 because it's the published standard.</p>
+
+<h3>Rotatable bonds ≤ 10 (how floppy?)</h3>
+<p>Each rotatable bond is a joint where the molecule can bend. More joints = floppier molecule.</p>
+<p><strong>Why floppiness kills membrane crossing:</strong></p>
+<p>To slip through the membrane, a drug needs a compact shape. A rigid molecule is ALREADY compact. It slides through as-is. A floppy molecule with 15 rotatable bonds has millions of possible shapes. It's flailing around in water like a wet noodle. The chance of it randomly hitting the one compact configuration needed to cross = tiny.</p>
+<p>Think of crawling through a narrow tunnel. If you're a stiff board = slide right through. If you have 20 joints bending in every direction = you keep getting stuck.</p>
+
+<p><strong>Why floppiness also weakens binding (entropy penalty):</strong></p>
+<p>In blood, all the rotatable bonds are spinning freely. The molecule is dancing. High entropy (disorder). Happy.</p>
+<p>When it BINDS the protein pocket, every bond freezes into one specific angle. No more dancing. That loss of freedom costs energy — about 0.5-1 kcal/mol per frozen bond.</p>
+<ul>
+<li>3 bonds frozen: ~2 kcal/mol penalty. Negligible.</li>
+<li>10 bonds frozen: ~7 kcal/mol. Significant.</li>
+<li>15 bonds frozen: ~10 kcal/mol. May prevent binding entirely.</li>
+</ul>
+<p>Floppy drugs are bad twice: hard to cross membranes AND weaker binding when they arrive.</p>
+`)}
+
+${ex('d','Filter 3: PAINS — Catching the Con Artists',`
+<h3>What PAINS catches</h3>
+<p>PAINS = Pan-Assay INterference compoundS. 480 chemical patterns that appear to bind EVERYTHING in every experiment. Not because they're genuinely good binders — because they cheat.</p>
+<p>Lipinski and Veber ask "can this drug reach the target?" PAINS asks "is this drug lying about binding the target?"</p>
+
+<h3>The locksmith analogy</h3>
+<p>You're hiring a locksmith. Candidate A says "I can open YOUR front door. I studied the specific pin pattern and made a matching key." Candidate B says "I can open ANY lock. I pour acid into the keyhole and melt it."</p>
+<p>Candidate B works on your door. But also melts your car lock. Your safe. Your neighbor's door. Every lock. He's not a locksmith. He's a vandal.</p>
+<p>PAINS compounds are Candidate B. They bind NOD2 but also bind every other protein in your body.</p>
+
+<h3>Your 2 failures: Michael acceptors</h3>
+<p>A Michael acceptor has a C=C double bond next to a C=O (carbonyl). That arrangement makes the C=C electron-poor. Electron-hungry.</p>
+<p>Cysteine is an amino acid with a sulfur-hydrogen (SH) group. Sulfur is electron-rich. Electron-poor meets electron-rich = instant covalent bond. Permanent. Like superglue.</p>
+<p>Every protein in your body has cysteines. A Michael acceptor glues to ALL of them:</p>
+<ul>
+<li><strong>Albumin in blood</strong> — drug gets used up before reaching NOD2 (like a heat-seeking missile hitting the nearest candle instead of the target)</li>
+<li><strong>CYP enzymes in liver</strong> — liver damage</li>
+<li><strong>Ion channels in heart</strong> — cardiac toxicity</li>
+<li><strong>Thousands more proteins</strong> — systemic damage</li>
+</ul>
+
+<h3>The key difference from real drugs</h3>
+<p>Febuxostat and bufadienolide bind through hydrogen bonds and van der Waals contacts — <strong>REVERSIBLE</strong>. Drug binds, unbinds, binds again. Equilibrium. It only stays where the fit is best (NOD2's LRR pocket).</p>
+<p>Michael acceptors form <strong>COVALENT</strong> bonds. Permanent. Irreversible. They stick to the first protein they touch and never let go. No selectivity. No equilibrium.</p>
+
+<h3>Other PAINS types (for judges)</h3>
+<p><strong>Rhodanines:</strong> Don't dissolve properly. Clump into tiny aggregates that physically coat protein surfaces. Every assay reads this as binding. It's mud on a wall, not a key in a lock.</p>
+<p><strong>Quinones:</strong> Gain and lose electrons easily. In fluorescence-based assays, they mess with the signal. The machine says binding happened because the light changed — but the light changed because of the quinone's redox chemistry, not because anything bound.</p>
+
+<h3>Why GNINA and ML can't catch PAINS</h3>
+<p>GNINA asks "does it fit the pocket shape?" A Michael acceptor fits fine. ML asks "does its chemistry predict binding?" Yes — because it binds everything. Neither asks "does it bind ONLY NOD2?" PAINS does. That's why you need all stages.</p>
+`)}
+
+${ex('d','Filter 4: Brenk — Catching the Killers',`
+<h3>What Brenk catches</h3>
+<p>PAINS compounds are useless (bind everything, never reach target). Brenk compounds are DANGEROUS (damage DNA, cause cancer). 105 known chemical patterns documented over decades as toxic or mutagenic.</p>
+<p>RDKit checks your molecule against all 105. More than 2 matches = removed.</p>
+
+<h3>Why DNA damage matters</h3>
+<p>Your cells divide constantly. Each division = copy the DNA. 3 billion letters (A, T, G, C). Normally copying is near-perfect. Rare typos. Most typos hit unimportant spots — like misspelling one word in a 3-billion-word book. Nobody notices.</p>
+<p>But some pages are CRITICAL. One page says "STOP dividing when you have enough cells." A typo on THAT page = the cell can't read the stop sign. Keeps dividing forever. That's cancer.</p>
+<p>Normally typos are rare enough that hitting a critical page is unlikely. Brenk chemicals INCREASE the typo rate by physically damaging DNA letters before copying. More typos = higher chance of hitting the stop-dividing page.</p>
+
+<h3>How do they damage DNA?</h3>
+<p>Each DNA letter (A, T, G, C) has a specific shape. The copying machinery recognizes letters by shape. A Brenk chemical sticks onto a letter and deforms it. The copier sees the deformed letter, doesn't recognize it, guesses wrong. Wrong base placed. Typo. Mutation.</p>
+
+<h3>Type 1: Nitro groups (-NO₂) — the liver's mistake</h3>
+<p>Nitro groups are common in chemistry — just one nitrogen bonded to two oxygens. They show up in drug libraries because nitrogen and oxygen are everywhere in organic molecules.</p>
+<p>The nitro group itself is relatively harmless. The problem is what your liver does to it:</p>
+<ul>
+<li>Your liver's job is detoxification — grab foreign molecules, make them water-soluble, flush through kidneys</li>
+<li>CYP450 enzymes add electrons to the -NO₂ group, converting it to -NH₂</li>
+<li>The enzyme thinks it's neutralizing a threat — like a security guard confiscating a lighter</li>
+<li>But -NH₂ makes the neighboring carbon electron-hungry — the security guard accidentally handed back a grenade</li>
+<li>The activated form hits guanine (G) on DNA — guanine has an electron-rich nitrogen</li>
+<li>Electron-hungry carbon + electron-rich nitrogen = covalent bond. Guanine deformed. Copier misreads. Mutation.</li>
+</ul>
+<p><strong>Why liver cancer specifically:</strong> The activation happens IN the liver. Liver cells get the highest concentration of the reactive form.</p>
+
+<h3>Type 2: Epoxides — the compressed spring</h3>
+<p>Three atoms in a triangle: Carbon-Carbon-Oxygen. Carbon naturally wants 109° bond angles. A triangle forces 60°. The ring is under constant strain — like a mousetrap set and waiting.</p>
+<p>When the strained epoxide bumps into guanine's electron-rich nitrogen, the nitrogen's electrons attack one carbon. ONE bond in the triangle breaks (between that carbon and oxygen). The triangle snaps open. Strain released. But now that carbon is permanently bonded to guanine.</p>
+<p>Like holding two people's hands in a tight circle — arms bent awkwardly. A third person offers their hand. You let go of one person and grab the new one. Relief. But now you're connected to someone new. Guanine is deformed.</p>
+<p><strong>Key difference from nitro groups:</strong> Epoxides don't need liver activation. They're ALREADY armed. The strain is built in. They react the moment they touch DNA.</p>
+
+<h3>Type 3: PAHs — the physical wedge</h3>
+<p>Multiple benzene rings fused flat. No reactive chemistry. No covalent bonds. Damage is purely from SHAPE.</p>
+<p>DNA base pairs are stacked 3.4 Å apart like steps on a spiral staircase. PAHs are flat and about 3.4 Å thick. They slide between two base pairs — like sliding a credit card into a deck of cards.</p>
+<p>Now two base pairs that were 3.4 Å apart are pushed to 6.8 Å. The helix bulges. The copier arrives, expects even spacing, hits the bulge. Misreads. Skips a letter. Or inserts an extra. Or stalls completely and the strand breaks.</p>
+<p><strong>Why cigarette smoke causes lung cancer:</strong> Burning tobacco produces PAHs (benzo[a]pyrene — 5 fused rings). You inhale them. They enter lung cells. Slide between DNA base pairs. Over 20 years of daily smoking = billions of PAH insertions = mutations accumulate = eventually one hits the "stop dividing" gene. Lung cancer.</p>
+
+<h3>Why chronic dosing is the key</h3>
+<p>One dose = minimal DNA damage. Repair enzymes fix it. No problem. But Crohn's requires DAILY medication for DECADES. Each dose = a few DNA hits that escape repair. Over 30 years = thousands of accumulated mutations. That's why Brenk has zero tolerance for DNA-damaging chemistry in a chronic-use drug pipeline.</p>
+<p><strong>Your results:</strong> Zero Brenk failures from the 148 that passed PAINS.</p>
+`)}
+
+${ex('d','Why Each Filter Catches What the Others Miss',`
+<h3>The full ADMET logic</h3>
+<table style="font-size:12px;border-collapse:collapse;width:100%;margin:10px 0">
+<tr style="background:var(--s2)"><th style="padding:6px;border:1px solid var(--s3)">Filter</th><th style="padding:6px;border:1px solid var(--s3)">Question</th><th style="padding:6px;border:1px solid var(--s3)">What it catches</th><th style="padding:6px;border:1px solid var(--s3)">What it misses</th></tr>
+<tr><td style="padding:6px;border:1px solid var(--s3)"><strong>Lipinski</strong></td><td style="padding:6px;border:1px solid var(--s3)">Can it cross the membrane?</td><td style="padding:6px;border:1px solid var(--s3)">Too big, too oily, too polar</td><td style="padding:6px;border:1px solid var(--s3)">Frauds and toxins that ARE drug-sized</td></tr>
+<tr><td style="padding:6px;border:1px solid var(--s3)"><strong>Veber</strong></td><td style="padding:6px;border:1px solid var(--s3)">Can it REALLY cross?</td><td style="padding:6px;border:1px solid var(--s3)">Too much polar surface, too floppy</td><td style="padding:6px;border:1px solid var(--s3)">Rigid toxins with low TPSA</td></tr>
+<tr><td style="padding:6px;border:1px solid var(--s3)"><strong>PAINS</strong></td><td style="padding:6px;border:1px solid var(--s3)">Is it lying about binding?</td><td style="padding:6px;border:1px solid var(--s3)">Non-specific binders (Michael acceptors, rhodanines)</td><td style="padding:6px;border:1px solid var(--s3)">Specific binders that are toxic</td></tr>
+<tr><td style="padding:6px;border:1px solid var(--s3)"><strong>Brenk</strong></td><td style="padding:6px;border:1px solid var(--s3)">Will it hurt the patient?</td><td style="padding:6px;border:1px solid var(--s3)">DNA-damaging, mutagenic, carcinogenic</td><td style="padding:6px;border:1px solid var(--s3)">Compounds that are toxic through OTHER mechanisms</td></tr>
+</table>
+
+<p>A compound could pass Lipinski (right size), pass Veber (right flexibility), pass PAINS (binds specifically) but FAIL Brenk (contains a nitro group that causes cancer). Each filter catches a different failure mode.</p>
+
+<h3>Why GNINA and ML can't replace ADMET</h3>
+<p><strong>GNINA</strong> asks "does it fit the pocket shape?" A toxic Michael acceptor fits fine. A molecule with MW 600 might fit fine. A molecule with a nitro group fits fine. GNINA doesn't care about druglikeness.</p>
+<p><strong>ML</strong> asks "does its 2D chemistry predict binding?" A PAINS compound's chemistry DOES predict binding — to everything. ML can't distinguish specific from non-specific. ML also doesn't know about epoxides or nitro groups.</p>
+<p><strong>ADMET</strong> asks "even if it binds, can it actually work as a medicine?" Completely different question. Complementary. Each stage catches what the others miss.</p>
+
+<h3>Why ADMET can't replace GNINA and ML</h3>
+<p>ADMET doesn't know anything about NOD2. It doesn't know if a molecule binds. It only knows if a molecule has the physical properties and safety profile to be a drug. A molecule could pass all 4 ADMET filters perfectly and have zero affinity for NOD2. That's why you need docking and ML FIRST — to find binders — then ADMET to check if those binders could be real drugs.</p>
+`)}
+
+${ex('d','The SMILES Bug — 54% Missing Data',`
+<h3>What happened</h3>
+<p>To run ADMET filters, RDKit needs a molecule's structure in a format called SMILES — a text string that encodes the chemical structure. For example: <code>CC(=O)OC1=CC=CC=C1C(=O)O</code> = aspirin.</p>
+<p>I tried to extract SMILES from my PDBQT docking output files. Problem: only 54% had SMILES embedded. The rest just had drug names like "NIFEDIPINE" or "PROGESTERONE" — no chemical structure. Only 6 out of 2,162 FDA drugs had SMILES in their PDBQT files.</p>
+
+<h3>How I found it</h3>
+<p>Ran the ADMET script. Half the compounds threw errors — RDKit couldn't parse them because there was no structure to parse. Opened the PDBQT files manually. Found REMARK lines with drug names but no SMILES strings.</p>
+
+<h3>How I fixed it</h3>
+<p>Used the PubChem API. Wrote a script that takes a drug name, queries PubChem, and gets back the canonical SMILES. Batch-queried all missing names.</p>
+<p>Some names didn't match PubChem exactly — spelling differences, salt forms (like "naproxen sodium" vs "naproxen"). Had to clean up names and retry. Eventually got SMILES for all compounds.</p>
+
+<h3>Why this matters for judges</h3>
+<p>This is the kind of real-world data problem that published papers never mention. Papers say "we performed ADMET filtering." They don't say "we spent two days debugging why half our molecules had no SMILES." Judges love hearing about these problems because it proves you actually DID the work, not just ran someone else's script.</p>
+<p><strong>Judge answer:</strong> "The original database files didn't contain machine-readable molecular structures for all compounds. I resolved this by batch-querying the PubChem API to retrieve canonical SMILES from drug names, handling naming inconsistencies manually."</p>
+`)}
 
 
 <h2>🎓 Foundations — Pharmacokinetics & Drug-Likeness</h2>
@@ -2440,18 +2862,32 @@ const QZ=[
 {cat:"Docking",type:"mc",q:"Why combine FDA drugs (e-Drug3D) AND natural products (COCONUT)?",ch:["ISEF requires testing both synthetic and natural compound libraries","FDA drugs offer repurposing potential, natural products offer novel chemical diversity","Natural products are always better binders than synthetic drugs","e-Drug3D had too many duplicates so COCONUT filled the gaps"],a:1,ex:"FDA drugs (2,152) = already approved, fast to clinic. Natural products (7,414) = greater diversity. Bufadienolide came from COCONUT."},
 {cat:"Docking",type:"mc",q:"Could GNINA's CNN be biased since PDBbind over-represents drug-like molecules?",ch:["No — CNNs automatically correct for training data imbalances","Yes — unusual natural product scaffolds may be underscored unfairly","Only if the natural products contain metals or unusual elements","PDBbind actually over-represents natural products, not drugs"],a:1,ex:"PDBbind is ~80% drug-like. Natural products with unusual scaffolds may get unfairly low scores. MD/FEP validation catches what CNN misses."},
 
-{cat:"ML",type:"mc",q:"What are pseudo-labels?",ch:["Labels from literature","Labels from docking scores (top 20% = binder, bottom 20% = non-binder)","Random labels","Labels from chemical similarity"],a:1,ex:"Zero experimental NOD2 binding data exists. Used GNINA scores as proxies: top 20% = binder, bottom 20% = non-binder, middle 60% discarded."},
-{cat:"ML",type:"mc",q:"Why scaffold-split CV is stricter than random?",ch:["More folds","Keeps same-backbone molecules together, preventing scaffold memorization","Removes duplicates","Different seeds"],a:1,ex:"All molecules sharing same backbone go to SAME fold. Prevents memorization. AUC drops from 0.998 (random) to 0.85-0.93 (scaffold) — lower number is REAL performance."},
-{cat:"ML",type:"mc",q:"What was the AUC range? And shuffled control?",ch:["0.50-0.60, control 0.25","0.85-0.93, control 0.50","0.95-0.99, control 0.90","0.70-0.75, control 0.50"],a:1,ex:"AUC 0.85-0.93 (mean 0.89±0.03). Shuffled control = 0.50 (coin flip). Proves real signal, not noise."},
-{cat:"ML",type:"mc",q:"Why XGBoost over deep neural network?",ch:["XGBoost is always better","856 samples too small for deep learning","Deep learning doesnt work on molecules","XGBoost is newer"],a:1,ex:"856 samples is tiny. Neural nets with millions of parameters would memorize instantly. XGBoost uses shallow trees (depth 4 = 16 leaves) with regularization."},
-{cat:"ML",type:"mc",q:"XGBoost hyperparameters?",ch:["100 trees, depth 4, lr 0.05","50 trees, depth 8, lr 0.1","200 trees, depth 6, lr 0.01","500 trees, depth 2, lr 0.5"],a:0,ex:"100 trees × depth 4 × lr 0.05. Depth 4 = 2⁴ = 16 leaves. 856/16 ≈ 53 samples/leaf. Each tree contributes 5% of signal."},
-{cat:"ML",type:"mc",q:"What are 2,048-bit Morgan fingerprints?",ch:["DNA sequences","Binary barcodes encoding atom neighborhoods within radius 2 bonds","3D shape descriptors","Protein features"],a:1,ex:"Molecular barcode — each molecule hashed into 2,048 binary bits based on local chemical environment. 2D features only (no 3D shape)."},
-{cat:"ML",type:"mc",q:"How is gradient boosting different from random forest?",ch:["Same thing","Trees built sequentially — each corrects previous errors","Uses fewer trees","No subsampling"],a:1,ex:"Random forest: independent parallel trees averaged. Gradient boosting: sequential trees, each trained on the RESIDUALS (errors) of the previous. Each tree corrects mistakes."},
+{cat:"ML",type:"mc",q:"Why did you need ML at all if GNINA already ranked the compounds?",ch:["GNINA can't process natural products, only FDA drugs","GNINA scores have ~1.5 pKd error — a compound scored 6.0 could really be 4.5 or 7.5, so you need a second opinion from a different angle","GNINA only ranks by molecular weight, missing binding info","ML is required by ISEF rules for computational projects"],a:1,ex:"GNINA evaluates 3D shape fitting. ML evaluates 2D chemical features. They're orthogonal perspectives — together they're more reliable than either alone. Lucky high scorers with bad chemistry get demoted."},
+{cat:"ML",type:"mc",q:"How many compounds were pseudo-labeled, and what happened to the middle 60%?",ch:["All 9,566 were labeled — top half binder, bottom half non-binder","856 labeled (top/bottom 20%) — middle 60% were labeled as 'unknown' class","2,129 labeled — rest were filtered by ADMET first","856 labeled (top/bottom 20%) — middle 60% discarded because their scores are too ambiguous to assign confidently"],a:3,ex:"Top 20% → label 1. Bottom 20% → label 0. Middle 60% ambiguous — a compound at the 50th percentile could be a real binder or not. Including uncertain labels adds noise to training."},
+{cat:"ML",type:"mc",q:"Morgan fingerprints use radius 2. What does 'radius 2' actually capture?",ch:["Each atom plus neighbors within 2 bonds — roughly one functional group","All atoms within 2 angstroms of each atom","The 2 most important atoms in the molecule","Two different conformations of the molecule"],a:0,ex:"Radius 2 = atom + bonded neighbors + THEIR neighbors. Captures local chemical environments at the functional group scale (hydroxyl, amide, carboxyl). Standard from Rogers & Hahn 2010 ECFP paper."},
+{cat:"ML",type:"mc",q:"You have 2,058 features but only 856 samples. A judge says 'that's underdetermined.' What prevents overfitting?",ch:["Nothing — the model is overfitting, which is why AUC is only 0.85","The model only uses the top 100 features automatically","Shallow trees (depth 4), 80% row/column subsampling, 5% learning rate, and scaffold-split validation proving generalization","You removed 1,200 low-importance features before training"],a:2,ex:"Four defenses: (1) depth 4 = only 16 leaves per tree, (2) subsample 0.8 = each tree sees 80% of rows, (3) colsample 0.8 = 80% of features, (4) learning rate 0.05 = each tree contributes only 5%. Plus scaffold-split AUC 0.85-0.93 and shuffled control 0.50 prove real learning."},
+{cat:"ML",type:"mc",q:"Your initial AUC was 0.998. Why was that WORSE than the final 0.85-0.93?",ch:["0.998 meant the model was too sensitive and would flag everything as a binder","0.998 came from a coding bug that doubled the training data","The model was trained on test data by accident","0.998 was from random split — similar molecules leaked between train and test, so the model memorized scaffold identity instead of learning binding chemistry"],a:3,ex:"Random split let 'cousin' molecules (same backbone) into both train and test. The model recognized families instead of learning chemistry. Scaffold split forced entirely new backbones in testing — honest AUC 0.85-0.93."},
+{cat:"ML",type:"mc",q:"What does AUC = 0.89 actually mean in plain English?",ch:["The model correctly classifies 89% of all molecules","89% of predicted binders are true binders","Pick a random binder and random non-binder — 89% of the time the model ranks the binder higher","The model uses 89% of available features"],a:2,ex:"AUC measures ranking ability across ALL thresholds. It's the probability of correctly ordering a random positive-negative pair. Robust to class imbalance unlike simple accuracy."},
+{cat:"ML",type:"mc",q:"In 5-fold scaffold-split CV, you trained 5 models then threw them ALL away. What was the final model trained on?",ch:["The best-performing fold's model was kept as the final model","Groups 1-4 only, with group 5 permanently held out","A new random 80/20 split after scaffold validation proved the method works","All 856 labeled compounds with no holdout — the 5 models only existed to validate the approach"],a:3,ex:"5-fold CV answered 'does this approach work?' (yes, AUC 0.85-0.93). Then all 5 deleted. Final NOD2-Scout trained on all 856 for maximum learning. More data = better model."},
+{cat:"ML",type:"mc",q:"XGBoost: 100 trees, depth 4, learning rate 0.05. What does learning rate 0.05 mean?",ch:["The model updates its weights by 5% per epoch like a neural network","The model stops training after 5% improvement","5% of features are selected per iteration","Each tree's prediction is shrunk by 95% — it only contributes 5% to the final vote, preventing any single tree from dominating"],a:3,ex:"Low learning rate = conservative. Each tree nudges the prediction slightly. Requires more trees but prevents overfitting. Like taking baby steps toward the answer instead of giant leaps."},
+{cat:"ML",type:"mc",q:"The shuffled label control got AUC = 0.50. What would it mean if the shuffled control got AUC = 0.80?",ch:["The model is even better than expected — robust to label noise","The shuffled labels accidentally created a valid training set","Something is seriously wrong — the model is learning from data structure or artifacts, not from real binding signal","0.80 is close enough to 0.50 to still count as random"],a:2,ex:"If scrambled labels still produce high AUC, the model found patterns unrelated to binding — maybe molecular size correlates with row order, or some data artifact. Your control at 0.50 proves the real signal comes from genuine structure-activity relationships."},
+{cat:"ML",type:"mc",q:"Why does XGBoost use 80% column subsampling (colsample_bytree=0.8)?",ch:["To speed up training — fewer columns means faster computation","20% of features are always noise so they're removed","Forces each tree to learn from different subsets of features — Tree 1 might use TPSA and Bit 847, Tree 23 might use LogP and Bit 1203 — together they cover everything","RDKit can only compute 80% of descriptors per molecule"],a:2,ex:"Without column subsampling, every tree would rely on the same dominant features. With 80%, each tree is forced to find different patterns. The ensemble covers the full feature space. Also prevents overfitting to any single feature."},
+{cat:"ML",type:"mc",q:"A judge asks: 'Your labels come from GNINA. Isn't the ML just predicting GNINA scores with extra steps?'",ch:["Yes, but it's faster than re-docking","No — the ML uses completely different training data than GNINA","The ML replaces GNINA entirely so circularity doesn't matter","No — ML looks at 2D chemical features while GNINA looked at 3D shape. Rankings change: lucky high scorers get demoted, moderate scorers with great chemistry get promoted. MD/FEP independently validate final hits."],a:3,ex:"Partially circular, but ORTHOGONAL perspectives. If ML just copied GNINA, the top 10 would be identical — they're not. Plus ML isn't the conclusion. MD and FEP independently validate without using GNINA scores at all."},
+{cat:"ML",type:"mc",q:"How does hashing work in Morgan fingerprints?",ch:["Each atom is assigned a random number that changes every run","The molecule is split into 2,048 equal fragments","Each of the 2,048 bits represents a specific known chemical group","A deterministic math function converts each atom neighborhood pattern into a fixed slot number (0-2047) — same pattern always maps to same slot"],a:3,ex:"Hash = deterministic mapping. C-O-H pattern → always slot 847. Built into RDKit. Slots have no predefined chemical meaning — the assignment is arbitrary but consistent. XGBoost learns which slots correlate with binding."},
+{cat:"ML",type:"mc",q:"You used 10 physicochemical descriptors alongside fingerprints. Why not just fingerprints alone?",ch:["Fingerprints don't work without descriptors","RDKit requires both to function","Descriptors capture global molecular properties (MW, LogP, TPSA) that fingerprints miss — especially important because NOD2 is intracellular, so membrane permeability features matter","Descriptors replace the fingerprint bits that have hash collisions"],a:2,ex:"Fingerprints encode LOCAL patterns (functional groups). Descriptors encode GLOBAL properties (overall size, oiliness, polarity). For an intracellular target like NOD2, TPSA and LogP determine whether the drug can even reach the target. Complementary information."},
+{cat:"ML",type:"mc",q:"Why 5-fold cross-validation and not 10-fold?",ch:["5 is always better than 10 for any dataset","10-fold takes exactly twice as long to compute","You only had 5 scaffold families in the dataset","With 856 samples, 10-fold gives ~85 molecules per test set — too small for stable AUC estimates. 5-fold gives ~170, balancing test set size with training data."],a:3,ex:"Trade-off: more folds = more rounds but smaller test sets (noisier per-fold AUC). Fewer folds = larger test sets but less training data. With 856 samples, 5 folds is the sweet spot. Standard in the field."},
+{cat:"ML",type:"mc",q:"Gradient boosting builds trees sequentially. What does 'sequentially' mean here vs random forest?",ch:["Trees are built one at a time — each new tree focuses on what previous trees got WRONG. Random forest builds all trees independently in parallel.","Sequential means trees share the same features. Parallel means they use different features.","Sequential = deeper trees. Parallel = shallower trees.","Sequential means trees vote in order. Parallel means they vote simultaneously."],a:0,ex:"Key distinction: Random forest = 100 independent trees, average their votes. Gradient boosting = Tree 1 predicts, Tree 2 corrects Tree 1's errors, Tree 3 corrects Tree 2's remaining errors. Each tree is trained on the RESIDUALS of the previous ensemble."},
+{cat:"ML",type:"mc",q:"How many total features does each molecule have in the training table?",ch:["2,048 (just fingerprint bits)","856 (one per labeled compound)","2,058 (2,048 fingerprint bits + 10 physicochemical descriptors)","9,566 (one per docked compound)"],a:2,ex:"2,048 binary bits from Morgan fingerprint + 10 numerical descriptors (MW, LogP, TPSA, HBD, HBA, rotatable bonds, aromatic rings, heavy atoms, ring count, Fsp3) = 2,058 features per molecule."},
+{cat:"ML",type:"mc",q:"The NaN bug made AUC jump between runs (0.83, 0.91, 0.87...). Why did NaN cause INCONSISTENCY rather than just a wrong answer?",ch:["NaN corrupted the saved model file differently each time","NaN made the learning rate change randomly","Python's random seed wasn't fixed","When XGBoost hits NaN at a split like 'is TPSA > 95?', it sends the molecule down a random branch — different random choice each run = different predictions = different AUC"],a:3,ex:"NaN isn't > or < anything. XGBoost defaults to sending NaN values down an arbitrary branch. Different runs may choose differently. Fix: replace NaN with column median — now every split has a real number to compare, giving deterministic results."},
+{cat:"ML",type:"mc",q:"What did you check to CONFIRM the 0.998 AUC was data leakage?",ch:["Compared to published benchmarks — 0.998 is impossible for virtual screening","Re-ran with a different random seed and got 0.50","Checked feature importances — top features were scaffold-encoding fingerprint bits, proving the model memorized backbone identity","Visualized the decision trees and saw they were too deep"],a:2,ex:"Feature importance analysis revealed the model relied on bits encoding common molecular backbones rather than binding-relevant chemistry. Combined with the suspiciously perfect AUC, this confirmed scaffold memorization through the random split."},
+{cat:"ML",type:"mc",q:"ADMET checks LogP < 5. ML also uses LogP as a feature. Isn't that redundant?",ch:["No — ADMET applies LogP as a hard pass/fail cutoff for druglikeness. ML uses LogP as one of 2,058 continuous features for predicting BINDING. Same input, completely different questions.","Yes — you should remove LogP from one of them","No — ADMET uses LogP but ML uses a different version called cLogP","Yes — that's why only 2 compounds failed ADMET"],a:0,ex:"In ML: LogP 5.5 doesn't fail — it's weighted alongside 2,057 other features for binding prediction. In ADMET: LogP 5.5 = FAIL, removed. ML predicts binding chemistry. ADMET enforces druglikeness. Complementary, not redundant."},
+{cat:"ML",type:"mc",q:"After 5-fold CV proved the method works, why retrain on ALL 856 instead of keeping the best-performing fold's model?",ch:["The best fold's model (AUC 0.926) is more accurate than a model trained on all data","Retraining on all data lets you test on the 5th fold","More training data = more patterns learned = better predictions on new molecules. Each fold model only saw 685 compounds. The final model sees all 856.","The fold models used different hyperparameters"],a:2,ex:"Each fold model missed 170 compounds worth of patterns. The final model trained on all 856 has seen every flashcard. The 5-fold CV proved the APPROACH works — the final model applies that proven approach with maximum data."},
+{cat:"ML",type:"mc",q:"2,129 compounds advanced. How was that number determined?",ch:["Top 22% was chosen as a round cutoff","You picked the top 2,000 and 129 were ties","Both GNINA and NOD2-Scout independently agreed these were binders — the number fell naturally from where both systems' predictions overlapped","You needed at least 2,000 for statistical power in ADMET"],a:2,ex:"Two independent ranking systems. Only compounds where BOTH GNINA (3D shape) AND NOD2-Scout (2D chemistry) predicted binding advanced. 2,129 is where the agreement zone fell — not a pre-chosen number."},
 
-{cat:"ADMET",type:"mc",q:"What does Lipinski Rule of 5 predict?",ch:["Toxicity","Oral bioavailability","Binding affinity","Solubility only"],a:1,ex:"MW≤500, LogP≤5, HBD≤5, HBA≤10. Predicts oral absorption. Called Rule of 5 because all cutoffs are multiples of 5."},
-{cat:"ADMET",type:"mc",q:"PAINS filters remove what?",ch:["Toxic compounds","Compounds causing false positives in assays","Too-large compounds","Expensive compounds"],a:1,ex:"Pan-Assay INterference compoundS. 480 substructure patterns that non-specifically interfere with assays (Michael acceptors, rhodanines, quinones)."},
-{cat:"ADMET",type:"mc",q:"148 of 150 passed ADMET. Why so high?",ch:["Filters are weak","FDA drugs are already drug-like by design","Lucky coincidence","Errors in filtering"],a:1,ex:"98.7% pass rate because FDA drugs were designed to be drug-like. 2 failures had PAINS alerts (Michael acceptor substructures)."},
-{cat:"ADMET",type:"mc",q:"Why does LogP > 5 predict poor absorption?",ch:["Too polar","Too hydrophobic — accumulates in fat, gets stuck in membranes","Too small","Too large"],a:1,ex:"LogP measures hydrophobicity. >5 = too oily → partitions into fat tissue, gets stuck in cell membranes. Also more toxic and metabolically unstable."},
+{cat:"ADMET",type:"mc",q:"Lipinski's Rule of 5 predicts oral bioavailability. What are the 4 cutoffs?",ch:["MW≤500, LogP≤5, HBD≤5, HBA≤10","MW≤400, LogP≤3, HBD≤3, HBA≤7","MW≤600, LogP≤5, HBD≤10, HBA≤15","MW≤500, TPSA≤140, HBD≤5, rotatable bonds≤10"],a:0,ex:"MW≤500, LogP≤5, HBD≤5, HBA≤10. Called Rule of 5 because cutoffs are multiples of 5. Note: option D mixes in Veber rules (TPSA, rotatable bonds) which are separate filters."},
+{cat:"ADMET",type:"mc",q:"PAINS filters removed 2 of your 150 compounds. What makes a PAINS compound dangerous?",ch:["They're toxic to human cells","They're too large to cross membranes","They interfere non-specifically with biological assays — giving false positive hits that look like binders but aren't actually binding the target","They decompose during storage and create reactive byproducts"],a:2,ex:"Pan-Assay INterference compoundS. 480 substructure patterns (Michael acceptors, rhodanines, quinones) that react with assay components or fluoresce. They'd pass every screen but fail in validation. Your 2 failures had Michael acceptor substructures."},
+{cat:"ADMET",type:"mc",q:"148 of 150 compounds passed ADMET (98.7%). A judge asks 'isn't that suspiciously high?' What's the real reason?",ch:["Your ADMET filters were set too loosely","Most of the 150 were from COCONUT natural products which are inherently drug-like","Most were FDA-approved drugs — they were literally designed to pass these exact filters decades ago","You pre-filtered for drug-likeness before docking, so they'd already passed once"],a:2,ex:"FDA drugs went through years of medicinal chemistry optimization to meet these exact criteria. Testing drug-likeness on drugs is almost circular. The 2 PAINS failures were the exceptions — they passed Lipinski but had problematic substructures."},
+{cat:"ADMET",type:"mc",q:"ADMET uses LogP < 5 as a cutoff. ML also uses LogP as a feature. Why isn't this redundant?",ch:["They use different LogP calculation methods","ADMET applies LogP as a hard pass/fail for druglikeness. ML uses it as one of 2,058 features to predict BINDING. A compound with LogP 5.5 might score well in ML (great binder) but get cut by ADMET (can't be a drug).","ADMET only checks LogP for natural products, not FDA drugs","ML removes LogP from its features to avoid overlap with ADMET"],a:1,ex:"Same number, different questions. ML: 'does this LogP combined with these fingerprint patterns predict NOD2 binding?' ADMET: 'can a patient actually absorb this drug orally?' A great binder with LogP 6 fails ADMET — proving the stages are complementary."},
 
 {cat:"MD",type:"mc",q:"What does RMSD measure?",ch:["Binding strength","How much protein moves from starting position","Temperature","Energy consumption"],a:1,ex:"Root Mean Square Deviation. Higher RMSD = more flexibility. WT: 4.05 Å (flexible). R702W: 3.27 Å (rigid)."},
 {cat:"MD",type:"mc",q:"What was the negative control and what happened?",ch:["Water — stayed","Cysteamine — escaped to 45.9 Å, 0% occupancy","Random protein — didnt bind","No control used"],a:1,ex:"Cysteamine (bottom 3% CNN score) escaped pocket in <5 ns. 45.9 Å final distance, 0% occupancy, 0 contacts. VALIDATES pocket specificity."},
