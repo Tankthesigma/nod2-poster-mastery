@@ -1233,6 +1233,89 @@ ${ex('d','MBAR — How You Combine 120 Windows Into One Number (Statistical Mech
 
 <div class="ky"><strong>THEN STOP TALKING.</strong> The judge will ask questions. That's what they want. If you keep talking past 3-5 minutes, they're waiting to interrupt you and it looks like a memorized speech. Give them the overview, then let THEM drive.</div>
 
+<h2>🎯 Two Pitches: Expert vs Non-Expert</h2>
+<p>Read the judge's badge. Their background changes EVERYTHING about how you talk.</p>
+
+<div class="c cg">
+<h3>🧬 EXPERT JUDGE (PhD in biology, chemistry, medicine, pharma)</h3>
+<p><strong>Signs:</strong> Badge says "Professor of Biochemistry," "Pharmaceutical researcher," "MD." They nod when you say NOD2. They know what NF-κB is.</p>
+<p><strong>Opening (go technical immediately):</strong></p>
+<p>"I screened 9,566 compounds against the LRR domain of NOD2 using GNINA CNN-based docking on an AlphaFold2 structure — no experimental structure exists for full-length human NOD2. My ML classifier NOD2-Scout used scaffold-split cross-validation to achieve AUC 0.85-0.93. FEP on the final two leads showed febuxostat loses 2.34 kcal/mol binding affinity in R702W versus wild-type — that's a 50-fold difference at 8-sigma significance — while bufadienolide is mutation-insensitive. The mechanism is allosteric rigidification propagating through the backbone from HD2 to the LRR pocket."</p>
+<p><strong>What they'll ask:</strong> Technical deep-dives. Force field choices, convergence criteria, why pseudo-labels aren't circular, FEP lambda windows.</p>
+</div>
+
+<div class="c co">
+<h3>👔 NON-EXPERT JUDGE (engineer, business, math, CS, education)</h3>
+<p><strong>Signs:</strong> Badge says "Engineering Manager," "Math Teacher," "Software Developer." They look blank when you say NOD2.</p>
+<p><strong>Opening (build from scratch):</strong></p>
+<p>"I have a genetic mutation linked to Crohn's disease — a condition where your immune system attacks your own gut. The mutation is in a protein called NOD2, which is supposed to detect bacteria. Mine is broken — it doesn't detect bacteria well enough, so bacteria build up, and my immune system overreacts. There are zero drugs that target this protein directly. So I used a computer to test almost 10,000 potential drugs against it. I found two promising ones — and discovered that the same mutation affects them completely differently. One drug loses its grip on the mutant protein. The other holds on just fine. That means drug selection should depend on which mutation you carry. That's precision medicine."</p>
+<p><strong>What they'll ask:</strong> Big-picture questions. Why does this matter? What would you do next? How confident are you? How do you know the computer is right?</p>
+</div>
+
+<div class="why"><strong>The shift:</strong> Same project, same data, different vocabulary. Expert judges want METHOD. Non-expert judges want STORY and SIGNIFICANCE. Both want to see that YOU understand it deeply enough to explain it at any level.</div>
+
+<h2>🔥 Curveball Questions: The Framework</h2>
+<p>You can't predict every question. But every curveball fits one of 4 types, and each type has a formula.</p>
+
+<div class="c ca">
+<h3>Type 1: "Why not X instead of Y?"</h3>
+<p><strong>Examples:</strong> "Why XGBoost not random forest?" · "Why GNINA not Schrödinger?" · "Why not dock against R702W directly?" · "Why 20 ns not 100 ns?"</p>
+<p><strong>Formula:</strong> "That's a valid approach. I chose Y because [specific reason]. X would [trade-off]. If I had more [time/compute/data], I'd explore X as well."</p>
+<p><strong>The key:</strong> Never say your method is the ONLY way. Show you CONSIDERED alternatives and made a deliberate, reasoned choice. Then mention it as future work.</p>
+<p><strong>Practice examples:</strong></p>
+<p>→ "Why not random forest?" — "Random forest builds trees independently and averages them. XGBoost builds them sequentially, each correcting the last one's errors. For 856 samples with noisy pseudo-labels, sequential correction gave better performance. But random forest is a valid baseline — I could compare them."</p>
+<p>→ "Why not dock against R702W structure too?" — "Great question. I docked against wild-type because no experimental structure exists for either form. The mutation's effect on binding is subtle — FEP captures it through thermodynamic sampling, which is more rigorous than comparing two docking snapshots."</p>
+<p>→ "Why not 100 ns or microsecond simulations?" — "20 ns was sufficient for my specific question — does the drug stay in the pocket? My negative control left by 5 ns, proving 20 ns can detect unbinding. Microsecond simulations would be needed for questions about slow conformational changes, which isn't what I'm measuring. But longer simulations are planned future work."</p>
+</div>
+
+<div class="c cc">
+<h3>Type 2: "How do you know this is real?"</h3>
+<p><strong>Examples:</strong> "Aren't pseudo-labels circular?" · "How do you trust AlphaFold?" · "Docking is unreliable" · "20 ns is too short"</p>
+<p><strong>Formula:</strong> "You're right to question that. Here's the control that addresses it: [specific control from YOUR data]."</p>
+<p><strong>Your controls arsenal (memorize these):</strong></p>
+<p>→ "Pseudo-labels are circular" — "Yes, the ML is trained on docking scores. But it's not the final answer — MD and FEP independently validate that the compounds actually bind. The ML is a faster filter, not the conclusion."</p>
+<p>→ "AlphaFold might be wrong" — "No experimental structure exists, so AlphaFold2 was the best available option. The LRR region where drugs bind had pLDDT above 90 — that's high confidence. And the MD simulations showed stable behavior, consistent with a well-folded structure."</p>
+<p>→ "Shuffled labels" — "When I randomized the labels, AUC dropped to 0.50 — coin flip. That proves the model learned real chemical signal, not noise."</p>
+<p>→ "Negative control (Cysteamine)" — "A bottom-3% scored compound left the pocket by 5 nanoseconds, drifted to 45.9 Angstroms, zero occupancy. That validates that the pocket is selective — it keeps real binders and ejects non-binders."</p>
+</div>
+
+<div class="c cp">
+<h3>Type 3: "I don't understand" (they won't say this directly)</h3>
+<p><strong>Signs:</strong> Glazed eyes. Nodding too fast. Not asking follow-up questions. Checking their watch. Asking you to "explain it more simply."</p>
+<p><strong>Formula:</strong> Drop the jargon. Use an analogy. Point at a figure.</p>
+<p><strong>Emergency analogies:</strong></p>
+<p>→ Docking = "Trying every key on a keyring to see which ones fit the lock"</p>
+<p>→ MD simulation = "Instead of a photograph, I took a movie of the drug sitting in the pocket to see if it stays"</p>
+<p>→ FEP = "I measured how much energy it costs to pull the drug out — like measuring how stuck a magnet is to a fridge"</p>
+<p>→ Allostery = "Like pressing the brake pedal — your foot is far from the wheels, but they're connected"</p>
+<p>→ Machine learning = "The computer learned to recognize which chemical shapes look like good drugs, similar to how you learn to recognize faces"</p>
+</div>
+
+<div class="c cr">
+<h3>Type 4: You genuinely don't know the answer</h3>
+<p><strong>THIS WILL HAPPEN.</strong> A judge will ask something you've never thought about.</p>
+<p><strong>The magic sentence:</strong></p>
+<p style="font-size:16px;color:var(--f2);font-weight:600">"That's a great question — I don't know, but I would investigate it by..."</p>
+<p><strong>Then describe HOW you'd find out:</strong></p>
+<p>→ "...running a control simulation with that parameter changed"</p>
+<p>→ "...searching the literature for studies that tested that"</p>
+<p>→ "...adding that as a variable in the next round of experiments"</p>
+<p><strong>Why this works:</strong> Judges are professors and researchers. They ask questions they know students can't answer — ON PURPOSE. They want to see how you THINK when you don't know. Faking an answer = instant credibility loss. "I don't know but here's how I'd find out" = scientific maturity. That scores higher than a correct answer you memorized.</p>
+<p><strong>NEVER say:</strong> "I don't know" and stop. Always follow with HOW you'd investigate.</p>
+</div>
+
+<div class="ky"><strong>🎯 The meta-rule:</strong> Judges aren't testing whether you have all the answers. They're testing whether you THINK like a scientist. A scientist considers alternatives (Type 1), validates with controls (Type 2), communicates clearly (Type 3), and admits uncertainty honestly (Type 4). If you can do all four, you'll handle any curveball.</div>
+
+<h2>⚠️ Things to NEVER Say</h2>
+<div class="c cr">
+<p><strong>❌ "This will cure Crohn's"</strong> → ✅ "This identifies candidates that warrant experimental validation. We're at step one of a long pipeline."</p>
+<p><strong>❌ "My results prove that..."</strong> → ✅ "My results suggest / are consistent with / provide computational evidence that..."</p>
+<p><strong>❌ "I used AI to..."</strong> (vague) → ✅ Be specific: "I used GNINA, a CNN-based docking tool" or "I trained an XGBoost classifier"</p>
+<p><strong>❌ "I don't know"</strong> (full stop) → ✅ "I don't know, but I would investigate it by..."</p>
+<p><strong>❌ "ChatGPT/Claude helped me with..."</strong> → ✅ "I wrote all scripts, configured all simulations, and made every analytical decision. Published tools like GNINA and AlphaFold are methods I applied — same as using a microscope."</p>
+<p><strong>❌ Arguing with a judge</strong> → ✅ "That's a valid point. In my project, I addressed it by..." or "You're right — that's a limitation I'd address in future work."</p>
+</div>
+
 <h2>Panel-by-Panel: What to Say When They Point</h2>
 <p>Judges will point at specific sections and ask "tell me about this." Here's exactly what to say for each area of the poster, what to physically point at, and what ISEF criterion it scores.</p>
 
