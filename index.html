@@ -159,156 +159,79 @@ const S=[
 <p class="sub">The linear journey from diagnosis to discovery. This is what judges want to hear.</p>
 
 <div style="background:linear-gradient(135deg,rgba(220,38,38,0.08),rgba(147,51,234,0.08));border:1px solid rgba(220,38,38,0.2);border-radius:12px;padding:20px;margin:20px 0">
-<p style="font-size:14px;color:var(--f2);margin:0"><strong style="color:#dc2626">Why this section matters:</strong> Judges don't just score your science — they score YOUR story. "Did this student actually do this?" is the #1 question in their heads. A clear linear story proves independence, understanding, and genuine discovery. Memorize this timeline cold.</p>
+<p style="font-size:14px;color:var(--f2);margin:0"><strong style="color:#dc2626">Why this section matters:</strong> Judges don’t just score your science — they score YOUR story. “Did this student actually do this?” is the #1 question in their heads. A clear linear story proves independence, understanding, and genuine discovery. Memorize this timeline cold.</p>
 </div>
 
 <h2>❤️‍🔥 The Spark — Why I Care</h2>
-
-<p>I have Crohn's disease. Diagnosed, scoped, medicated — the whole thing. After genetic testing I learned I carry the <strong>R702W mutation in the NOD2 gene</strong>. This is the #1 genetic risk factor for Crohn's. Increases risk 40-fold.</p>
-
+<p>I have Crohn’s disease. Diagnosed, scoped, medicated — the whole thing. After genetic testing I learned I carry the <strong>R702W mutation in the NOD2 gene</strong>. This is the #1 genetic risk factor for Crohn’s. Increases risk 40-fold.</p>
 <p>I looked up what drugs target NOD2. The answer: <strong>zero</strong>. Nobody had done systematic drug discovery for this protein. Not pharma. Not academia. Nobody.</p>
-
-<p>That's when I decided: if nobody's looking for a drug, I will.</p>
-
-${ex('j','Judge version (30 seconds)','<p>"I have Crohn\'s disease with the R702W mutation — the strongest genetic risk factor. When I searched for drugs targeting NOD2, I found none. That gap motivated this project: computational drug discovery for a protein nobody had screened against."</p>')}
+<p>That’s when I decided: if nobody’s looking for a drug, I will.</p>
 
 <h2>📚 Literature Review — Finding the Gap (371 Papers)</h2>
+<p>I read 371 papers on NOD2, Crohn’s disease, computational drug discovery, and molecular dynamics. I took Harvard’s Human Anatomy &amp; Physiology and Neuroscience courses to build the biology foundation.</p>
+<p><strong>What I learned:</strong> NOD2 detects bacterial fragments (MDP). When it works: appropriate immune response. My R702W mutation breaks detection. Bacteria go unnoticed. Immune system panics. Chronic inflammation. Crohn’s.</p>
+<p><strong>The gap I found:</strong> No one had computationally screened compound libraries against NOD2. No FEP studies. No ML classifiers. The protein was essentially untouched by drug discovery.</p>
+<p><strong>No mentor:</strong> I’m at Texas Virtual Academy — an online school. No lab. No professor. No research mentor. I had Claude and ChatGPT for debugging terminal errors, and papers for methodology. Every scientific decision was mine.</p>
 
-<p>I read 371 papers on NOD2, Crohn's disease, computational drug discovery, and molecular dynamics. I took Harvard\'s Human Anatomy & Physiology and Neuroscience courses to build the biology foundation.</p>
-
-<p><strong>What I learned:</strong></p>
-<p>NOD2 detects bacterial fragments (MDP). When it works → appropriate immune response. My R702W mutation breaks detection → bacteria go unnoticed → immune system panics → chronic inflammation → Crohn's.</p>
-
-<p><strong>The gap I found:</strong></p>
-<p>No one had computationally screened compound libraries against NOD2. No FEP studies. No ML classifiers. The protein was essentially untouched by drug discovery.</p>
-
-<p><strong>No mentor:</strong></p>
-<p>I'm at Texas Virtual Academy — an online school. No lab. No professor. No research mentor. I had Claude and ChatGPT for debugging terminal errors, and papers for methodology. Every scientific decision was mine.</p>
-
-${ex('j','Judge version (30 seconds)','<p>"I reviewed 371 papers over several months. I found that while NOD2 is the strongest Crohn\'s risk gene, nobody had done systematic computational drug discovery against it. No docking screens, no ML classifiers, no FEP studies. That was the gap."</p>')}
-
-<h2>🔑 Stage 1 — Docking 9,566 Compounds (December 2025)</h2>
-
+<h2>🔑 Stage 1 — Docking 9,566 Compounds</h2>
 <p><strong>The idea:</strong> Try 9,566 keys in the NOD2 lock. See which ones fit.</p>
-
-<p><strong>Where the compounds came from:</strong></p>
-<p>2,152 FDA-approved drugs from e-Drug3D (could enter trials immediately if they bind) + 7,414 natural products from COCONUT database (greater chemical diversity). Combined = 9,566 unique compounds.</p>
-
-<p><strong>What I used:</strong> GNINA — a GPU-accelerated docking program that scores poses with a convolutional neural network trained on ~20,000 real protein-drug structures. Better than AutoDock Vina\'s hand-written scoring function.</p>
-
-<p><strong>My setup:</strong> AlphaFold2 structure of human NOD2 (no experimental structure exists). Grid box 30×30×30 Å centered on LRR concave face. Exhaustiveness 32 (4× default for thorough sampling). 9 poses per compound.</p>
-
-<p><strong>The crash:</strong> My first run crashed silently. 9,566 filenames exceeded Linux's ARG_MAX command-line limit (~2 MB). GNINA printed its help menu and exited with code 0 — no error, no results. I had to figure out why a valid command produced nothing. Fixed by batching 200 compounds per run.</p>
-
+<p><strong>Where the compounds came from:</strong> 2,152 FDA-approved drugs from e-Drug3D (could enter trials immediately if they bind) + 7,414 natural products from COCONUT database (greater chemical diversity). Combined = 9,566 unique compounds.</p>
+<p><strong>What I used:</strong> GNINA — a GPU-accelerated docking program that scores poses with a convolutional neural network trained on ~20,000 real protein-drug structures. Better than AutoDock Vina’s hand-written scoring function.</p>
+<p><strong>My setup:</strong> AlphaFold2 structure of human NOD2 (no experimental structure exists). Grid box 30×30×30 Å centered on LRR concave face. Exhaustiveness 32 (4× default). 9 poses per compound.</p>
+<p><strong>The crash:</strong> My first run crashed silently. 9,566 filenames exceeded Linux’s ARG_MAX command-line limit (~2 MB). GNINA printed its help menu and exited with code 0 — no error, no results. I had to figure out why a valid command produced nothing. Fixed by batching 200 compounds per run.</p>
 <p><strong>Runtime:</strong> ~48 hours on RTX 4060 Ti.</p>
 
-${ex('x','The ARG_MAX Crash (Judge Story)','<p>"My first GNINA run silently failed. 9,566 filenames exceeded Linux\'s 2 MB command-line limit. GNINA didn\'t throw an error — it printed its help menu and exited successfully. No results, no error message. I had to debug WHY a valid-looking command produced nothing. Fixed by batching 200 compounds per run. This is the kind of problem you only solve by actually running the code yourself."</p>')}
-
-${ex('j','Judge version (30 seconds)','<p>"I docked 9,566 compounds — 2,152 FDA-approved drugs plus 7,414 natural products — against NOD2 using GNINA with CNN rescoring. Exhaustiveness 32. AlphaFold2 structure because no experimental full-length human NOD2 exists. ~48 hours on my personal RTX 4060 Ti."</p>')}
-
-<h2>🤖 Stage 2 — Machine Learning: NOD2-Scout (December 2025)</h2>
-
+<h2>🤖 Stage 2 — Machine Learning: NOD2-Scout</h2>
 <p><strong>The problem:</strong> Docking is a rough filter. A compound scored 6.0 pKd could really be 4.5 or 7.5. ~1.5 pKd error. Need a second opinion from a different angle.</p>
-
 <p><strong>What I built:</strong> NOD2-Scout — an XGBoost classifier trained on molecular fingerprints. Docking evaluates 3D shape fitting. ML evaluates 2D chemical features. Orthogonal perspectives.</p>
-
-<p><strong>The labeling trick:</strong> No experimental binding data exists for NOD2. So I pseudo-labeled: top 20% of docking scores → "binder" (label 1). Bottom 20% → "non-binder" (label 0). Middle 60% → discarded (too ambiguous).</p>
-
+<p><strong>The labeling trick:</strong> No experimental binding data exists for NOD2. So I pseudo-labeled: top 20% of docking scores = “binder.” Bottom 20% = “non-binder.” Middle 60% = discarded (too ambiguous).</p>
 <p><strong>Features:</strong> 2,048-bit Morgan fingerprints (radius 2) + 10 physicochemical descriptors = 2,058 features per molecule.</p>
-
-<p><strong>The AUC 0.998 disaster:</strong> First model scored 0.998 AUC. Looked amazing. Was completely fake. Random split let "cousin" molecules (same scaffold backbone) into both train and test. Model memorized families instead of learning binding chemistry. <strong>Scaffold split</strong> forced entirely new backbones in testing → honest AUC 0.85–0.93.</p>
-
-<p><strong>Validation:</strong> Shuffled-label control scored AUC 0.50 (coin flip). Proves the 0.85–0.93 signal is real, not from data structure.</p>
-
+<p><strong>The AUC 0.998 disaster:</strong> First model scored 0.998 AUC. Looked amazing. Was completely fake. Random split let “cousin” molecules (same scaffold backbone) into both train and test. Model memorized families instead of learning binding chemistry. <strong>Scaffold split</strong> forced entirely new backbones in testing = honest AUC 0.85–0.93.</p>
+<p><strong>Validation:</strong> Shuffled-label control scored AUC 0.50 (coin flip). Proves the 0.85–0.93 signal is real.</p>
 <p><strong>Result:</strong> 9,566 → ~2,000 high-confidence candidates.</p>
 
-${ex('x','The Data Leakage Bug (Judge Story)','<p>"My first model scored AUC 0.998. I was thrilled for about two hours. Then I realized — random split let structurally similar molecules into both train and test. The model wasn\'t learning binding chemistry. It was recognizing molecular families. Scaffold split dropped it to 0.85–0.93. That\'s the real number. The 0.998 taught me more about ML validation than any textbook."</p>')}
-
-<h2>🛡️ Stage 3 — ADMET Filtering (December 2025)</h2>
-
+<h2>🛡️ Stage 3 — ADMET Filtering</h2>
 <p><strong>The idea:</strong> A drug that binds perfectly but is toxic is useless. Kill bad compounds early.</p>
+<p><strong>What I screened for:</strong> Absorption, Distribution, Metabolism, Excretion, Toxicity using SwissADME and pkCSM. Oral bioavailability, blood-brain barrier penetration, liver toxicity (hERG), drug-likeness (Lipinski’s Rule of 5).</p>
+<p><strong>Result:</strong> 2,000 → 148 safe candidates. Top 5 by binding score advanced to MD.</p>
 
-<p><strong>What I screened for:</strong> Absorption, Distribution, Metabolism, Excretion, Toxicity using SwissADME and pkCSM. Oral bioavailability, blood-brain barrier penetration, liver toxicity (hERG), drug-likeness (Lipinski\'s Rule of 5).</p>
-
-<p><strong>Result:</strong> 2,000 → 148 safe candidates → top 5 selected by binding score for rigorous validation.</p>
-
-${ex('j','Judge version (15 seconds)','<p>"ADMET filtering through SwissADME and pkCSM. Checked oral bioavailability, BBB penetration, hepatotoxicity, and Lipinski compliance. 2,000 candidates narrowed to 148. Top 5 by binding score advanced to MD."</p>')}
-
-<h2>🎬 Stage 4 — Molecular Dynamics: 520 ns (January 2026)</h2>
-
-<p><strong>The idea:</strong> Docking gives a photograph. MD gives a 20-nanosecond movie. Does the drug actually STAY in the pocket, or drift away?</p>
-
-<p><strong>My setup:</strong></p>
-<p>217,986 atoms per system. Force fields: AMBER14SB (protein), TIP3P-FB (water), OpenFF 2.1.0 Sage (drug). Minimization → NVT heating (0→310 K) → NPT equilibration (1.0 atm) → 20 ns production with HMR (4 fs timestep). 3 replicates per condition. 26 trajectories total.</p>
-
-<p><strong>The January 1 crash:</strong> First production run crashed instantly. NaN error. Atom velocities exploded. Root cause: HMR (Hydrogen Mass Repartitioning) + 4 fs timestep + k=1000 restraints = too much force. Stiff springs + heavier hydrogen + large timestep = atom launched to infinity. Fixed by reducing k to 100 during equilibration, using 2 fs timestep until restraints removed, then switching to 4 fs for production only.</p>
-
-<p><strong>Key results:</strong></p>
-<p>WT apo RMSD: 4.05 Å (flexible, visits >5 Å in 12.6% of frames). R702W apo RMSD: 3.27 Å (rigid, 0% frames >5 Å). <strong>The mutation causes allosteric stiffening.</strong> Nobody had shown this computationally before.</p>
-<p>Drug stability: febuxostat 73% H-bond occupancy. Bufadienolide 80% occupancy. Negative control left pocket by 5 ns — validates the method.</p>
-
+<h2>🎬 Stage 4 — Molecular Dynamics: 520 ns</h2>
+<p><strong>The idea:</strong> Docking gives a photograph. MD gives a 20-nanosecond movie. Does the drug actually STAY in the pocket?</p>
+<p><strong>My setup:</strong> 217,986 atoms per system. Force fields: AMBER14SB (protein), TIP3P-FB (water), OpenFF 2.1.0 Sage (drug). Minimization, NVT heating (0 to 310 K), NPT equilibration (1.0 atm), 20 ns production with HMR (4 fs timestep). 3 replicates per condition. 26 trajectories total.</p>
+<p><strong>The January 1 crash:</strong> First production run crashed instantly. NaN error. Atom velocities exploded. Root cause: HMR + 4 fs timestep + k=1000 restraints = too much force. Fixed by reducing k to 100 during equilibration, 2 fs timestep until restraints removed, then 4 fs for production.</p>
+<p><strong>Key results:</strong> WT apo RMSD: 4.05 Å (flexible). R702W apo RMSD: 3.27 Å (rigid). <strong>The mutation causes allosteric stiffening.</strong> Drug stability: febuxostat 73% H-bond occupancy. Bufadienolide 80%. Negative control left pocket by 5 ns — validates the method.</p>
 <p><strong>Runtime:</strong> ~200 GPU hours on RTX 4060 Ti.</p>
 
-${ex('x','The January 1 Crash (Judge Story)','<p>"First MD production run crashed instantly on January 1. NaN error — atom velocities went to infinity. Took me hours to figure out: HMR increased hydrogen mass from 1.0 to 1.5 amu to allow a 4 fs timestep. But during equilibration I had stiff harmonic restraints (k=1000). Stiff spring + heavier atom + large timestep = force so large the atom launched out of the box. Fixed by using k=100 and 2 fs during equilibration, switching to 4 fs only after restraints removed. This is why I understand every parameter — I had to debug them myself."</p>')}
-
-${ex('l','How I Learned MD','<p>"I had never run molecular dynamics before this project. I learned by reading OpenMM documentation, published MD protocols in JACS and JCTC, and debugging errors on my own GPU. No mentor walked me through it. When the January 1 crash happened, I had to understand the physics — HMR, harmonic restraints, timestep stability — to fix it. That\'s how I learned. By breaking things and understanding why they broke."</p>')}
-
-<h2>⚡ Stage 5 — Free Energy Perturbation: The Gold Standard (January 2026)</h2>
-
+<h2>⚡ Stage 5 — Free Energy Perturbation: The Gold Standard</h2>
 <p><strong>The idea:</strong> MD tells you IF a drug stays. FEP tells you HOW MUCH the mutation affects binding — a precise number in kcal/mol.</p>
-
-<p><strong>Why FEP:</strong> This is the gold standard in pharmaceutical drug discovery. Typically done by PhD teams with HPC clusters. I ran it on a personal GPU.</p>
-
-<p><strong>My setup:</strong></p>
-<p>Absolute binding FEP with ligand annihilation. 3 legs per drug: wild-type complex, mutant complex, solvent (shared). 20 lambda windows per leg (10 electrostatics + 10 sterics). Two-phase decoupling: charges first (safe), sterics second (softcore α=0.5 prevents crash). Boresch restraints (k=10, 6 harmonic springs) keep ghost drug in pocket. 1 ns per window. MBAR analysis with overlap matrix validation.</p>
-
+<p><strong>Why FEP:</strong> Gold standard in pharmaceutical drug discovery. Typically done by PhD teams with HPC clusters. I ran it on a personal GPU.</p>
+<p><strong>My setup:</strong> Absolute binding FEP with ligand annihilation. 3 legs per drug: wild-type complex, mutant complex, solvent. 20 lambda windows per leg (10 electrostatics + 10 sterics). Two-phase decoupling: charges first (safe), sterics second (softcore α=0.5). Boresch restraints (k=10, 6 harmonic springs). 1 ns per window. MBAR analysis with overlap matrix validation.</p>
 <p><strong>120 windows total. 120 ns FEP simulation time.</strong></p>
-
-<p><strong>How I learned FEP:</strong> Published FEP tutorials from Cournia lab and OpenMM documentation. Claude and ChatGPT helped debug terminal errors — NOT scientific decisions. I chose absolute FEP over relative FEP because I needed to compare binding across two different proteins (WT vs R702W), not two different drugs in the same protein. That decision was mine.</p>
-
-${ex('l','How I Learned FEP','<p>"FEP was the hardest part of this project. I read the Cournia lab tutorials, Klimovich et al. 2015 review, and OpenMM documentation. I learned what lambda windows are, why you need softcore potentials, why charges must be removed before sterics. When my overlap matrices showed gaps I added windows. When convergence plots bounced I extended sampling. AI helped with \'why is this Python error happening\' — not with \'should I use absolute or relative FEP.\'"</p>')}
-
-${ex('j','Judge version (30 seconds)','<p>"Absolute binding FEP using OpenMM and openmmtools. Three legs per drug — wild-type complex, mutant complex, and shared solvent. Twenty lambda windows per leg. Softcore potentials with alpha 0.5. Boresch restraints to keep the ghost ligand in the pocket. MBAR analysis with overlap matrix validation and convergence checks. 120 windows total across both drugs."</p>')}
+<p><strong>How I learned FEP:</strong> Published tutorials from Cournia lab and OpenMM documentation. AI helped debug terminal errors — NOT scientific decisions. I chose absolute FEP over relative FEP because I needed to compare binding across two different proteins (WT vs R702W), not two different drugs in the same protein.</p>
 
 <h2>🎯 The Answer — Two Drugs, Two Stories</h2>
-
 <p><strong>Febuxostat</strong> (FDA-approved gout drug):</p>
-<p>ΔG bind (WT) = −10.36 ± 0.18 kcal/mol. ΔG bind (R702W) = −8.02 ± 0.19 kcal/mol. <strong>ΔΔG = +2.34 ± 0.26 kcal/mol. 8σ. p < 0.001. 50-fold weaker.</strong> Mutation destroys binding. Useless for R702W carriers.</p>
-
+<p>ΔG bind (WT) = −10.36 ± 0.18 kcal/mol. ΔG bind (R702W) = −8.02 ± 0.19 kcal/mol. <strong>ΔΔG = +2.34 ± 0.26 kcal/mol. 8σ. p &lt; 0.001. 50-fold weaker.</strong> Mutation destroys binding. Useless for R702W carriers.</p>
 <p><strong>Bufadienolide</strong> (natural product, CID 10120):</p>
-<p>ΔG bind (WT) = −15.22 ± 0.26 kcal/mol. ΔG bind (R702W) = −15.66 ± 0.26 kcal/mol. <strong>ΔΔG = −0.44 ± 0.37 kcal/mol. 1.8σ. NS.</strong> Mutation doesn't affect binding. Mutation-resistant trend.</p>
-
+<p>ΔG bind (WT) = −15.22 ± 0.26 kcal/mol. ΔG bind (R702W) = −15.66 ± 0.26 kcal/mol. <strong>ΔΔG = −0.44 ± 0.37 kcal/mol. 1.8σ. NS.</strong> Mutation doesn’t affect binding. Mutation-resistant trend.</p>
 <p><strong>First-ever report of bufadienolide binding to NOD2. First-ever FEP study on NOD2 ligands.</strong></p>
 
-${ex('j','Judge version (45 seconds)','<p>"Febuxostat shows clear mutation sensitivity — plus 2.34 kcal/mol, 8 sigma, 50-fold weaker in R702W. Clinically useless for carriers like me. Bufadienolide shows a mutation-resistant trend — minus 0.44 kcal/mol, 1.8 sigma, not significant. I report it as NS, not proven. But the contrast is the finding: one drug is clearly affected, the other shows no measurable effect. Two independent methods — MD and FEP — both point the same direction. Next step is experimental validation through surface plasmon resonance."</p>')}
-
 <h2>🔧 Independence — How I Actually Did This</h2>
-
 <p><strong>Hardware:</strong> Personal RTX 4060 Ti (16 GB VRAM). Vast.ai cloud GPUs for FEP parallelization. ~200 GPU hours MD + 120 ns FEP.</p>
-
 <p><strong>Software:</strong> GNINA, RDKit, XGBoost, OpenMM 8.2, openmmtools, pymbar 4.0, MDAnalysis, PyMOL. All open source.</p>
-
 <p><strong>AI use:</strong> Claude and ChatGPT helped debug terminal errors and Python exceptions. NOT scientific decisions. I chose the force fields. I chose absolute vs relative FEP. I chose scaffold split. I designed the ADMET filters. I interpreted the convergence plots. AI was a stack overflow replacement, not a research advisor.</p>
-
 <p><strong>No mentor. No lab. No university affiliation.</strong> Online school student with a GPU and 371 papers.</p>
-
 <p><strong>Total compute:</strong> 640 ns of simulation. 9,566 compounds screened. 120 FEP windows. 26 MD trajectories. One GPU. One student.</p>
 
-${ex('j','Judge version (20 seconds)','<p>"I made all scientific decisions independently. Wrote all code. Ran on a personal RTX 4060 Ti — about 200 GPU hours for MD, plus Vast.ai for FEP parallelization. AI tools helped debug Python errors, not design experiments. No mentor, no lab, no university resources. First time doing MD or FEP."</p>')}
-
-<h2>🔮 Next Steps — What I'd Do With More Time</h2>
-
-<p><strong>Experimental validation:</strong> Surface plasmon resonance (SPR) to measure actual binding affinities. Confirm computational predictions in vitro.</p>
-<p><strong>Extended sampling:</strong> 100 ns per trajectory instead of 20 ns. 3 ns per FEP window instead of 1 ns. Would push bufadienolide past significance threshold.</p>
-<p><strong>More mutations:</strong> G908R and 1007fs — the other two major NOD2 variants. Same pipeline.</p>
+<h2>🔮 Next Steps</h2>
+<p><strong>Experimental validation:</strong> Surface plasmon resonance (SPR) to measure actual binding affinities.</p>
+<p><strong>Extended sampling:</strong> 100 ns per trajectory instead of 20 ns. 3 ns per FEP window instead of 1 ns.</p>
+<p><strong>More mutations:</strong> G908R and 1007fs — the other two major NOD2 variants.</p>
 <p><strong>Cell-based assays:</strong> Test if bufadienolide rescues NOD2 signaling in HEK293 cells expressing R702W.</p>
 
-${ex('j','Judge version (15 seconds)','<p>"Next step is surface plasmon resonance for experimental binding validation. Then extended simulations — 100 ns MD and 3 ns FEP windows. Then screening against G908R and 1007fs mutations using the same pipeline."</p>')}
-
 <h2 style="margin-top:40px;padding-top:20px;border-top:1px solid var(--brd)">📋 The Story in 60 Seconds (Memorize This)</h2>
-
 <div style="background:var(--s2);border:2px solid var(--grn);border-radius:12px;padding:24px;margin:20px 0">
-<p style="font-size:14px;line-height:1.8;color:var(--f2);margin:0">"I have Crohn's disease with the R702W mutation. No drugs target NOD2. I screened 9,566 compounds using GNINA docking, built an XGBoost classifier with scaffold-split validation, filtered through ADMET, then validated the top 5 with 520 nanoseconds of molecular dynamics and 120 FEP windows. I found febuxostat binds wild-type NOD2 but is 50-fold weaker in the mutant — 8 sigma, highly significant. Bufadienolide shows a mutation-resistant trend — first ever report of this compound binding NOD2. All on a personal GPU, no mentor, no lab. 640 nanoseconds total simulation. The pipeline identifies which drugs work for which genotype. That's precision medicine."</p>
+<p style="font-size:14px;line-height:1.8;color:var(--f2);margin:0">“I have Crohn’s disease with the R702W mutation. No drugs target NOD2. I screened 9,566 compounds using GNINA docking, built an XGBoost classifier with scaffold-split validation, filtered through ADMET, then validated the top 5 with 520 nanoseconds of molecular dynamics and 120 FEP windows. I found febuxostat binds wild-type NOD2 but is 50-fold weaker in the mutant — 8 sigma, highly significant. Bufadienolide shows a mutation-resistant trend — first ever report of this compound binding NOD2. All on a personal GPU, no mentor, no lab. 640 nanoseconds total simulation. The pipeline identifies which drugs work for which genotype. That’s precision medicine.”</p>
 </div>
 
 `},
