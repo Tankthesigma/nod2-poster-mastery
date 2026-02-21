@@ -236,6 +236,99 @@ const S=[
 
 `},
 
+{id:'learn',icon:'💡',label:'How I Learned',ct:`
+<h1>How I Learned Each Stage</h1>
+<p class="sub">Judges will ask: "You're a high schooler. How did you learn graduate-level techniques?" Here's your answer for every single stage. Memorize these.</p>
+
+<div style="background:linear-gradient(135deg,rgba(220,38,38,0.08),rgba(147,51,234,0.08));border:1px solid rgba(220,38,38,0.2);border-radius:12px;padding:20px;margin:20px 0">
+<p style="font-size:14px;color:var(--f2);margin:0"><strong style="color:#dc2626">Why this matters:</strong> The #1 thing judges evaluate is independence. "Did this student actually do this?" They will probe HOW you learned each technique. "Literature" is not enough. You need specific sources, specific struggles, specific breakthroughs.</p>
+</div>
+
+<h2>🧬 1. Biology — NOD2, Crohn’s, Immunology</h2>
+
+<p><strong>How I learned it:</strong></p>
+<p>I started with my own diagnosis. I have Crohn’s disease, so I already understood the patient side. Then I took Harvard’s Human Anatomy & Physiology course and their Neuroscience course to build the formal biology foundation. From there I read 371 papers on NOD2, innate immunity, and the NF-κB signaling cascade. Key papers: Hugot et al. 2001 (first NOD2-Crohn’s link), Ogura et al. 2001, Inohara et al. 2003 (NOD2 structure and function), Philpott et al. 2014 (comprehensive NOD2 review).</p>
+
+<p><strong>What was hard:</strong></p>
+<p>Understanding the paradox — why LOSS of immune function causes MORE inflammation. Took weeks of reading before it clicked: weak innate sensor means bacteria accumulate, then the adaptive immune system overcompensates.</p>
+
+<p><strong>Judge answer (20 sec):</strong></p>
+<p><em>"I started from my own diagnosis, took Harvard coursework in anatomy and physiology, then read 371 papers. The key insight — the loss-of-function paradox — took weeks to understand. Nobody explained it to me. I had to piece it together from Hugot, Ogura, and Philpott’s reviews."</em></p>
+
+<h2>🔑 2. Docking — GNINA</h2>
+
+<p><strong>How I learned it:</strong></p>
+<p>Started with AutoDock Vina tutorials to understand basic docking concepts — grid boxes, exhaustiveness, scoring functions. Then read the GNINA paper (McNutt et al. 2021, J Cheminform) which explains the CNN rescoring architecture. Read the PDBbind documentation to understand what the CNN was trained on. Learned PyMOL from YouTube tutorials and documentation to set up grid centers and visualize poses.</p>
+
+<p><strong>What was hard:</strong></p>
+<p>The ARG_MAX crash. 9,566 filenames exceeded Linux’s command-line limit. GNINA printed its help menu and exited code 0. No error. No results. Took hours to figure out why a valid command produced nothing. Google didn’t help — this isn’t a common error because most people don’t dock 9,566 compounds at once. Fixed by batching 200 per run.</p>
+
+<p><strong>Judge answer (20 sec):</strong></p>
+<p><em>"I learned docking fundamentals from AutoDock Vina tutorials, then read the GNINA paper by McNutt et al. The real learning came from the ARG_MAX crash — 9,566 filenames broke Linux’s command-line limit. GNINA failed silently. I had to diagnose why a valid command produced nothing. That’s not something you learn from a tutorial."</em></p>
+
+<h2>🤖 3. Machine Learning — NOD2-Scout</h2>
+
+<p><strong>How I learned it:</strong></p>
+<p>Started with Andrew Ng’s machine learning concepts — train/test split, overfitting, bias-variance tradeoff. Then read the XGBoost paper (Chen & Guestrin, KDD 2016) to understand gradient boosting. Learned Morgan fingerprints from Rogers & Hahn 2010 (ECFP paper). RDKit documentation for implementation. Scikit-learn documentation for scaffold splitting via Murcko decomposition.</p>
+
+<p><strong>What was hard:</strong></p>
+<p>The data leakage disaster. My first model scored AUC 0.998. I was thrilled for two hours. Then I started reading about molecular ML validation and found papers warning about scaffold bias in random splits (Wallach & Heifets 2018, Yang et al. 2019). Realized my model was memorizing molecular families, not learning binding chemistry. Implemented scaffold split. AUC dropped to 0.85–0.93. The fake 0.998 taught me more about ML validation than any course.</p>
+
+<p><strong>Judge answer (20 sec):</strong></p>
+<p><em>"I learned ML fundamentals from standard courses, then read the XGBoost and Morgan fingerprint papers. The real learning was catching my own data leakage — AUC 0.998 from random split. I found papers by Wallach and Yang warning about scaffold bias. Implemented scaffold split myself. Dropped to 0.85. That’s when I actually understood what validation means."</em></p>
+
+<h2>💊 4. ADMET — Drug Safety Filtering</h2>
+
+<p><strong>How I learned it:</strong></p>
+<p>Read Lipinski’s original 1997 paper ("Rule of Five"). Studied SwissADME documentation (Daina et al. 2017) and pkCSM documentation (Pires et al. 2015). Learned what each parameter means clinically: oral bioavailability (can you swallow it), BBB penetration (does it enter the brain), hERG inhibition (does it cause heart arrhythmia), hepatotoxicity (does it damage the liver).</p>
+
+<p><strong>What was hard:</strong></p>
+<p>Understanding which ADMET filters to apply and which cutoffs to use. Some compounds fail one criterion but pass everything else. Had to decide: strict filtering (lose candidates) vs. permissive filtering (risk toxicity). Chose strict — better to miss a good compound than advance a toxic one.</p>
+
+<p><strong>Judge answer (15 sec):</strong></p>
+<p><em>"Lipinski’s original paper plus SwissADME and pkCSM documentation. The hard part was choosing cutoffs — strict versus permissive. I chose strict filtering because in drug discovery it’s better to lose a candidate than advance a toxic one."</em></p>
+
+<h2>🎬 5. Molecular Dynamics</h2>
+
+<p><strong>How I learned it:</strong></p>
+<p>Started with the conceptual basics — Newton’s second law applied to atoms. F=ma, calculate forces from force fields, update positions, repeat. Read the OpenMM documentation cover to cover. Studied published MD protocols in JACS and JCTC for equilibration procedures. Read the AMBER14SB paper (Maier et al. 2015), TIP3P-FB paper (Wang et al. 2014), and OpenFF Sage documentation. Learned HMR from Hopkins et al. 2015.</p>
+
+<p><strong>What was hard:</strong></p>
+<p>The January 1 crash. First production run: NaN error. Atom velocities exploded to infinity. Took hours to diagnose. Root cause: HMR increased hydrogen mass from 1.0 to 1.5 amu to allow 4 fs timestep. But during equilibration I had stiff harmonic restraints (k=1000). Stiff spring + heavier atom + large timestep = force so large the atom launched out of the simulation box. Fixed by using k=100 and 2 fs during equilibration, switching to 4 fs only after restraints were removed. Had to understand the physics — F=ma, larger mass with same spring constant means different dynamics — to fix it.</p>
+
+<p><strong>Judge answer (25 sec):</strong></p>
+<p><em>"I read the OpenMM documentation cover to cover and studied published MD protocols in JACS and JCTC. The real test was the January 1 crash — NaN from HMR plus stiff restraints plus large timestep. I had to understand why heavier hydrogen with a stiff spring at 4 femtoseconds creates forces that blow up the simulation. Nobody told me. I had to work through the physics myself to fix it."</em></p>
+
+<h2>⚡ 6. Free Energy Perturbation</h2>
+
+<p><strong>How I learned it:</strong></p>
+<p>This was the hardest stage. Read the Klimovich et al. 2015 review ("Guidelines for the analysis of free energy calculations") — it’s the definitive FEP reference. Studied the Cournia lab tutorials for absolute binding FEP. Read the openmmtools documentation for AbsoluteAlchemicalFactory. Read the pymbar documentation for MBAR analysis. Studied the Boresch et al. 2003 paper for restraint methodology.</p>
+
+<p><strong>What I had to figure out:</strong></p>
+<p>Why absolute FEP instead of relative. Relative FEP compares two drugs in one protein. I needed one drug in two proteins (WT vs R702W). That decision was mine — no tutorial told me which to pick for my specific experimental design.</p>
+<p>Why two-phase decoupling. Had to understand that removing sterics while charges remain causes singularities — overlapping charged atoms at zero distance equals infinite Coulomb force. Charges must go first.</p>
+<p>Lambda window spacing. Sterics need denser spacing at endpoints where energy changes fastest. Not in any tutorial — learned from my own overlap matrix showing gaps when I used even spacing.</p>
+
+<p><strong>What was hard:</strong></p>
+<p>Everything. FEP is the gold standard in pharma and is typically done by PhD teams with HPC clusters. I ran it on a personal GPU. When my overlap matrices showed gaps between windows, I had to add intermediate windows. When convergence plots bounced, I extended sampling. AI helped debug Python errors like "module not found" or syntax issues. NOT scientific decisions. I chose the method, the parameters, the validation criteria.</p>
+
+<p><strong>Judge answer (30 sec):</strong></p>
+<p><em>"FEP was the hardest part. I read Klimovich et al. 2015, the Cournia lab tutorials, and the openmmtools documentation. I chose absolute over relative FEP because I needed to compare across two different proteins — that was my decision, not from any tutorial. When my overlap matrices showed gaps I added windows. When convergence bounced I extended sampling. AI debugged terminal errors. The scientific decisions were mine."</em></p>
+
+<h2 style="margin-top:40px;padding-top:20px;border-top:1px solid var(--brd)">🎯 The Pattern — What to Tell Any Judge</h2>
+
+<div style="background:var(--s2);border:2px solid var(--grn);border-radius:12px;padding:24px;margin:20px 0">
+<p style="font-size:15px;line-height:1.8;color:var(--f2);margin:0">Every stage follows the same pattern:<br><br>
+<strong>1. I read the foundational papers</strong> (name them)<br>
+<strong>2. I read the software documentation</strong> (name it)<br>
+<strong>3. I ran into a problem nobody warned me about</strong> (tell the crash story)<br>
+<strong>4. I had to understand the underlying science to fix it</strong> (explain the physics/math)<br>
+<strong>5. AI helped with terminal errors, not scientific decisions</strong><br><br>
+This pattern is your proof of independence. Nobody who copy-pasted code has crash stories. Nobody who used AI for decisions can explain WHY charges go before sterics.</p>
+</div>
+
+`},
+
 // ============ ISEF JUDGING GUIDE ============
 {id:'isef',icon:'🏆',label:'ISEF Judging Guide',ct:`
 <h1>What ISEF Judges Actually Score — The Real Rubric</h1>
